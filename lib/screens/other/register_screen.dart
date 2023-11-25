@@ -32,6 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     // Define la estructura básica del widget
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
           // Agrega un relleno horizontal al contenedor
@@ -60,8 +61,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Image.asset(
                 'assets/images/logo.png', // Ruta al archivo SVG
                 color: primaryColor, // Color del logo
-                height: 64, // Altura del logo
+                height: 32, // Altura del logo
               ),
+
               const SizedBox(
                 height: 24,
               ),
@@ -74,13 +76,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: primaryColor,
                 ),
               ),
+
+              const SizedBox(
+                height: 32,
+              ),
+
+              Stack(children: [
+                CircleAvatar(
+                    radius: 64,
+                    backgroundImage:
+                        Image.asset('assets/images/user_placeholder.png')
+                            .image),
+                Positioned(
+                  left: 80,
+                  child: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.add_a_photo,
+                      )),
+                )
+              ]),
               const SizedBox(
                 height: 24,
               ),
 
-              const SizedBox(
-                height: 32, // Agrega un espacio vertical de 64 píxeles
-              ),
               TextFieldInput(
                   textEditingController: _emailController,
                   hintText: 'Escribe tu correo',
@@ -97,11 +116,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(
                 height: 24,
               ),
-              // DatePicker(dateController: _dobController),
 
+              TextFieldInput(
+                textEditingController: _usernameController,
+                hintText: 'Escribe tu nombre de usuario',
+                textInputType: TextInputType.text,
+              ),
               const SizedBox(
                 height: 24,
               ),
+
+              DatepickerWidget(
+                controller: _dobController,
+              ),
+              const SizedBox(
+                height: 24,
+              ),
+
               // Botón de inicio de sesión
               Container(
                 width: double.infinity,
@@ -138,6 +169,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onTap: () {},
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: const Text(' Iniciar sesión',
+                          style: TextStyle(
+                              color: blueColor, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
