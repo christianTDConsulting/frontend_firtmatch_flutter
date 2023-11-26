@@ -1,8 +1,8 @@
 import 'package:fit_match/responsive/mobile_screen_layout.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/responsive/web_screen_layout.dart';
-import 'package:fit_match/screens/other/login_screen.dart';
-import 'package:fit_match/screens/other/register_screen.dart';
+import 'package:fit_match/screens/shared/login_screen.dart';
+import 'package:fit_match/screens/shared/register_screen.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 

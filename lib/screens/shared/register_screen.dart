@@ -1,17 +1,21 @@
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/utils/utils.dart';
+
 import 'package:fit_match/widget/date_picker.dart';
 import 'package:fit_match/widget/text_field_input.dart';
+
 import 'dart:typed_data';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:email_auth/email_auth.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:fit_match/responsive/mobile_screen_layout.dart';
-import 'package:fit_match/responsive/responsive_layout_screen.dart';
-import 'package:fit_match/responsive/web_screen_layout.dart';
+//import 'package:fit_match/responsive/mobile_screen_layout.dart';
+//import 'package:fit_match/responsive/responsive_layout_screen.dart';
+//import 'package:fit_match/responsive/web_screen_layout.dart';
 
-import 'package:fit_match/screens/other/login_screen.dart';
+import 'package:fit_match/screens/shared/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -97,14 +101,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } */
   }
 
-  Future<void> selectImage() async {
-    XFile? pickedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      Uint8List im = await pickedImage.readAsBytes();
-
-      // Set the state to update the _image variable
+  selectImage() async {
+    Uint8List? im = await pickImage(ImageSource.gallery);
+    if (im != null) {
       setState(() {
         _image = im;
       });
@@ -160,15 +159,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 32,
                   ),
                   Stack(children: [
-                    CircleAvatar(
-                        radius: 64,
-                        backgroundImage:
-                            Image.asset('assets/images/user_placeholder.png')
-                                .image),
+                    _image != null
+                        ? CircleAvatar(
+                            radius: 64,
+                            backgroundImage: MemoryImage(_image!),
+                            backgroundColor: Colors.red,
+                          )
+                        : CircleAvatar(
+                            radius: 64,
+                            backgroundImage: Image.asset(
+                                    'assets/images/user_placeholder.png')
+                                .image,
+                            backgroundColor: Colors.red,
+                          ),
                     Positioned(
                       left: 80,
                       child: IconButton(
-                          onPressed: () {},
+                          onPressed: selectImage,
                           icon: const Icon(
                             Icons.add_a_photo,
                           )),
