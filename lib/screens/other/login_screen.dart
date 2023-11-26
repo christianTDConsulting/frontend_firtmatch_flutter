@@ -1,4 +1,5 @@
 // Importa los paquetes y archivos necesarios
+import 'package:fit_match/screens/other/register_screen.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const RegisterScreen(),
+                    )),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: const Text(' Registrate aquí',
