@@ -3,11 +3,11 @@ import 'package:fit_match/utils/dimensions.dart';
 
 class ResponsiveLayoutScreen extends StatelessWidget {
   final Widget webScreenLayout;
-  final Widget movileScreenLayout;
+  final Widget mobileScreenLayout;
   const ResponsiveLayoutScreen(
       {Key? key,
       required this.webScreenLayout,
-      required this.movileScreenLayout})
+      required this.mobileScreenLayout})
       : super(key: key);
 
   @override
@@ -17,7 +17,7 @@ class ResponsiveLayoutScreen extends StatelessWidget {
         if (constraints.maxWidth < webScreenSize) {
           return webScreenLayout;
         }
-        return movileScreenLayout;
+        return mobileScreenLayout;
       },
     );
   }
