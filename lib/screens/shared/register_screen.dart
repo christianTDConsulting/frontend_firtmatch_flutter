@@ -1,4 +1,5 @@
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 
 import 'package:fit_match/widget/date_picker.dart';
@@ -14,6 +15,7 @@ import 'package:image_picker/image_picker.dart';
 //import 'package:fit_match/responsive/mobile_screen_layout.dart';
 //import 'package:fit_match/responsive/responsive_layout_screen.dart';
 //import 'package:fit_match/responsive/web_screen_layout.dart';
+
 
 import 'package:fit_match/screens/shared/login_screen.dart';
 
@@ -116,7 +118,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+           padding: MediaQuery.of(context).size.width > webScreenSize
+              ? EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width / 3)
+              : const EdgeInsets.symmetric(horizontal: 32),
           width: double.infinity,
           child: SingleChildScrollView(
             child: Form(
@@ -124,10 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  /*Flexible(
-                    flex: 2,
-                    child: Container(),
-                  ),*/
+                
                   const Text(
                     'Bienvenido a Fit-Match',
                     style: TextStyle(
@@ -264,10 +266,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     height: 12,
                   ),
 
-                  /* Flexible(
-                    flex: 2,
-                    child: Container(),
-                  ),*/
+                  
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

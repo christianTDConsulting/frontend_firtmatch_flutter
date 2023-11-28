@@ -2,7 +2,7 @@ import 'package:fit_match/responsive/mobile_screen_layout.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/responsive/web_screen_layout.dart';
 import 'package:fit_match/screens/shared/login_screen.dart';
-import 'package:fit_match/screens/shared/register_screen.dart';
+//import 'package:fit_match/screens/shared/register_screen.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark()
           .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
       /*home: const ResponsiveLayoutScreen(
-        movileScreenLayout: MobileScreenLayout(),
+        mobileScreenLayout: MobileScreenLayout(),
         webScreenLayout: WebScreenLayout(),
       ),*/
-      home: RegisterScreen(),
+      home: LoginScreen(),
     );
   }
 }

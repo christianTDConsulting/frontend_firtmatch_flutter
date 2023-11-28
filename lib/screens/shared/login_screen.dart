@@ -3,6 +3,7 @@ import 'package:fit_match/screens/shared/register_screen.dart';
 import 'package:fit_match/screens/client/view_trainers_screen.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Container(
           // Agrega un relleno horizontal al contenedor
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+         padding: MediaQuery.of(context).size.width > webScreenSize
+              ? EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width / 3)
+              : const EdgeInsets.symmetric(horizontal: 32),
           width: double
               .infinity, // Ancho del contenedor igual al ancho de la pantalla
           child: Column(
