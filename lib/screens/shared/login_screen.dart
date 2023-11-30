@@ -1,6 +1,8 @@
 // Importa los paquetes y archivos necesarios
+import 'package:fit_match/responsive/mobile_layout.dart';
+import 'package:fit_match/responsive/responsive_layout_screen.dart';
+import 'package:fit_match/responsive/web_layout.dart';
 import 'package:fit_match/screens/shared/register_screen.dart';
-import 'package:fit_match/screens/client/mobile_screen_layout/view_trainers_screen.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -56,7 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
           final token = preferences!.getString('token');
           if (token != null) {
             Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => ViewTrainers(token: token),
+              builder: (context) => ResponsiveLayout(
+                token: token,
+              ),
             ));
           }
         }
