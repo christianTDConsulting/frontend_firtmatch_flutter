@@ -1,17 +1,26 @@
-import 'package:fit_match/responsive/mobile_screen_layout.dart';
-import 'package:fit_match/responsive/responsive_layout_screen.dart';
-import 'package:fit_match/responsive/web_screen_layout.dart';
-import 'package:fit_match/screens/shared/login_screen.dart';
-//import 'package:fit_match/screens/shared/register_screen.dart';
-import 'package:fit_match/utils/colors.dart';
-import 'package:flutter/material.dart';
+//import 'package:fit_match/responsive/mobile_screen_layout.dart';
+//import 'package:fit_match/responsive/responsive_layout_screen.dart';
+//import 'package:fit_match/responsive/web_screen_layout.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fit_match/screens/shared/login_screen.dart';
+import 'package:fit_match/screens/client/mobile_screen_layout/view_trainers_screen.dart';
+import 'package:fit_match/utils/colors.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  runApp(MyApp(
+    token: prefs.getString('token'),
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final token;
+  const MyApp({super.key, @required this.token});
 
   // This widget is the root of your application.
   @override
@@ -25,7 +34,9 @@ class MyApp extends StatelessWidget {
         mobileScreenLayout: MobileScreenLayout(),
         webScreenLayout: WebScreenLayout(),
       ),*/
-      home: LoginScreen(),
+      home: (token != null && JwtDecoder.isExpired(token) == false)
+          ? ViewTrainers(token: token)
+          : LoginScreen(),
     );
   }
 }

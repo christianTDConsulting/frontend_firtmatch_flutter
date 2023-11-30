@@ -1,6 +1,6 @@
 // Importa los paquetes y archivos necesarios
 import 'package:fit_match/screens/shared/register_screen.dart';
-import 'package:fit_match/screens/client/view_trainers_screen.dart';
+import 'package:fit_match/screens/client/mobile_screen_layout/view_trainers_screen.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _pswController = TextEditingController();
   bool _isLoading = false;
-  late SharedPreferences preferences;
+  SharedPreferences? preferences;
 
   @override
   void initState() {
@@ -44,16 +44,31 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = true;
     });
-    String res = await AuthMethods().loginUser(
-      email: _emailController.text,
-      password: _pswController.text,
-    );
-    if (res == "succes") {
-      var my_token = AuthMethods().token;
-      preferences.setString('token', my_token);
-      /* Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => const ViewTrainers(token: my_token),
-      ));*/
+
+    try {
+      String result = await AuthMethods().loginUser(
+        email: _emailController.text,
+        password: _pswController.text,
+      );
+
+      if (result == AuthMethods.successMessage) {
+        if (preferences != null) {
+          final token = preferences!.getString('token');
+          if (token != null) {
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => ViewTrainers(token: token),
+            ));
+          }
+        }
+      } else {
+        print("Error de autenticación: $result");
+      }
+    } catch (error) {
+      print("Error inesperado: $error");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -65,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: Container(
           // Agrega un relleno horizontal al contenedor
-         padding: MediaQuery.of(context).size.width > webScreenSize
+          padding: MediaQuery.of(context).size.width > webScreenSize
               ? EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width / 3)
               : const EdgeInsets.symmetric(horizontal: 32),
@@ -143,7 +158,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: blueColor,
                   ),
-                  child: const Text('Iniciar sesión'),
+                  child: !_isLoading
+                      ? const Text(
+                          'Iniciar Sesión',
+                        )
+                      : const CircularProgressIndicator(
+                          color: primaryColor,
+                        ),
                 ),
               ),
 

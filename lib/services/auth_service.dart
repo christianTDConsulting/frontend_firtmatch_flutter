@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fit_match/utils/backendUrls.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 
 class AuthMethods {
-  final backend_url = "http://localhost:3000";
-  var _token = "";
-
-  String get token => _token;
+  SharedPreferences? preferences;
+  static const successMessage = "success";
+  void initPrefrences() async {
+    preferences = await SharedPreferences.getInstance();
+  }
 
   Future<String> loginUser({
     required String email,
@@ -16,11 +20,14 @@ class AuthMethods {
   }) async {
     String res = "Ha ocurrido algún error";
     try {
+      // Initialize preferences
+      initPrefrences();
+
       if (email.isNotEmpty && password.isNotEmpty) {
         // Create a map containing user credentials
         Map<String, dynamic> userCredentials = {
           'email': email,
-          'password': password,
+          'plainPassword': password,
         };
 
         // Convert the map to a JSON string
@@ -28,8 +35,7 @@ class AuthMethods {
 
         // Send a POST request for login
         final response = await http.post(
-          Uri.parse(
-              '$backend_url/verificar'), // Replace with your login API endpoint
+          Uri.parse(login_url), // Replace with your login API endpoint
           headers: {
             'Content-Type': 'application/json',
           },
@@ -37,14 +43,16 @@ class AuthMethods {
         );
 
         print('Response status: ${response.statusCode}');
-        print('Response body: ${response.body}');
 
         // Check the response status
         if (response.statusCode == 200) {
           // Parse the response JSON if needed
           // Update 'res' based on the response from your backend
-          res = "success";
-          _token = response.body;
+          res = successMessage;
+
+          await preferences!
+              .setString('token', json.decode(response.body)['token']);
+          print(preferences!.getString('token'));
         } else {
           res = "Error, comprueba tus credenciales.";
         }
@@ -88,7 +96,7 @@ class AuthMethods {
 
         // Send a POST
         final response = await http.post(
-          Uri.parse('$backend_url/usuarios'), // Replace with your API endpoint
+          Uri.parse(usuarios_url),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -98,7 +106,6 @@ class AuthMethods {
         // Check the response status
         if (response.statusCode == 200) {
           // Parse the response JSON if needed
-          // Update 'res' based on the response from your backend
           res = "success";
         } else {
           res = "Failed to register. Please try again.";
