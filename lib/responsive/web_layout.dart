@@ -1,18 +1,18 @@
 import 'package:fit_match/models/user.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
 
-class webLayout extends StatefulWidget {
+class WebLayout extends StatefulWidget {
   final User user;
 
-  const webLayout({Key? key, required this.user}) : super(key: key);
+  const WebLayout({Key? key, required this.user}) : super(key: key);
 
   @override
-  _webLayout createState() => _webLayout();
+  _WebLayoutState createState() => _WebLayoutState();
 }
 
-class _webLayout extends State<webLayout> {
+class _WebLayoutState extends State<WebLayout> {
   int _page = 0;
   late PageController pageController; // for tabs animation
 
@@ -35,64 +35,138 @@ class _webLayout extends State<webLayout> {
   }
 
   void navigationTapped(int page) {
-    //Animating Page
-    pageController.jumpToPage(page);
+    // Animating Page
+    if (mounted) {
+      pageController.jumpToPage(page);
+    }
+  }
+
+  Widget menuItem(IconData icon, String label, int pageNumber, Color color) {
+    return Column(
+      children: [
+        IconButton(
+          icon: Icon(
+            icon,
+            color: color,
+          ),
+          onPressed: () => navigationTapped(pageNumber),
+        ),
+        Text(
+          label,
+          style: TextStyle(color: color),
+        ),
+        const SizedBox(
+          height: 32,
+        )
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: mobileBackgroundColor,
-        centerTitle: false,
-        title: Image.asset(
-          'assets/images/logo.png',
-          color: primaryColor,
-          height: 32,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.home,
-              color: _page == 0 ? primaryColor : secondaryColor,
+      body: Row(
+        children: [
+          Flexible(
+            flex: 1,
+            child: Container(
+              width: 200,
+              color: mobileSearchColor,
+              child: ListView(
+                children: [
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      navigationTapped(0);
+                    },
+                    child: const Text(
+                      'Fit-Match',
+                      style: TextStyle(
+                          color: primaryColor,
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      navigationTapped(0);
+                    },
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      color: primaryColor,
+                      height: 64,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    child: Column(
+                      children: [
+                        menuItem(
+                          Icons.home,
+                          'Inicio',
+                          0,
+                          (_page == 0) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.search,
+                          'Búsqueda',
+                          1,
+                          (_page == 1) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.message,
+                          'Chat',
+                          2,
+                          (_page == 2) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.favorite,
+                          'Notificaciones',
+                          3,
+                          (_page == 3) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.bookmark,
+                          'Guardados',
+                          4,
+                          (_page == 4) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.fitness_center,
+                          'Entrenamientos',
+                          5,
+                          (_page == 5) ? blueColor : Colors.grey,
+                        ),
+                        menuItem(
+                          Icons.person,
+                          'Perfil',
+                          6,
+                          (_page == 6) ? blueColor : Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onPressed: () => navigationTapped(0),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.search,
-              color: _page == 1 ? primaryColor : secondaryColor,
+          Flexible(
+            flex: 5,
+            child: Container(
+              child: PageView(
+                children: homeScreenItems,
+                controller: pageController,
+                onPageChanged: onPageChanged,
+              ),
             ),
-            onPressed: () => navigationTapped(1),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.add_a_photo,
-              color: _page == 2 ? primaryColor : secondaryColor,
-            ),
-            onPressed: () => navigationTapped(2),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.favorite,
-              color: _page == 3 ? primaryColor : secondaryColor,
-            ),
-            onPressed: () => navigationTapped(3),
-          ),
-          IconButton(
-            icon: Icon(
-              Icons.person,
-              color: _page == 4 ? primaryColor : secondaryColor,
-            ),
-            onPressed: () => navigationTapped(4),
           ),
         ],
-      ),
-      body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: pageController,
-        onPageChanged: onPageChanged,
-        //children: homeScreenItems,
       ),
     );
   }

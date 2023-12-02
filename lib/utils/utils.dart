@@ -9,3 +9,14 @@ pickImage(ImageSource source) async {
     return await file.readAsBytes();
   }
 }
+
+// for displaying screens
+List<Widget> homeScreenItems = [
+  const Text('a'),
+  const Text('b'),
+  const Text('c'),
+  const Text('d'),
+  const Text('e'),
+  const Text('f'),
+  const Text('g'),
+];
