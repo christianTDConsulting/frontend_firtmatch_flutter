@@ -1,3 +1,4 @@
+import 'package:fit_match/screens/client/view_trainers_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -12,7 +13,7 @@ pickImage(ImageSource source) async {
 
 // for displaying screens
 List<Widget> homeScreenItems = [
-  const Text('a'),
+  const ViewTrainersScreen(),
   const Text('b'),
   const Text('c'),
   const Text('d'),

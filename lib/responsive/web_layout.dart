@@ -157,7 +157,7 @@ class _WebLayoutState extends State<WebLayout> {
             ),
           ),
           Flexible(
-            flex: 5,
+            flex: 9,
             child: Container(
               child: PageView(
                 children: homeScreenItems,

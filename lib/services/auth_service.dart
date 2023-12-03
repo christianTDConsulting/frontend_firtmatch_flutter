@@ -35,7 +35,7 @@ class AuthMethods {
 
         // Send a POST request for login
         final response = await http.post(
-          Uri.parse(login_url), // Replace with your login API endpoint
+          Uri.parse(loginUrl), // Replace with your login API endpoint
           headers: {
             'Content-Type': 'application/json',
           },
@@ -96,7 +96,7 @@ class AuthMethods {
 
         // Send a POST
         final response = await http.post(
-          Uri.parse(usuarios_url),
+          Uri.parse(usuariosUrl),
           headers: {
             'Content-Type': 'application/json',
           },
