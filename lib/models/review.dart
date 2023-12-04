@@ -4,13 +4,14 @@ class Review {
   final num rating;
   final String reviewContent;
   final DateTime timestamp;
-
+  String? username;
   Review({
     required this.reviewId,
     required this.clientId,
     required this.rating,
     required this.reviewContent,
     required this.timestamp,
+    this.username,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
