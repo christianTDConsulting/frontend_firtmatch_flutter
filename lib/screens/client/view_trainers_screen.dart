@@ -6,7 +6,7 @@ import 'package:fit_match/utils/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/services/trainer_posts_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:fit_match/widget/post_card.dart';
+import 'package:fit_match/widget/post_card/post_card.dart';
 
 class ViewTrainersScreen extends StatefulWidget {
   const ViewTrainersScreen({Key? key}) : super(key: key);
@@ -63,7 +63,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
     final width = MediaQuery.of(context).size.width;
     if (isLoading) {
       // Muestra un indicador de carga mientras los datos están cargando
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
     return Scaffold(
       backgroundColor:
@@ -72,18 +72,22 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
           backgroundColor: width > webScreenSize
               ? webBackgroundColor
               : mobileBackgroundColor),
-      body: Padding(
-        padding:
-            const EdgeInsets.only(top: 8.0), // Espacio entre AppBar y el Body
-        child: ListView.builder(
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 15.0), // Espacio entre las tarjetas
-              child: PostCard(post: posts[index]),
-            );
-          },
+      body: Container(
+        color:
+            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
+        child: Padding(
+          padding:
+              const EdgeInsets.only(top: 8.0), // Espacio entre AppBar y el Body
+          child: ListView.builder(
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0), // Espacio entre las tarjetas
+                child: PostCard(post: posts[index]),
+              );
+            },
+          ),
         ),
       ),
     );
