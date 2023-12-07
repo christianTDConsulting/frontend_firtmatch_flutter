@@ -50,6 +50,8 @@ Widget _buildReviewItem(Review review) {
       subtitle: Text(review.reviewContent),
     ),
     const SizedBox(height: 8),
-    TextButton(onPressed: () => "", child: const Text("Responder"))
+    TextButton(
+        onPressed: () => "",
+        child: const Text("Responder", style: TextStyle(color: blueColor))),
   ]);
 }

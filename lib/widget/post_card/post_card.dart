@@ -19,26 +19,28 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  String _selectedOption = 'general';
-
+  String _selectedOption = 'General';
+  bool showExtraContent = false;
   //WIDGET PRINCIPAL
   @override
   Widget build(BuildContext context) {
     final formattedAverage =
         NumberFormat("0.0").format(calculateAverageRating(widget.post.reviews));
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
+    //final height = MediaQuery.of(context).size.height;
     return SizedBox(
       width: 400,
-      height: height / 1.25,
       child: Card(
         color:
+            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
+        surfaceTintColor:
             width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         child: Column(
           children: <Widget>[
             const SizedBox(height: 12),
             ListTile(
-              title: Text(widget.post.username),
+              title: Text(widget.post.username,
+                  style: const TextStyle(fontSize: 24)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -56,10 +58,10 @@ class _PostCardState extends State<PostCard> {
               height: width > webScreenSize ? 500 : 250,
               decoration: BoxDecoration(
                 border: Border.all(color: primaryColor, width: 2),
-                image: DecorationImage(
+                /*image: DecorationImage(
                   image: NetworkImage(widget.post.picture),
                   fit: BoxFit.cover,
-                ),
+                ),*/
               ),
             ),
             const SizedBox(
@@ -69,16 +71,40 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(
               height: 12,
             ),
-            _selectedOption == 'general'
-                ? Flexible(child: ExpandableText(text: widget.post.description))
-                : Container(),
-            widget.post.reviews.isNotEmpty && _selectedOption == 'reviews'
+            _selectedOption == 'General'
                 ? Column(
                     children: [
-                      ReviewSummaryWidget(reviews: widget.post.reviews),
-                      TextButton(
+                      const Text('Sobre mí',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 24)),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child: ExpandableText(text: widget.post.description),
+                      ),
+                    ],
+                  )
+                : Container(),
+            widget.post.reviews.isNotEmpty && _selectedOption == 'Reviews'
+                ? Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child:
+                            ReviewSummaryWidget(reviews: widget.post.reviews),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: blueColor,
+                          ),
                           onPressed: () => _showDialog(),
-                          child: const Text("Ver todas las reseñas")),
+                          child: const Text("Ver todas las reseñas"),
+                        ),
+                      )
                     ],
                   )
                 : Container(),
@@ -92,12 +118,12 @@ class _PostCardState extends State<PostCard> {
   Widget _buildSelectButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: ['general', 'reviews', 'información'].map((option) {
+      children: ['General', 'Reviews', 'Información'].map((option) {
         return Padding(
           padding: const EdgeInsets.all(4.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: _selectedOption == option ? Colors.blue : Colors.grey,
+              primary: _selectedOption == option ? blueColor : Colors.grey,
               onPrimary: Colors.white,
             ),
             onPressed: () => _onSelectOption(option),
@@ -115,6 +141,8 @@ class _PostCardState extends State<PostCard> {
   }
 
   void _showDialog() {
+    final width = MediaQuery.of(context).size.width;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -123,14 +151,15 @@ class _PostCardState extends State<PostCard> {
             clipBehavior: Clip.none,
             alignment: Alignment.topRight,
             children: [
-              if (_selectedOption == 'reviews')
+              if (_selectedOption == 'Reviews')
                 buildReviewList(widget.post.reviews),
-              if (_selectedOption == 'información') const Text("Contenedor"),
+              if (_selectedOption == 'Información') const Text("Informacion"),
               Positioned(
                 right: -10.0,
                 top: -10.0,
                 child: IconButton(
-                  icon: Icon(Icons.close, size: 30.0), // Icono de cierre grande
+                  icon: const Icon(Icons.close,
+                      size: 30.0), // Icono de cierre grande
                   onPressed: () =>
                       Navigator.of(context).pop(), // Cierra el diálogo
                 ),

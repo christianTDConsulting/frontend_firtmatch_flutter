@@ -48,7 +48,7 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
   }
 
   Widget _buildLoadingOrErrorWidget() {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(),
     );
   }

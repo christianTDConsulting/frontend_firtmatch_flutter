@@ -27,6 +27,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   }
 
   void initializePosts() async {
+    //hacer lazy loading
     setState(() {
       isLoading = true; // Comienza a mostrar el indicador de carga
     });
@@ -66,8 +67,6 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     return Scaffold(
-      backgroundColor:
-          width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
       appBar: AppBar(
           backgroundColor: width > webScreenSize
               ? webBackgroundColor

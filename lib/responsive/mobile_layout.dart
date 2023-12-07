@@ -41,7 +41,7 @@ class _mobileLayout extends State<mobileLayout> {
     // Animating Page
     pageController.animateToPage(
       page,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       curve: Curves.easeInOut,
     );
   }

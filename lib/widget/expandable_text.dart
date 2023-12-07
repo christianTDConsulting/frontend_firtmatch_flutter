@@ -1,3 +1,4 @@
+import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableText extends StatefulWidget {
@@ -46,11 +47,19 @@ class _ExpandableTextState extends State<ExpandableText> {
           overflow: TextOverflow.fade,
         ),
         if (shouldShowButton)
-          TextButton(
-            onPressed: () => setState(() {
-              isExpanded = !isExpanded;
-            }),
-            child: Text(isExpanded ? 'Ver menos' : 'Ver más'),
+          Row(
+            children: [
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () => setState(() {
+                  isExpanded = !isExpanded;
+                }),
+                child: Text(
+                  isExpanded ? 'Ver menos' : 'Ver más',
+                  style: const TextStyle(color: blueColor),
+                ),
+              ),
+            ],
           ),
       ],
     );
