@@ -21,6 +21,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   String _selectedOption = 'General';
   bool showExtraContent = false;
+
   //WIDGET PRINCIPAL
   @override
   Widget build(BuildContext context) {
@@ -40,14 +41,14 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(height: 12),
             ListTile(
               title: Text(widget.post.username,
-                  style: const TextStyle(fontSize: 24)),
+                  style: TextStyle(fontSize: width > webScreenSize ? 24 : 12)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(formattedAverage, style: const TextStyle(fontSize: 32)),
                   StarDisplay(
                       value: calculateAverageRating(widget.post.reviews),
-                      size: width > webScreenSize ? 48 : 32),
+                      size: width > webScreenSize ? 48 : 16),
                   const SizedBox(width: 5),
                 ],
               ),
