@@ -26,8 +26,8 @@ class Review {
       reviewContent: json['review_content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       username: json['username'] as String,
-      comentarios: json['comentarios'] != null
-          ? (json['comentarios'] as List<dynamic>)
+      comentarios: json['comentario_review'] != null
+          ? (json['comentario_review'] as List<dynamic>)
               .map((comentario) => ComentarioReview.fromJson(comentario))
               .toList()
           : null,
@@ -45,13 +45,17 @@ class ComentarioReview {
   final num commentId;
   final num reviewId;
   final num userId;
+  final String username;
   final String content;
+  final DateTime timestamp;
 
   ComentarioReview({
     required this.commentId,
     required this.reviewId,
     required this.userId,
     required this.content,
+    required this.timestamp,
+    required this.username,
   });
 
   factory ComentarioReview.fromJson(Map<String, dynamic> json) {
@@ -60,6 +64,8 @@ class ComentarioReview {
       reviewId: json['review_id'] as num,
       userId: json['user_id'] as num,
       content: json['content'] as String,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      username: json['username'] as String,
     );
   }
 }

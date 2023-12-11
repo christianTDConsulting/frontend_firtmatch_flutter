@@ -1,7 +1,5 @@
 // Importa los paquetes y archivos necesarios
-import 'package:fit_match/responsive/mobile_layout.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
-import 'package:fit_match/responsive/web_layout.dart';
 import 'package:fit_match/screens/shared/register_screen.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/colors.dart';

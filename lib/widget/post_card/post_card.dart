@@ -153,7 +153,7 @@ class _PostCardState extends State<PostCard> {
             alignment: Alignment.topRight,
             children: [
               if (_selectedOption == 'Reviews')
-                buildReviewList(widget.post.reviews),
+                ReviewListWidget(reviews: widget.post.reviews),
               if (_selectedOption == 'Información') const Text("Informacion"),
               Positioned(
                 right: -10.0,
