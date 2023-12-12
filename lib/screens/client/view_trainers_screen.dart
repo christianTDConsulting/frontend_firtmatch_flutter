@@ -20,6 +20,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   bool hasMore = true;
   int currentPage = 1;
   int pageSize = 10;
+  int userId = 0;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -52,14 +53,17 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       String? token = await getToken();
       if (token != null) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-        var newPosts = await getAllPosts(decodedToken['user']['user_id'],
-            page: currentPage, pageSize: pageSize);
-
+        userId = decodedToken['user']['user_id'];
+        var newPosts =
+            await getAllPosts(userId, page: currentPage, pageSize: pageSize);
         if (mounted) {
           setState(() {
-            currentPage++;
-            hasMore = newPosts.isNotEmpty;
-            posts.addAll(newPosts);
+            if (newPosts.isNotEmpty) {
+              currentPage++;
+              posts.addAll(newPosts);
+            } else {
+              hasMore = false;
+            }
             isLoading = false;
           });
         }
@@ -74,6 +78,9 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
         setState(() => isLoading = false);
       }
       print('Error al cargar los posts: $e');
+      setState(() {
+        hasMore = false;
+      });
     }
   }
 
@@ -100,7 +107,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: PostCard(post: posts[index]),
+                child: PostCard(post: posts[index], userId: userId),
               );
             },
             controller: _scrollController,

@@ -9,7 +9,7 @@ class Post {
   final String description;
   final String picture;
   final num price;
-  final List<Review> reviews;
+  List<Review> reviews;
   final DateTime birth;
 
   Post({
@@ -35,16 +35,13 @@ class Post {
     return Post(
       trainerId: json['trainer_id'] as num,
       userId: json['user_id'] as num,
-      email: json['email'] as String? ?? 'default@email.com',
-      username: json['username'] as String? ?? 'defaultUsername',
-      profilePicture:
-          json['profile_picture'] as String? ?? 'defaultProfilePicture',
-      description: json['description'] as String? ?? 'defaultDescription',
-      picture: json['picture'] as String? ?? 'defaultPicture',
+      email: json['email'] as String,
+      username: json['username'] as String,
+      profilePicture: json['profile_picture'] as String,
+      description: json['description'] as String,
+      picture: json['picture'] as String,
       price: json['price'] as num,
-      birth: json['birth'] != null
-          ? DateTime.parse(json['birth'])
-          : DateTime.now(),
+      birth: DateTime.parse(json['birth'] as String),
       reviews: reviews,
     );
   }

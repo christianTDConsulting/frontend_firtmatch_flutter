@@ -5,8 +5,8 @@ class Review {
   final String reviewContent;
   final DateTime timestamp;
   final String username;
-  List<ComentarioReview>? comentarios;
-  List<MeGusta>? meGusta;
+  List<ComentarioReview> comentarios;
+  List<MeGusta> meGusta;
   Review({
     required this.reviewId,
     required this.clientId,
@@ -14,8 +14,8 @@ class Review {
     required this.reviewContent,
     required this.timestamp,
     required this.username,
-    this.comentarios,
-    this.meGusta,
+    required this.comentarios,
+    required this.meGusta,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
@@ -26,16 +26,12 @@ class Review {
       reviewContent: json['review_content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       username: json['username'] as String,
-      comentarios: json['comentario_review'] != null
-          ? (json['comentario_review'] as List<dynamic>)
-              .map((comentario) => ComentarioReview.fromJson(comentario))
-              .toList()
-          : null,
-      meGusta: json['me_gusta'] != null
-          ? (json['me_gusta'] as List<dynamic>)
-              .map((meGusta) => MeGusta.fromJson(meGusta))
-              .toList()
-          : null,
+      comentarios: (json['comentario_review'] as List<dynamic>)
+          .map((comentario) => ComentarioReview.fromJson(comentario))
+          .toList(),
+      meGusta: (json['me_gusta'] as List<dynamic>)
+          .map((meGusta) => MeGusta.fromJson(meGusta))
+          .toList(),
     );
   }
 }

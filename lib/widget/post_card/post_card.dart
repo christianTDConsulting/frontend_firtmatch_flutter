@@ -11,8 +11,9 @@ import 'package:intl/intl.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
-
-  PostCard({Key? key, required this.post}) : super(key: key);
+  final int userId;
+  PostCard({Key? key, required this.post, required this.userId})
+      : super(key: key);
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -41,7 +42,7 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(height: 12),
             ListTile(
               title: Text(widget.post.username,
-                  style: TextStyle(fontSize: width > webScreenSize ? 24 : 12)),
+                  style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -153,7 +154,8 @@ class _PostCardState extends State<PostCard> {
             alignment: Alignment.topRight,
             children: [
               if (_selectedOption == 'Reviews')
-                ReviewListWidget(reviews: widget.post.reviews),
+                ReviewListWidget(
+                    reviews: widget.post.reviews, userId: widget.userId),
               if (_selectedOption == 'Información') const Text("Informacion"),
               Positioned(
                 right: -10.0,

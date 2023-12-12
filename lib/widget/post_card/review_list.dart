@@ -4,12 +4,15 @@ import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fit_match/utils/utils.dart';
+import 'package:fit_match/services/review_service.dart';
 import 'start.dart';
+import 'package:like_button/like_button.dart';
 
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
-
-  ReviewListWidget({Key? key, required this.reviews}) : super(key: key);
+  final int userId;
+  ReviewListWidget({Key? key, required this.reviews, required this.userId})
+      : super(key: key);
 
   @override
   _ReviewListWidgetState createState() => _ReviewListWidgetState();
@@ -17,6 +20,12 @@ class ReviewListWidget extends StatefulWidget {
 
 class _ReviewListWidgetState extends State<ReviewListWidget> {
   Map<num, bool> commentsVisibility = {};
+
+  Widget usernameWidget(String username) {
+    return Text(username,
+        style: const TextStyle(
+            fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,30 +45,27 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     final timeAgo = formatTimeAgo(review.timestamp);
     commentsVisibility.putIfAbsent(review.reviewId, () => false);
 
-    Widget usernameWidget;
-    if (review.username.isNotEmpty) {
-      usernameWidget = Text(review.username,
-          style: const TextStyle(
-              fontSize: 12, color: primaryColor, fontWeight: FontWeight.bold));
-    } else {
-      usernameWidget =
-          const Text('Cargando...', style: TextStyle(fontSize: 12));
-    }
-
     return Column(children: [
       ListTile(
-        title: Row(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            usernameWidget,
-            const SizedBox(width: 8),
-            StarDisplay(
-              value: review.rating,
-              size: 20,
-            ),
-            const SizedBox(width: 5),
-            Text('$formattedRating/5.0', style: const TextStyle(fontSize: 12)),
-            const SizedBox(width: 5),
-            Text('- $timeAgo', style: const TextStyle(fontSize: 12)),
+            review.username.isNotEmpty
+                ? usernameWidget(review.username)
+                : const Text('Cargando...', style: TextStyle(fontSize: 12)),
+            Row(
+              children: [
+                StarDisplay(
+                  value: review.rating,
+                  size: 20,
+                ),
+                const SizedBox(width: 5),
+                Text('$formattedRating/5.0',
+                    style: const TextStyle(fontSize: 12)),
+                const SizedBox(width: 5),
+                Text('- $timeAgo', style: const TextStyle(fontSize: 12)),
+              ],
+            )
           ],
         ),
         subtitle: Text(review.reviewContent),
@@ -69,13 +75,17 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       const SizedBox(height: 8),
       Row(
         children: [
-          if (review.comentarios != null && review.comentarios!.isNotEmpty)
+          const SizedBox(width: 8),
+          _likeButton(review),
+          //Text('${review.meGusta.length} Me gusta'),
+          const SizedBox(width: 8),
+          if (review.comentarios.isNotEmpty)
             TextButton(
               onPressed: () => toggleCommentsVisibility(review.reviewId),
               child: Text(
                 commentsVisibility[review.reviewId]!
                     ? "Ocultar Respuestas"
-                    : "Ver ${review.comentarios!.length} Respuestas",
+                    : "Ver ${review.comentarios.length} Respuestas",
                 style: const TextStyle(color: blueColor),
               ),
             ),
@@ -99,43 +109,77 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   Widget _buildCommentsSection(List<ComentarioReview>? comentarios) {
-    // Si no hay comentarios, no mostrar nada
     if (comentarios == null || comentarios.isEmpty) {
       return const SizedBox.shrink();
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: comentarios.map((comentario) {
-        final timeAgo = formatTimeAgo(comentario
-            .timestamp); // Asumiendo que tienes una función similar para formatear el tiempo
+    return Padding(
+      padding: const EdgeInsets.only(left: 35),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: comentarios.map((comentario) {
+          final timeAgo = formatTimeAgo(comentario.timestamp);
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 8.0, left: 16.0),
-          child: Column(
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                comentario.username,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 14,
+              Row(children: [
+                usernameWidget(comentario.username),
+                const SizedBox(width: 4),
+                Text(
+                  "-$timeAgo",
+                  style: const TextStyle(fontSize: 12, color: primaryColor),
                 ),
-              ),
+              ]),
               const SizedBox(height: 4),
               Text(
                 comentario.content,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                timeAgo,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: const TextStyle(fontSize: 14, color: primaryColor),
               ),
             ],
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
+  }
+
+  Widget _likeButton(Review review) {
+    bool isLiked = review.meGusta.any((item) => item.userId == widget.userId);
+
+    return LikeButton(
+      size: 25,
+      isLiked: isLiked,
+      likeCount: review.meGusta.length,
+      onTap: (bool isLiked) async {
+        return handleLikeButtonPress(review, isLiked);
+      },
+    );
+  }
+
+  Future<bool> handleLikeButtonPress(Review review, bool isLiked) async {
+    try {
+      if (isLiked) {
+        // Llamar al backend para quitar el 'me gusta'
+        MeGusta likeToDelete = await likeReview(widget.userId, review.reviewId);
+
+        // Actualizar el estado con los nuevos 'me gusta' una vez confirmado
+        setState(() {
+          review.meGusta
+              .removeWhere((item) => item.likedId == likeToDelete.likedId);
+        });
+      } else {
+        // Llamar al backend para dar 'me gusta'
+        MeGusta like = await likeReview(widget.userId, review.reviewId);
+
+        // Añadir el 'me gusta' a la lista localmente
+        setState(() {
+          review.meGusta.add(like);
+        });
+      }
+      return true;
+    } catch (e) {
+      // Mostrar un error o manejarlo adecuadamente
+      print('Error al dar o quitar me gusta: $e');
+      return false;
+    }
   }
 }

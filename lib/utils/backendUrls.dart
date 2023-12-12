@@ -5,3 +5,4 @@ const loginUrl = '${url}verificar';
 const usuariosUrl = '${url}usuarios';
 const trainerPostsUrl = '${url}trainersPosts';
 const getUsernameByClienteIdUrl = '${url}username/cliente';
+const likeReviewUrl = '${url}like';
