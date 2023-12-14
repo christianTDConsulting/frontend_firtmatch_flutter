@@ -13,10 +13,46 @@ Future<MeGusta> likeReview(num userId, num reviewId) async {
   );
 
   if (response.statusCode == 200) {
-    print(response.statusCode.toString() + " " + response.body);
     return MeGusta.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
         'Error al obtener los posts. Código de estado: ${response.statusCode}');
+  }
+}
+
+Future<Review> addReview(
+    num clientId, num trainerId, num rating, String reviewContent) async {
+  final response = await http.post(
+    Uri.parse(reviewsUrl),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      'userId': clientId,
+      'trainerId': trainerId,
+      'rating': rating,
+      'reviewContent': reviewContent
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    return Review.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception(
+        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+  }
+}
+
+Future<void> deleteReview(num reviewId) async {
+  final response = await http.delete(
+    Uri.parse('$reviewsUrl/$reviewId'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception(
+        'Error al eliminar el review. Código de estado: ${response.statusCode}');
   }
 }

@@ -2,8 +2,8 @@ import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/expandable_text.dart';
 import 'package:flutter/material.dart';
-import 'review_list.dart';
-import 'review_summary.dart';
+import 'review/review_list.dart';
+import 'review/review_summary.dart';
 import 'start.dart';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final int userId;
-  PostCard({Key? key, required this.post, required this.userId})
+  const PostCard({Key? key, required this.post, required this.userId})
       : super(key: key);
 
   @override
@@ -94,19 +94,27 @@ class _PostCardState extends State<PostCard> {
                     children: [
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 30.0),
-                        child:
-                            ReviewSummaryWidget(reviews: widget.post.reviews),
+                        child: ReviewSummaryWidget(
+                            reviews: widget.post.reviews,
+                            userId: widget.userId,
+                            trainerId: widget.post.trainerId),
                       ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            foregroundColor: blueColor,
+                      Row(
+                        children: [
+                          const SizedBox(
+                            width: 24,
                           ),
-                          onPressed: () => _showDialog(),
-                          child: const Text("Ver todas las reseñas"),
-                        ),
-                      )
+                          widget.post.reviews.length > 1
+                              ? TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: blueColor,
+                                  ),
+                                  onPressed: () => _showDialog(),
+                                  child: const Text("Ver todas las reseñas"))
+                              : const Text("No hay mas reseñas",
+                                  style: TextStyle(color: blueColor)),
+                        ],
+                      ),
                     ],
                   )
                 : Container(),

@@ -1,14 +1,24 @@
+import 'package:fit_match/services/review_service.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/widget/post_card/review/review_input_widget.dart';
+import 'package:fit_match/widget/post_card/review/review_list.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/models/review.dart';
-import 'start.dart';
+import '../start.dart';
 
 class ReviewSummaryWidget extends StatelessWidget {
   final List<Review> reviews;
+  final int userId;
+  final int trainerId;
 
-  ReviewSummaryWidget({Key? key, required this.reviews}) : super(key: key);
+  const ReviewSummaryWidget(
+      {Key? key,
+      required this.reviews,
+      required this.userId,
+      required this.trainerId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -90,17 +100,67 @@ class ReviewSummaryWidget extends StatelessWidget {
           ],
         ),
         Center(
-            child: ElevatedButton.icon(
-          onPressed: () {
-            // Acción para escribir una reseña
-          },
-          icon: const Icon(Icons.edit, color: blueColor),
-          label: const Text(
-            'Escribir una reseña',
-            style: TextStyle(color: blueColor),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                builder: (BuildContext context) {
+                  return FractionallySizedBox(
+                    heightFactor: 0.6,
+                    child: Column(
+                      children: [
+                        // Indicador de arrastre
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: Container(
+                            width: 40,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                        ),
+
+                        // Contenido del BottomSheet
+                        Expanded(
+                          child: ReviewInputWidget(
+                            onReviewSubmit:
+                                (double rating, String reviewText) async {
+                              onReviewSubmit(
+                                  userId, trainerId, rating, reviewText);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.edit, color: blueColor),
+            label: const Text(
+              'Escribir una reseña',
+              style: TextStyle(color: blueColor),
+            ),
           ),
-        )),
+        ),
+        const SizedBox(height: 16),
+
+        reviews.isNotEmpty
+            ? ReviewListWidget(reviews: [reviews.first], userId: userId)
+            : Container(),
       ],
     );
+  }
+
+  Future onReviewSubmit(
+      num userId, num trainerId, double rating, String reviewText) async {
+    try {
+      addReview(userId, trainerId, rating, reviewText);
+    } catch (e) {
+      print('Error al añadir el post: $e');
+    }
   }
 }

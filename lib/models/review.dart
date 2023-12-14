@@ -1,6 +1,6 @@
 class Review {
-  final num reviewId;
-  final num clientId;
+  final int reviewId;
+  final int clientId;
   final num rating;
   final String reviewContent;
   final DateTime timestamp;
@@ -20,8 +20,8 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) {
     return Review(
-      reviewId: json['review_id'] as num,
-      clientId: json['client_id'] as num,
+      reviewId: json['review_id'] as int,
+      clientId: json['client_id'] as int,
       rating: json['rating'] as num,
       reviewContent: json['review_content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
@@ -38,8 +38,8 @@ class Review {
 
 //COMENTARIO
 class ComentarioReview {
-  final num commentId;
-  final num reviewId;
+  final int commentId;
+  final int reviewId;
   final num userId;
   final String username;
   final String content;
@@ -56,8 +56,8 @@ class ComentarioReview {
 
   factory ComentarioReview.fromJson(Map<String, dynamic> json) {
     return ComentarioReview(
-      commentId: json['comment_id'] as num,
-      reviewId: json['review_id'] as num,
+      commentId: json['comment_id'] as int,
+      reviewId: json['review_id'] as int,
       userId: json['user_id'] as num,
       content: json['content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
@@ -69,9 +69,9 @@ class ComentarioReview {
 //ME GUSTA
 
 class MeGusta {
-  final num likedId;
-  final num reviewId;
-  final num userId;
+  final int likedId;
+  final int reviewId;
+  final int userId;
 
   MeGusta({
     required this.likedId,
@@ -81,9 +81,9 @@ class MeGusta {
 
   factory MeGusta.fromJson(Map<String, dynamic> json) {
     return MeGusta(
-      likedId: json['liked_id'] as num,
-      reviewId: json['review_id'] as num,
-      userId: json['user_id'] as num,
+      likedId: json['liked_id'] as int,
+      reviewId: json['review_id'] as int,
+      userId: json['user_id'] as int,
     );
   }
 }

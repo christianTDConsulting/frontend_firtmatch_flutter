@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/services/review_service.dart';
-import 'start.dart';
+import '../start.dart';
 import 'package:like_button/like_button.dart';
 
 class ReviewListWidget extends StatefulWidget {

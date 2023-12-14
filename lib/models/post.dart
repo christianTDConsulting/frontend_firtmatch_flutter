@@ -1,8 +1,8 @@
 import 'package:fit_match/models/review.dart';
 
 class Post {
-  final num trainerId;
-  final num userId;
+  final int trainerId;
+  final int userId;
   final String email;
   final String username;
   final String profilePicture;
@@ -33,8 +33,8 @@ class Post {
         [];
 
     return Post(
-      trainerId: json['trainer_id'] as num,
-      userId: json['user_id'] as num,
+      trainerId: json['trainer_id'] as int,
+      userId: json['user_id'] as int,
       email: json['email'] as String,
       username: json['username'] as String,
       profilePicture: json['profile_picture'] as String,
