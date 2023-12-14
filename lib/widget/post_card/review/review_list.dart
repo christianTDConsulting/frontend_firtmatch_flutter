@@ -11,7 +11,8 @@ import 'package:like_button/like_button.dart';
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
-  ReviewListWidget({Key? key, required this.reviews, required this.userId})
+  const ReviewListWidget(
+      {Key? key, required this.reviews, required this.userId})
       : super(key: key);
 
   @override

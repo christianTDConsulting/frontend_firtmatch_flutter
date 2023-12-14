@@ -16,7 +16,7 @@ Future<MeGusta> likeReview(num userId, num reviewId) async {
     return MeGusta.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
-        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+        'Error al dar Like Código de estado: ${response.statusCode}');
   }
 }
 
@@ -39,11 +39,11 @@ Future<Review> addReview(
     return Review.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
-        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+        'Error al crear la review. Código de estado: ${response.statusCode}');
   }
 }
 
-Future<void> deleteReview(num reviewId) async {
+Future<Review> deleteReview(num reviewId) async {
   final response = await http.delete(
     Uri.parse('$reviewsUrl/$reviewId'),
     headers: {
@@ -51,7 +51,44 @@ Future<void> deleteReview(num reviewId) async {
     },
   );
 
-  if (response.statusCode != 200) {
+  if (response.statusCode == 200) {
+    return Review.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception(
+        'Error al eliminar el review. Código de estado: ${response.statusCode}');
+  }
+}
+
+Future<ComentarioReview> addComent(
+    num userId, num reviewId, String answer) async {
+  final response = await http.post(
+    Uri.parse(likeReviewUrl),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body:
+        jsonEncode({'userId': userId, 'reviewId': reviewId, 'answer': answer}),
+  );
+
+  if (response.statusCode == 200) {
+    return ComentarioReview.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception(
+        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+  }
+}
+
+Future<ComentarioReview> deleteComment(num commentId) async {
+  final response = await http.delete(
+    Uri.parse('$commentUrl/$commentId'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    return ComentarioReview.fromJson(jsonDecode(response.body));
+  } else {
     throw Exception(
         'Error al eliminar el review. Código de estado: ${response.statusCode}');
   }

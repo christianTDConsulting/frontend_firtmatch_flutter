@@ -6,4 +6,5 @@ const usuariosUrl = '${url}usuarios';
 const trainerPostsUrl = '${url}trainersPosts';
 const getUsernameByClienteIdUrl = '${url}username/cliente';
 const likeReviewUrl = '${url}like';
-const reviewsUrl = '${url}reviews';
+const reviewsUrl = '${url}review';
+const commentUrl = '${url}comment';

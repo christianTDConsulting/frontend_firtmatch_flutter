@@ -8,7 +8,7 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/models/review.dart';
 import '../start.dart';
 
-class ReviewSummaryWidget extends StatelessWidget {
+class ReviewSummaryWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
   final int trainerId;
@@ -19,6 +19,13 @@ class ReviewSummaryWidget extends StatelessWidget {
       required this.userId,
       required this.trainerId})
       : super(key: key);
+
+  @override
+  _ReviewSummaryWidgetState createState() => _ReviewSummaryWidgetState();
+}
+
+class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
+  List<Review> reviews = [];
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +135,8 @@ class ReviewSummaryWidget extends StatelessWidget {
                           child: ReviewInputWidget(
                             onReviewSubmit:
                                 (double rating, String reviewText) async {
-                              onReviewSubmit(
-                                  userId, trainerId, rating, reviewText);
+                              onReviewSubmit(widget.userId, widget.trainerId,
+                                  rating, reviewText);
                             },
                           ),
                         ),
@@ -149,7 +156,7 @@ class ReviewSummaryWidget extends StatelessWidget {
         const SizedBox(height: 16),
 
         reviews.isNotEmpty
-            ? ReviewListWidget(reviews: [reviews.first], userId: userId)
+            ? ReviewListWidget(reviews: [reviews.first], userId: widget.userId)
             : Container(),
       ],
     );
@@ -158,7 +165,14 @@ class ReviewSummaryWidget extends StatelessWidget {
   Future onReviewSubmit(
       num userId, num trainerId, double rating, String reviewText) async {
     try {
-      addReview(userId, trainerId, rating, reviewText);
+      Review review =
+          addReview(userId, trainerId, rating, reviewText) as Review;
+
+      setState(() {
+        reviews.add(review);
+        // close showModalBottomSheet
+        // toast message in the upper right corner ("review enviada")
+      });
     } catch (e) {
       print('Error al añadir el post: $e');
     }
