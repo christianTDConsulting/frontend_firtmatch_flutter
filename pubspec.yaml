@@ -41,7 +41,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   like_button: ^2.0.5
   shared_preferences: ^2.2.2
-  toastification: ^1.1.0
+
 dev_dependencies:
   flutter_lints: ^2.0.0
   flutter_test:

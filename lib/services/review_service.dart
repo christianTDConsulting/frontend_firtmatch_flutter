@@ -36,6 +36,7 @@ Future<Review> addReview(
   );
 
   if (response.statusCode == 200) {
+    print(jsonDecode(response.body));
     return Review.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(

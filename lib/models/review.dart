@@ -26,12 +26,16 @@ class Review {
       reviewContent: json['review_content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       username: json['username'] as String,
-      comentarios: (json['comentario_review'] as List<dynamic>)
-          .map((comentario) => ComentarioReview.fromJson(comentario))
-          .toList(),
-      meGusta: (json['me_gusta'] as List<dynamic>)
-          .map((meGusta) => MeGusta.fromJson(meGusta))
-          .toList(),
+      comentarios: json['comentario_review'] != null
+          ? (json['comentario_review'] as List)
+              .map((comentario) => ComentarioReview.fromJson(comentario))
+              .toList()
+          : [],
+      meGusta: json['me_gusta'] != null
+          ? (json['me_gusta'] as List)
+              .map((meGusta) => MeGusta.fromJson(meGusta))
+              .toList()
+          : [],
     );
   }
 }

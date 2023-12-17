@@ -53,6 +53,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
             ),
           ),
         ),
+        const SizedBox(height: 8),
         ElevatedButton(
           onPressed: () async {
             // Espera a que la función asincrónica se complete

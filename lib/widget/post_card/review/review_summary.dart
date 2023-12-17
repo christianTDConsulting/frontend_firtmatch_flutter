@@ -110,42 +110,65 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
         Center(
           child: ElevatedButton.icon(
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                builder: (BuildContext context) {
-                  return FractionallySizedBox(
-                    heightFactor: 0.6,
-                    child: Column(
-                      children: [
-                        // Indicador de arrastre
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: Container(
-                            width: 40,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10.0),
+              width < webScreenSize
+                  ? showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (BuildContext context) {
+                        return FractionallySizedBox(
+                          heightFactor: 0.6,
+                          child: Column(
+                            children: [
+                              // Indicador de arrastre
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Container(
+                                  width: 40,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                ),
+                              ),
+
+                              // Contenido del BottomSheet
+                              Expanded(
+                                child: ReviewInputWidget(
+                                  onReviewSubmit:
+                                      (double rating, String reviewText) async {
+                                    onReviewSubmit(widget.userId,
+                                        widget.trainerId, rating, reviewText);
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  : showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Escribe tu reseña'),
+                          content: Container(
+                            width: MediaQuery.of(context).size.width *
+                                0.7, // 70% del ancho de la pantalla
+                            height: MediaQuery.of(context).size.height *
+                                0.7, // 70% del alto de la pantalla
+                            child: ReviewInputWidget(
+                              onReviewSubmit:
+                                  (double rating, String reviewText) async {
+                                onReviewSubmit(widget.userId, widget.trainerId,
+                                    rating, reviewText);
+                              },
                             ),
                           ),
-                        ),
-
-                        // Contenido del BottomSheet
-                        Expanded(
-                          child: ReviewInputWidget(
-                            onReviewSubmit:
-                                (double rating, String reviewText) async {
-                              onReviewSubmit(widget.userId, widget.trainerId,
-                                  rating, reviewText);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
+                        );
+                      },
+                    );
             },
             icon: const Icon(Icons.edit, color: blueColor),
             label: const Text(
@@ -163,19 +186,18 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
     );
   }
 
-  Future onReviewSubmit(
+  Future<void> onReviewSubmit(
       num userId, num trainerId, double rating, String reviewText) async {
     try {
-      Review review =
-          addReview(userId, trainerId, rating, reviewText) as Review;
+      Review review = await addReview(userId, trainerId, rating, reviewText);
 
       setState(() {
         reviews.add(review);
-        // close showModalBottomSheet
-        showSuccessToast(msg: "Reseña anadida", context: context);
+        Navigator.pop(context);
+        showToast(context, 'Reseña anadida con exito');
       });
     } catch (e) {
-      print('Error al añadir el post: $e');
+      print('Error al añadir la review: $e');
     }
   }
 }

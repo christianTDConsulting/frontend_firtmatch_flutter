@@ -6,7 +6,6 @@ import 'package:fit_match/widget/date_picker.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 
 import 'dart:typed_data';
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:email_auth/email_auth.dart';
