@@ -25,7 +25,7 @@ class ReviewSummaryWidget extends StatefulWidget {
 }
 
 class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
-  List<Review> reviews = [];
+  List<Review> get reviews => widget.reviews;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,7 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
     Map<int, int> ratingCount = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
     reviews.forEach((review) {
       int roundedRating = review.rating.round();
+
       if (ratingCount.containsKey(roundedRating)) {
         ratingCount[roundedRating] = (ratingCount[roundedRating] ?? 0) + 1;
       }
@@ -171,7 +172,7 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
       setState(() {
         reviews.add(review);
         // close showModalBottomSheet
-        // toast message in the upper right corner ("review enviada")
+        showSuccessToast(msg: "Reseña anadida", context: context);
       });
     } catch (e) {
       print('Error al añadir el post: $e');

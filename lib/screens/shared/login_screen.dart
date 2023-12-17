@@ -103,18 +103,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: primaryColor,
                 ),
               ),
-              const SizedBox(
+              const Spacer(),
+
+              /*const SizedBox(
                 height: 12,
-              ),
+              ),*/
+
               // Muestra el logo
               Image.asset(
-                'assets/images/logo.png', // Ruta al archivo SVG
-                color: primaryColor, // Color del logo
-                height: 64, // Altura del logo
+                'assets/images/logo.png',
+                color: primaryColor,
+                height: 128,
               ),
-              const SizedBox(
-                height: 64, // Agrega un espacio vertical de 64 píxeles
-              ),
+              const Spacer(),
+
+              /*const SizedBox(
+                height: 64,
+              ),*/
               TextFieldInput(
                 textEditingController: _emailController,
                 hintText: 'Escribe tu correo',
@@ -126,9 +131,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
-              const SizedBox(
+              const Spacer(),
+
+              /*const SizedBox(
                 height: 24,
-              ),
+              ),*/
               TextFieldInput(
                 textEditingController: _pswController,
                 hintText: 'Escribe tu contraseña',
@@ -142,9 +149,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
 
-              const SizedBox(
+              const Spacer(),
+
+              /*const SizedBox(
                 height: 24,
-              ),
+              ),*/
+
               // Botón de inicio de sesión
               InkWell(
                 onTap: loginUser,
@@ -170,9 +180,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              const SizedBox(
+              const Spacer(),
+
+              /*const SizedBox(
                 height: 12,
-              ),
+              ),*/
               Flexible(
                 flex: 2,
                 child: Container(),

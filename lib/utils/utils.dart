@@ -2,6 +2,8 @@ import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/view_trainers_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:toastification/toastification.dart';
+import 'package:fit_match/utils/colors.dart';
 
 // for picking up image from gallery
 pickImage(ImageSource source) async {
@@ -16,6 +18,15 @@ pickImage(ImageSource source) async {
 num calculateAverageRating(List<Review> reviews) {
   if (reviews.isEmpty) return 0;
   return reviews.map((r) => r.rating).reduce((a, b) => a + b) ~/ reviews.length;
+}
+
+// for showing toast
+void showSuccessToast({required String msg, required BuildContext context}) {
+  toastification.show(
+      context: context,
+      title: msg,
+      autoCloseDuration: const Duration(seconds: 5),
+      type: ToastificationType.success);
 }
 
 // for formatting time
