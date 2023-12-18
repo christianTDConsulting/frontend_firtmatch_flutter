@@ -1,3 +1,4 @@
+import 'package:fit_match/widget/text_field_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -21,7 +22,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
       children: [
         Row(children: [
           const SizedBox(width: 8),
-          Text(
+          const Text(
             "Calificación: ",
           ),
           const SizedBox(width: 8),
@@ -43,14 +44,12 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
         ]),
         const SizedBox(height: 8),
         Flexible(
-          child: TextField(
-            controller: _textController,
-            maxLines: null, // Permite un número ilimitado de líneas
-            keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Escribe tu reseña aquí',
-            ),
+          child: TextFieldInput(
+            textEditingController: _textController,
+            hintText: 'Escribe tu reseña aquí',
+            textInputType: TextInputType.multiline,
+            isPsw: false,
+            maxLine: true,
           ),
         ),
         const SizedBox(height: 8),

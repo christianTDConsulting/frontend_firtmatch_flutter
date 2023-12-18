@@ -1,18 +1,24 @@
-import 'package:fit_match/utils/dimensions.dart';
-import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:fit_match/utils/utils.dart';
+import 'package:intl/intl.dart';
+import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/models/post.dart';
+import 'package:fit_match/widget/expandable_text.dart';
 import 'review/review_list.dart';
 import 'review/review_summary.dart';
 import 'start.dart';
-import 'package:fit_match/models/post.dart';
-import 'package:fit_match/utils/colors.dart';
-import 'package:intl/intl.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
   final int userId;
-  const PostCard({Key? key, required this.post, required this.userId})
+  final int clientId;
+
+  const PostCard(
+      {Key? key,
+      required this.post,
+      required this.userId,
+      required this.clientId})
       : super(key: key);
 
   @override
@@ -21,15 +27,13 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   String _selectedOption = 'General';
-  bool showExtraContent = false;
 
-  //WIDGET PRINCIPAL
   @override
   Widget build(BuildContext context) {
     final formattedAverage =
         NumberFormat("0.0").format(calculateAverageRating(widget.post.reviews));
     final width = MediaQuery.of(context).size.width;
-    //final height = MediaQuery.of(context).size.height;
+
     return SizedBox(
       width: 400,
       child: Card(
@@ -40,91 +44,47 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           children: <Widget>[
             const SizedBox(height: 12),
-            ListTile(
-              title: Text(widget.post.username,
-                  style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(formattedAverage, style: const TextStyle(fontSize: 32)),
-                  StarDisplay(
-                      value: calculateAverageRating(widget.post.reviews),
-                      size: width > webScreenSize ? 48 : 16),
-                  const SizedBox(width: 5),
-                ],
-              ),
-            ),
+            _buildListTile(formattedAverage, width),
             const SizedBox(height: 12),
-            Container(
-              width: width > webScreenSize ? 500 : 250,
-              height: width > webScreenSize ? 500 : 250,
-              decoration: BoxDecoration(
-                border: Border.all(color: primaryColor, width: 2),
-                /*image: DecorationImage(
-                  image: NetworkImage(widget.post.picture),
-                  fit: BoxFit.cover,
-                ),*/
-              ),
-            ),
-            const SizedBox(
-              height: 12,
-            ),
+            _buildPostImage(width),
+            const SizedBox(height: 12),
             _buildSelectButtons(),
-            const SizedBox(
-              height: 12,
-            ),
-            _selectedOption == 'General'
-                ? Column(
-                    children: [
-                      const Text('Sobre mí',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 24)),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 30.0),
-                        child: ExpandableText(text: widget.post.description),
-                      ),
-                    ],
-                  )
-                : Container(),
-            widget.post.reviews.isNotEmpty && _selectedOption == 'Reviews'
-                ? Column(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 30.0),
-                        child: ReviewSummaryWidget(
-                            reviews: widget.post.reviews,
-                            userId: widget.userId,
-                            trainerId: widget.post.trainerId),
-                      ),
-                      Row(
-                        children: [
-                          const SizedBox(
-                            width: 24,
-                          ),
-                          widget.post.reviews.length > 1
-                              ? TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: blueColor,
-                                  ),
-                                  onPressed: () => _showDialog(),
-                                  child: const Text("Ver todas las reseñas"))
-                              : const Text("No hay mas reseñas",
-                                  style: TextStyle(color: blueColor)),
-                        ],
-                      ),
-                    ],
-                  )
-                : Container(),
+            const SizedBox(height: 12),
+            _buildContentBasedOnSelection(),
           ],
         ),
       ),
     );
   }
 
-//SELECT BUTTONS
+  ListTile _buildListTile(String formattedAverage, double width) {
+    return ListTile(
+      title: Text(widget.post.username,
+          style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(formattedAverage, style: const TextStyle(fontSize: 32)),
+          StarDisplay(
+              value: calculateAverageRating(widget.post.reviews),
+              size: width > webScreenSize ? 48 : 16),
+          const SizedBox(width: 5),
+        ],
+      ),
+    );
+  }
+
+  Container _buildPostImage(double width) {
+    return Container(
+      width: width > webScreenSize ? 500 : 250,
+      height: width > webScreenSize ? 500 : 250,
+      decoration: BoxDecoration(
+        border: Border.all(color: primaryColor, width: 2),
+        // Image code commented out
+      ),
+    );
+  }
+
   Widget _buildSelectButtons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -150,9 +110,58 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
-  void _showDialog() {
-    final width = MediaQuery.of(context).size.width;
+  Widget _buildContentBasedOnSelection() {
+    switch (_selectedOption) {
+      case 'General':
+        return _buildGeneralContent();
+      case 'Reviews':
+        return _buildReviewsContent();
+      default:
+        return Container(); // Placeholder for 'Información' content
+    }
+  }
 
+  Column _buildGeneralContent() {
+    return Column(
+      children: [
+        const Text('Sobre mí',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        const SizedBox(height: 8),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: ExpandableText(text: widget.post.description),
+        ),
+      ],
+    );
+  }
+
+  Column _buildReviewsContent() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 30.0),
+          child: ReviewSummaryWidget(
+              reviews: widget.post.reviews,
+              userId: widget.userId,
+              clientId: widget.clientId,
+              trainerId: widget.post.trainerId),
+        ),
+        Row(
+          children: [
+            const SizedBox(width: 24),
+            widget.post.reviews.length > 1
+                ? TextButton(
+                    onPressed: _showDialog,
+                    child: const Text("Ver todas las reseñas"))
+                : const Text("No hay mas reseñas",
+                    style: TextStyle(color: blueColor)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -164,15 +173,13 @@ class _PostCardState extends State<PostCard> {
               if (_selectedOption == 'Reviews')
                 ReviewListWidget(
                     reviews: widget.post.reviews, userId: widget.userId),
-              if (_selectedOption == 'Información') const Text("Informacion"),
+              // Placeholder for 'Información' content
               Positioned(
                 right: -10.0,
                 top: -10.0,
                 child: IconButton(
-                  icon: const Icon(Icons.close,
-                      size: 30.0), // Icono de cierre grande
-                  onPressed: () =>
-                      Navigator.of(context).pop(), // Cierra el diálogo
+                  icon: const Icon(Icons.close, size: 30.0),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
             ],

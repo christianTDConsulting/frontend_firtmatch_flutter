@@ -21,6 +21,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   int currentPage = 1;
   int pageSize = 10;
   int userId = 0;
+  int clientId = 0;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -54,6 +55,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       if (token != null) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         userId = decodedToken['user']['user_id'];
+        clientId = decodedToken['user']['client_id'];
         var newPosts =
             await getAllPosts(userId, page: currentPage, pageSize: pageSize);
         if (mounted) {
@@ -107,7 +109,8 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: PostCard(post: posts[index], userId: userId),
+                child: PostCard(
+                    post: posts[index], userId: userId, clientId: clientId),
               );
             },
             controller: _scrollController,
