@@ -17,50 +17,63 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildRatingBar(),
+          SizedBox(height: 8),
+          _buildReviewTextField(),
+          SizedBox(height: 8),
+          _buildSubmitButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingBar() {
+    return Row(
       children: [
-        Row(children: [
-          const SizedBox(width: 8),
-          const Text(
-            "Calificación: ",
-          ),
-          const SizedBox(width: 8),
-          RatingBar.builder(
-            initialRating: _currentRating,
-            minRating: 1,
-            direction: Axis.horizontal,
-            allowHalfRating: true,
-            itemCount: 5,
-            itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-            itemBuilder: (context, _) =>
-                const Icon(Icons.star, color: Colors.amber),
-            onRatingUpdate: (rating) {
-              setState(() {
-                _currentRating = rating;
-              });
-            },
-          ),
-        ]),
-        const SizedBox(height: 8),
-        Flexible(
-          child: TextFieldInput(
-            textEditingController: _textController,
-            hintText: 'Escribe tu reseña aquí',
-            textInputType: TextInputType.multiline,
-            isPsw: false,
-            maxLine: true,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ElevatedButton(
-          onPressed: () async {
-            // Espera a que la función asincrónica se complete
-            await widget.onReviewSubmit(_currentRating, _textController.text);
+        const Text("Calificación: "),
+        const SizedBox(width: 8),
+        RatingBar.builder(
+          initialRating: _currentRating,
+          minRating: 1,
+          direction: Axis.horizontal,
+          allowHalfRating: true,
+          itemCount: 5,
+          itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+          itemBuilder: (context, _) =>
+              const Icon(Icons.star, color: Colors.amber),
+          onRatingUpdate: (rating) {
+            setState(() {
+              _currentRating = rating;
+            });
           },
-          child: const Text('Enviar Reseña'),
         ),
       ],
+    );
+  }
+
+  Widget _buildReviewTextField() {
+    return TextFieldInput(
+      textEditingController: _textController,
+      hintText: 'Escribe tu reseña aquí',
+      textInputType: TextInputType.multiline,
+      isPsw: false,
+      maxLine: true,
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return ElevatedButton(
+      onPressed: () async {
+        if (_textController.text.trim().isNotEmpty) {
+          await widget.onReviewSubmit(_currentRating, _textController.text);
+        } else {}
+      },
+      child: const Text('Enviar Reseña'),
     );
   }
 }

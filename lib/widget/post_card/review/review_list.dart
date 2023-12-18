@@ -1,16 +1,16 @@
-//WIDGET LISTA REVIEWS
-import 'package:fit_match/models/review.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:like_button/like_button.dart';
+import 'package:fit_match/models/review.dart';
+import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/services/review_service.dart';
 import '../start.dart';
-import 'package:like_button/like_button.dart';
 
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
+
   const ReviewListWidget(
       {Key? key, required this.reviews, required this.userId})
       : super(key: key);
@@ -22,123 +22,122 @@ class ReviewListWidget extends StatefulWidget {
 class _ReviewListWidgetState extends State<ReviewListWidget> {
   Map<num, bool> commentsVisibility = {};
 
-  Widget usernameWidget(String username) {
-    return Text(username,
-        style: const TextStyle(
-            fontSize: 16, color: primaryColor, fontWeight: FontWeight.bold));
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      const Text('Reseñas',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-      const Text('Ordenar por',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-      const SizedBox(height: 8),
-      ...widget.reviews.map((review) => _buildReviewItem(review)).toList(),
-    ]);
+    return Column(
+      children: [
+        const Text('Reseñas',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        const Text('Ordenar por',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        ...widget.reviews.map(_buildReviewItem).toList(),
+      ],
+    );
   }
 
-//WIDGET REVIEW ITEM
   Widget _buildReviewItem(Review review) {
-    final formattedRating = NumberFormat("0.00").format(review.rating);
-    final timeAgo = formatTimeAgo(review.timestamp);
     commentsVisibility.putIfAbsent(review.reviewId, () => false);
 
-    return Column(children: [
-      ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            review.username.isNotEmpty
-                ? usernameWidget(review.username)
-                : const Text('Cargando...', style: TextStyle(fontSize: 12)),
-            Row(
-              children: [
-                StarDisplay(
-                  value: review.rating,
-                  size: 20,
-                ),
-                const SizedBox(width: 5),
-                Text('$formattedRating/5.0',
-                    style: const TextStyle(fontSize: 12)),
-                const SizedBox(width: 5),
-                Text('- $timeAgo', style: const TextStyle(fontSize: 12)),
-              ],
-            )
-          ],
+    return Column(
+      children: [
+        ListTile(
+          title: _buildReviewTitle(review),
+          subtitle: Text(review.reviewContent),
         ),
-        subtitle: Text(review.reviewContent),
-      ),
-      if (commentsVisibility[review.reviewId]!)
-        _buildCommentsSection(review.comentarios),
-      const SizedBox(height: 8),
-      Row(
-        children: [
-          const SizedBox(width: 8),
-          _likeButton(review),
-          //Text('${review.meGusta.length} Me gusta'),
-          const SizedBox(width: 8),
-          if (review.comentarios.isNotEmpty)
-            TextButton(
-              onPressed: () => toggleCommentsVisibility(review.reviewId),
-              child: Text(
+        _buildReviewActions(review),
+        if (commentsVisibility[review.reviewId] ?? false)
+          _buildCommentsSection(review.comentarios),
+      ],
+    );
+  }
+
+  Widget _buildReviewTitle(Review review) {
+    final formattedRating = NumberFormat("0.00").format(review.rating);
+    final timeAgo = formatTimeAgo(review.timestamp);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        review.username.isNotEmpty
+            ? Text(review.username,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold))
+            : const Text('Cargando...', style: TextStyle(fontSize: 12)),
+        Row(
+          children: [
+            StarDisplay(value: review.rating, size: 20),
+            SizedBox(width: 5),
+            Text('$formattedRating/5.0', style: TextStyle(fontSize: 12)),
+            Text(' - $timeAgo', style: TextStyle(fontSize: 12)),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildReviewActions(Review review) {
+    return Row(
+      children: [
+        SizedBox(width: 8),
+        _likeButton(review),
+        if (review.comentarios.isNotEmpty)
+          TextButton(
+            onPressed: () => toggleCommentsVisibility(review.reviewId),
+            child: Text(
                 commentsVisibility[review.reviewId]!
                     ? "Ocultar Respuestas"
                     : "Ver ${review.comentarios.length} Respuestas",
-                style: const TextStyle(color: blueColor),
-              ),
-            ),
-          TextButton(
-            onPressed: () =>
-                onResponderPressed(), // Suponiendo que tienes una función onResponderPressed para manejar esta acción
-            child: const Text("Responder", style: TextStyle(color: blueColor)),
+                style: TextStyle(color: blueColor)),
           ),
-        ],
-      ),
-    ]);
+        TextButton(
+          onPressed: onResponderPressed, // Implement your responder logic here
+          child: const Text("Responder", style: TextStyle(color: blueColor)),
+        ),
+      ],
+    );
   }
-
-  onResponderPressed() {}
 
   void toggleCommentsVisibility(num reviewId) {
     setState(() {
-      // Cambiar el estado de visibilidad para la reseña específica
-      commentsVisibility[reviewId] = !commentsVisibility[reviewId]!;
+      commentsVisibility[reviewId] = !(commentsVisibility[reviewId] ?? false);
     });
   }
 
   Widget _buildCommentsSection(List<ComentarioReview>? comentarios) {
-    if (comentarios == null || comentarios.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(left: 35),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: comentarios.map((comentario) {
-          final timeAgo = formatTimeAgo(comentario.timestamp);
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                usernameWidget(comentario.username),
-                const SizedBox(width: 4),
-                Text(
-                  "-$timeAgo",
-                  style: const TextStyle(fontSize: 12, color: primaryColor),
-                ),
-              ]),
-              const SizedBox(height: 4),
-              Text(
-                comentario.content,
-                style: const TextStyle(fontSize: 14, color: primaryColor),
-              ),
-            ],
+    return comentarios?.isEmpty ?? true
+        ? SizedBox.shrink()
+        : Padding(
+            padding: EdgeInsets.only(left: 35),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: comentarios!.map(_buildCommentItem).toList(),
+            ),
           );
-        }).toList(),
+  }
+
+  Widget _buildCommentItem(ComentarioReview comentario) {
+    final timeAgo = formatTimeAgo(comentario.timestamp);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Text(comentario.username,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold)),
+          SizedBox(width: 4),
+          Text("-$timeAgo",
+              style: TextStyle(fontSize: 12, color: primaryColor)),
+          Expanded(
+            child: Text(comentario.content,
+                style: TextStyle(fontSize: 14, color: primaryColor)),
+          ),
+        ],
       ),
     );
   }
@@ -151,7 +150,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       isLiked: isLiked,
       likeCount: review.meGusta.length,
       onTap: (bool isLiked) async {
-        return handleLikeButtonPress(review, isLiked);
+        return await handleLikeButtonPress(review, isLiked);
       },
     );
   }
@@ -182,5 +181,42 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       print('Error al dar o quitar me gusta: $e');
       return false;
     }
+  }
+
+  void onResponderPressed() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Responder a la Reseña'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Escribe tu respuesta aquí...',
+            ),
+            onSubmitted: (String value) {
+              // Aquí puedes añadir la lógica para manejar la respuesta
+              // Por ejemplo, enviarla a un servidor o almacenarla localmente
+              Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+              },
+            ),
+            TextButton(
+              child: const Text('Enviar'),
+              onPressed: () {
+                // Aquí también puedes añadir la lógica para manejar la respuesta
+                Navigator.of(context).pop(); // Cierra el cuadro de diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
