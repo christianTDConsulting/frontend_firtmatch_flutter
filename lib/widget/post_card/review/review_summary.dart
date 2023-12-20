@@ -1,3 +1,4 @@
+import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/post_card/start.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -7,6 +8,8 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/review/review_input_widget.dart';
 import 'package:fit_match/widget/post_card/review/review_list.dart';
 import 'package:fit_match/services/review_service.dart';
+
+import '../show_modal_bottom_sheet.dart';
 
 class ReviewSummaryWidget extends StatefulWidget {
   final List<Review> reviews;
@@ -142,66 +145,27 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
 
   void _showReviewInput(BuildContext context, double width) {
     if (width < webScreenSize) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return _buildMobileReviewInput();
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return _buildWebReviewInput(context);
-        },
-      );
-    }
-  }
-
-  Widget _buildMobileReviewInput() {
-    return FractionallySizedBox(
-      heightFactor: 0.8,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Container(
-              width: 40,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ReviewInputWidget(
-              onReviewSubmit: (double rating, String reviewText) async {
-                await onReviewSubmit(
-                    widget.userId, widget.trainerId, rating, reviewText);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  AlertDialog _buildWebReviewInput(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Escribe tu reseña'),
-      content: Container(
-        width: MediaQuery.of(context).size.width * 0.7,
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: ReviewInputWidget(
+      CustomShowModalBottomSheet.show(
+        context,
+        ReviewInputWidget(
           onReviewSubmit: (double rating, String reviewText) async {
             await onReviewSubmit(
                 widget.userId, widget.trainerId, rating, reviewText);
           },
         ),
-      ),
-    );
+      );
+    } else {
+      CustomDialog.show(
+        context,
+        ReviewInputWidget(
+          onReviewSubmit: (double rating, String reviewText) async {
+            await onReviewSubmit(
+                widget.userId, widget.trainerId, rating, reviewText);
+          },
+        ),
+        () => Navigator.of(context).pop(),
+      );
+    }
   }
 
   Widget _buildReviewList() {

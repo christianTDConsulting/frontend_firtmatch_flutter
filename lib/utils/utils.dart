@@ -57,7 +57,7 @@ void showToast(BuildContext context, String message) {
       msg: message,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.TOP,
-      timeInSecForIosWeb: 4,
+      timeInSecForIosWeb: 2,
       backgroundColor: secondaryColor,
       textColor: primaryColor,
       webPosition: "right",
