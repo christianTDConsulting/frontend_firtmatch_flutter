@@ -42,20 +42,30 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildReviewHeader(),
-          _buildHistogramAndStars(ratingCount, maxCount, averageRating, width),
+          widget.reviews.isNotEmpty
+              ? _buildHistogramAndStars(
+                  ratingCount, maxCount, averageRating, width)
+              : Container(),
           if (!isReviewed) _buildReviewButton(context, width),
           const SizedBox(height: 16),
-          _buildReviewList(),
+          widget.reviews.isNotEmpty ? _buildReviewList() : Container(),
         ],
       ),
     );
   }
 
   Widget _buildReviewHeader() {
-    return const Text(
-      'Resumen de reseñas',
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-    );
+    if (widget.reviews.isEmpty) {
+      return const Text(
+        'No hay reseñas',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      );
+    } else {
+      return const Text(
+        'Resumen de reseñas',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+      );
+    }
   }
 
   Widget _buildHistogramAndStars(Map<int, int> ratingCount, int maxCount,
@@ -136,7 +146,6 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
         context: context,
         isScrollControlled: true,
         builder: (BuildContext context) {
-          // Contenido del BottomSheet para móviles
           return _buildMobileReviewInput();
         },
       );
@@ -144,7 +153,6 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
       showDialog(
         context: context,
         builder: (context) {
-          // Contenido del Dialog para pantallas más grandes
           return _buildWebReviewInput(context);
         },
       );
@@ -199,7 +207,16 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   Widget _buildReviewList() {
     return widget.reviews.isNotEmpty
         ? ReviewListWidget(
-            reviews: [widget.reviews.first], userId: widget.userId)
+            reviews: [widget.reviews.first],
+            userId: widget.userId,
+            clientId: widget.clientId,
+            onReviewDeleted: (int reviewId) {
+              setState(() {
+                widget.reviews.removeWhere((item) => item.reviewId == reviewId);
+                showToast(context, 'Reseña elimianda con éxito');
+              });
+            },
+          )
         : Container();
   }
 
@@ -215,12 +232,15 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   Future<void> onReviewSubmit(
       num userId, num trainerId, double rating, String reviewText) async {
     try {
+      if (reviewText.isEmpty) {
+        showToast(context, 'El contenido no puede ser vacío');
+      }
       Review review = await addReview(userId, trainerId, rating, reviewText);
 
       setState(() {
         widget.reviews.add(review);
         Navigator.pop(context);
-        showToast(context, 'Reseña anadida con exito');
+        showToast(context, 'Reseña anadida con éxito');
       });
     } catch (e) {
       print('Error al añadir la review: $e');

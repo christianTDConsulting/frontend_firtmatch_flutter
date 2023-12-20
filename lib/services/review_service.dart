@@ -44,20 +44,13 @@ Future<Review> addReview(
   }
 }
 
-Future<Review> deleteReview(num reviewId) async {
-  final response = await http.delete(
+Future<void> deleteReview(num reviewId) async {
+  await http.delete(
     Uri.parse('$reviewsUrl/$reviewId'),
     headers: {
       'Content-Type': 'application/json',
     },
   );
-
-  if (response.statusCode == 200) {
-    return Review.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception(
-        'Error al eliminar el review. Código de estado: ${response.statusCode}');
-  }
 }
 
 Future<ComentarioReview> addComent(

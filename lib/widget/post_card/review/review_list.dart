@@ -1,3 +1,4 @@
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
@@ -10,9 +11,15 @@ import '../start.dart';
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
+  final int clientId;
+  final Function onReviewDeleted; // Callback
 
   const ReviewListWidget(
-      {Key? key, required this.reviews, required this.userId})
+      {Key? key,
+      required this.reviews,
+      required this.userId,
+      required this.clientId,
+      required this.onReviewDeleted})
       : super(key: key);
 
   @override
@@ -61,7 +68,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       children: [
         review.username.isNotEmpty
             ? Text(review.username,
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 16,
                     color: primaryColor,
                     fontWeight: FontWeight.bold))
@@ -69,9 +76,9 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
         Row(
           children: [
             StarDisplay(value: review.rating, size: 20),
-            SizedBox(width: 5),
-            Text('$formattedRating/5.0', style: TextStyle(fontSize: 12)),
-            Text(' - $timeAgo', style: TextStyle(fontSize: 12)),
+            const SizedBox(width: 5),
+            Text('$formattedRating/5.0', style: const TextStyle(fontSize: 12)),
+            Text(' - $timeAgo', style: const TextStyle(fontSize: 12)),
           ],
         )
       ],
@@ -79,9 +86,10 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   Widget _buildReviewActions(Review review) {
+    final width = MediaQuery.of(context).size.width;
     return Row(
       children: [
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _likeButton(review),
         if (review.comentarios.isNotEmpty)
           TextButton(
@@ -90,12 +98,18 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                 commentsVisibility[review.reviewId]!
                     ? "Ocultar Respuestas"
                     : "Ver ${review.comentarios.length} Respuestas",
-                style: TextStyle(color: blueColor)),
+                style: const TextStyle(color: blueColor)),
           ),
         TextButton(
-          onPressed: onResponderPressed, // Implement your responder logic here
+          onPressed: () => onResponderPressed(context, width),
           child: const Text("Responder", style: TextStyle(color: blueColor)),
         ),
+        if (review.clientId == widget.clientId)
+          IconButton(
+            icon: const Icon(Icons.delete),
+            color: Colors.red,
+            onPressed: () => _deleteReview(review),
+          ),
       ],
     );
   }
@@ -108,9 +122,9 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
 
   Widget _buildCommentsSection(List<ComentarioReview>? comentarios) {
     return comentarios?.isEmpty ?? true
-        ? SizedBox.shrink()
+        ? const SizedBox.shrink()
         : Padding(
-            padding: EdgeInsets.only(left: 35),
+            padding: const EdgeInsets.only(left: 35),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: comentarios!.map(_buildCommentItem).toList(),
@@ -126,16 +140,16 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       child: Row(
         children: [
           Text(comentario.username,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 16,
                   color: primaryColor,
                   fontWeight: FontWeight.bold)),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text("-$timeAgo",
-              style: TextStyle(fontSize: 12, color: primaryColor)),
+              style: const TextStyle(fontSize: 12, color: primaryColor)),
           Expanded(
             child: Text(comentario.content,
-                style: TextStyle(fontSize: 14, color: primaryColor)),
+                style: const TextStyle(fontSize: 14, color: primaryColor)),
           ),
         ],
       ),
@@ -153,6 +167,47 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
         return await handleLikeButtonPress(review, isLiked);
       },
     );
+  }
+
+  void onResponderPressed(BuildContext context, double width) {
+    if (width < webScreenSize) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (BuildContext context) {
+          return _buildMobileReviewInput();
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return _buildWebReviewInput(context);
+        },
+      );
+    }
+  }
+
+  Widget _buildMobileReviewInput() {
+    return Container();
+  }
+
+  Widget _buildWebReviewInput(BuildContext context) {
+    return Container();
+  }
+
+  Future<void> _deleteReview(Review review) async {
+    try {
+      await deleteReview(review.reviewId);
+
+      setState(() {
+        widget.reviews.removeWhere((item) => item.reviewId == review.reviewId);
+        showToast(context, 'Reseña elimianda con éxito');
+      });
+      widget.onReviewDeleted(review.reviewId); //Notifica a review summary
+    } catch (e) {
+      print('Error al eliminar la reseña: $e');
+    }
   }
 
   Future<bool> handleLikeButtonPress(Review review, bool isLiked) async {
@@ -177,46 +232,8 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       }
       return true;
     } catch (e) {
-      // Mostrar un error o manejarlo adecuadamente
       print('Error al dar o quitar me gusta: $e');
       return false;
     }
-  }
-
-  void onResponderPressed() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Responder a la Reseña'),
-          content: TextField(
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: 'Escribe tu respuesta aquí...',
-            ),
-            onSubmitted: (String value) {
-              // Aquí puedes añadir la lógica para manejar la respuesta
-              // Por ejemplo, enviarla a un servidor o almacenarla localmente
-              Navigator.of(context).pop(); // Cierra el cuadro de diálogo
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el cuadro de diálogo
-              },
-            ),
-            TextButton(
-              child: const Text('Enviar'),
-              onPressed: () {
-                // Aquí también puedes añadir la lógica para manejar la respuesta
-                Navigator.of(context).pop(); // Cierra el cuadro de diálogo
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }

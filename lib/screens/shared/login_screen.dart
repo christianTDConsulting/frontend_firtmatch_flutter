@@ -74,26 +74,37 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: Container(
-          padding: _getHorizontalPadding(context),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Flexible(flex: 2, child: Container()),
-              _buildTitle(),
-              const Spacer(),
-              _buildLogo(),
-              const Spacer(),
-              _buildEmailTextField(),
-              const Spacer(),
-              _buildPasswordTextField(),
-              const Spacer(),
-              _buildLoginButton(),
-              const Spacer(),
-              Flexible(flex: 2, child: Container()),
-              _buildRegisterOption(context),
-            ],
+        child: SingleChildScrollView(
+          // Agregado para permitir desplazamiento
+          child: Container(
+            padding: _getHorizontalPadding(context),
+            width: double.infinity,
+            child: ConstrainedBox(
+              // Agregado para asegurar el tamaño mínimo
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+              child: IntrinsicHeight(
+                // Agregado para mantener el diseño vertical
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(flex: 2, child: Container()),
+                    _buildTitle(),
+                    const Spacer(),
+                    _buildLogo(),
+                    const Spacer(),
+                    _buildEmailTextField(),
+                    const Spacer(),
+                    _buildPasswordTextField(),
+                    const Spacer(),
+                    _buildLoginButton(),
+                    const Spacer(),
+                    _buildRegisterOption(context),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

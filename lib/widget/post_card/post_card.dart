@@ -153,8 +153,7 @@ class _PostCardState extends State<PostCard> {
                 ? TextButton(
                     onPressed: _showDialog,
                     child: const Text("Ver todas las reseñas"))
-                : const Text("No hay mas reseñas",
-                    style: TextStyle(color: blueColor)),
+                : Container(),
           ],
         ),
       ],
@@ -172,7 +171,16 @@ class _PostCardState extends State<PostCard> {
             children: [
               if (_selectedOption == 'Reviews')
                 ReviewListWidget(
-                    reviews: widget.post.reviews, userId: widget.userId),
+                    reviews: widget.post.reviews,
+                    userId: widget.userId,
+                    clientId: widget.clientId,
+                    onReviewDeleted: (int reviewId) {
+                      setState(() {
+                        widget.post.reviews
+                            .removeWhere((item) => item.reviewId == reviewId);
+                        showToast(context, 'Reseña elimianda con éxito');
+                      });
+                    }),
               // Placeholder for 'Información' content
               Positioned(
                 right: -10.0,

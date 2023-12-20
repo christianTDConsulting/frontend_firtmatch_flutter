@@ -18,14 +18,14 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildRatingBar(),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildReviewTextField(),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildSubmitButton(),
         ],
       ),
