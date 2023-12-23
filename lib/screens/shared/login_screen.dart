@@ -1,3 +1,5 @@
+import 'package:fit_match/utils/utils.dart';
+import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -75,9 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: SingleChildScrollView(
-          // Agregado para permitir desplazamiento
           child: Container(
-            padding: _getHorizontalPadding(context),
+            padding: getHorizontalPadding(context),
             width: double.infinity,
             child: ConstrainedBox(
               // Agregado para asegurar el tamaño mínimo
@@ -111,13 +112,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+/*
   EdgeInsets _getHorizontalPadding(BuildContext context) {
     return MediaQuery.of(context).size.width > webScreenSize
         ? EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width / 3)
         : const EdgeInsets.symmetric(horizontal: 32);
   }
-
+*/
   Widget _buildTitle() => const Text(
         'Bienvenido a Fit-Match',
         style: TextStyle(
@@ -143,22 +145,10 @@ class _LoginScreenState extends State<LoginScreen> {
         isPsw: true,
       );
 
-  Widget _buildLoginButton() => InkWell(
-        onTap: _loginUser,
-        child: Container(
-          width: double.infinity,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: const ShapeDecoration(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4))),
-            color: blueColor,
-          ),
-          child: _isLoading
-              ? const CircularProgressIndicator(color: primaryColor)
-              : const Text('Iniciar Sesión'),
-        ),
-      );
+  Widget _buildLoginButton() {
+    return CustomButton(
+        onTap: _loginUser, text: "Iniciar sesión", isLoading: _isLoading);
+  }
 
   Widget _buildRegisterOption(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.center,

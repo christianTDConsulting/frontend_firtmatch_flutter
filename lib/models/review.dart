@@ -48,6 +48,7 @@ class ComentarioReview {
   final String username;
   final String content;
   final DateTime timestamp;
+  final int? commentResponded;
 
   ComentarioReview({
     required this.commentId,
@@ -56,6 +57,7 @@ class ComentarioReview {
     required this.content,
     required this.timestamp,
     required this.username,
+    this.commentResponded,
   });
 
   factory ComentarioReview.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,7 @@ class ComentarioReview {
       content: json['content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       username: json['username'] as String,
+      commentResponded: json['comment_responded'],
     );
   }
 }

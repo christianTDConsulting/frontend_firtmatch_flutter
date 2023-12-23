@@ -5,9 +5,10 @@ import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/widget/expandable_text.dart';
+import '../../models/review.dart';
 import 'review/review_list.dart';
 import 'review/review_summary.dart';
-import 'start.dart';
+import 'star.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -144,7 +145,12 @@ class _PostCardState extends State<PostCard> {
               reviews: widget.post.reviews,
               userId: widget.userId,
               clientId: widget.clientId,
-              trainerId: widget.post.trainerId),
+              trainerId: widget.post.trainerId,
+              onReviewAdded: (Review review) {
+                setState(() {
+                  widget.post.reviews.add(review);
+                });
+              }),
         ),
         Row(
           children: [

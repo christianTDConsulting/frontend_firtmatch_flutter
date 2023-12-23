@@ -1,5 +1,5 @@
 import 'package:fit_match/widget/dialog.dart';
-import 'package:fit_match/widget/post_card/start.dart';
+import 'package:fit_match/widget/post_card/star.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -13,6 +13,7 @@ import '../show_modal_bottom_sheet.dart';
 
 class ReviewSummaryWidget extends StatefulWidget {
   final List<Review> reviews;
+  final Function onReviewAdded;
   final int userId;
   final int clientId;
   final int trainerId;
@@ -22,6 +23,7 @@ class ReviewSummaryWidget extends StatefulWidget {
       required this.reviews,
       required this.userId,
       required this.trainerId,
+      required this.onReviewAdded,
       required this.clientId})
       : super(key: key);
 
@@ -30,6 +32,62 @@ class ReviewSummaryWidget extends StatefulWidget {
 }
 
 class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
+  void _showReviewInput(BuildContext context, double width) {
+    if (width < webScreenSize) {
+      CustomShowModalBottomSheet.show(
+        context,
+        ReviewInputWidget(
+          onReviewSubmit: (double rating, String reviewText) async {
+            await onReviewSubmit(
+                widget.userId, widget.trainerId, rating, reviewText);
+          },
+        ),
+      );
+    } else {
+      CustomDialog.show(
+        context,
+        ReviewInputWidget(
+          onReviewSubmit: (double rating, String reviewText) async {
+            await onReviewSubmit(
+                widget.userId, widget.trainerId, rating, reviewText);
+          },
+        ),
+        () => Navigator.of(context).pop(),
+      );
+    }
+  }
+
+  Map<int, int> _calculateRatingCount() {
+    Map<int, int> ratingCount = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    for (var review in widget.reviews) {
+      int roundedRating = review.rating.round();
+      ratingCount[roundedRating] = (ratingCount[roundedRating] ?? 0) + 1;
+    }
+    return ratingCount;
+  }
+
+  Future<void> onReviewSubmit(
+      num userId, num trainerId, double rating, String reviewText) async {
+    try {
+      if (reviewText.isEmpty) {
+        setState(() {
+          Navigator.pop(context);
+          showToast(context, 'El contenido no puede ser vacío');
+        });
+        (context, 'El contenido no puede ser vacío');
+      }
+      Review review = await addReview(userId, trainerId, rating, reviewText);
+
+      setState(() {
+        Navigator.pop(context);
+        showToast(context, 'Reseña anadida con éxito');
+      });
+      widget.onReviewAdded(review);
+    } catch (e) {
+      print('Error al añadir la review: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -143,71 +201,26 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
     );
   }
 
-  void _showReviewInput(BuildContext context, double width) {
-    if (width < webScreenSize) {
-      CustomShowModalBottomSheet.show(
-        context,
-        ReviewInputWidget(
-          onReviewSubmit: (double rating, String reviewText) async {
-            await onReviewSubmit(
-                widget.userId, widget.trainerId, rating, reviewText);
-          },
-        ),
-      );
-    } else {
-      CustomDialog.show(
-        context,
-        ReviewInputWidget(
-          onReviewSubmit: (double rating, String reviewText) async {
-            await onReviewSubmit(
-                widget.userId, widget.trainerId, rating, reviewText);
-          },
-        ),
-        () => Navigator.of(context).pop(),
-      );
-    }
-  }
-
   Widget _buildReviewList() {
+    List<Review> filteredReviews = widget.reviews.isNotEmpty
+        ? widget.reviews
+            .where((element) => element.clientId == widget.clientId)
+            .toList()
+        : [];
+
     return widget.reviews.isNotEmpty
         ? ReviewListWidget(
-            reviews: [widget.reviews.first],
+            reviews: filteredReviews.isEmpty
+                ? [widget.reviews.first]
+                : filteredReviews,
             userId: widget.userId,
             clientId: widget.clientId,
             onReviewDeleted: (int reviewId) {
               setState(() {
                 widget.reviews.removeWhere((item) => item.reviewId == reviewId);
-                showToast(context, 'Reseña elimianda con éxito');
               });
             },
           )
         : Container();
-  }
-
-  Map<int, int> _calculateRatingCount() {
-    Map<int, int> ratingCount = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-    for (var review in widget.reviews) {
-      int roundedRating = review.rating.round();
-      ratingCount[roundedRating] = (ratingCount[roundedRating] ?? 0) + 1;
-    }
-    return ratingCount;
-  }
-
-  Future<void> onReviewSubmit(
-      num userId, num trainerId, double rating, String reviewText) async {
-    try {
-      if (reviewText.isEmpty) {
-        showToast(context, 'El contenido no puede ser vacío');
-      }
-      Review review = await addReview(userId, trainerId, rating, reviewText);
-
-      setState(() {
-        widget.reviews.add(review);
-        Navigator.pop(context);
-        showToast(context, 'Reseña anadida con éxito');
-      });
-    } catch (e) {
-      print('Error al añadir la review: $e');
-    }
   }
 }

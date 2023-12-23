@@ -23,6 +23,7 @@ class TextFieldInput extends StatelessWidget {
     final inputBorder = OutlineInputBorder(
       borderSide: Divider.createBorderSide(context),
     );
+
     return TextFormField(
       controller: textEditingController,
       decoration: InputDecoration(

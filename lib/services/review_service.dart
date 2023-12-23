@@ -53,10 +53,10 @@ Future<void> deleteReview(num reviewId) async {
   );
 }
 
-Future<ComentarioReview> addComent(
+Future<ComentarioReview> answerReview(
     num userId, num reviewId, String answer) async {
   final response = await http.post(
-    Uri.parse(likeReviewUrl),
+    Uri.parse(commentReviewUrl),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -68,22 +68,38 @@ Future<ComentarioReview> addComent(
     return ComentarioReview.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
-        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+        'Error al añadir comentarios. Código de estado: ${response.statusCode}');
   }
 }
 
-Future<ComentarioReview> deleteComment(num commentId) async {
-  final response = await http.delete(
-    Uri.parse('$commentUrl/$commentId'),
+Future<ComentarioReview> answerComment(
+    num commentId, num userId, num reviewId, String answer) async {
+  final response = await http.post(
+    Uri.parse(commentReviewCommentUrl),
     headers: {
       'Content-Type': 'application/json',
     },
+    body: jsonEncode({
+      'userId': userId,
+      'reviewId': reviewId,
+      'answer': answer,
+      'commentId': commentId
+    }),
   );
 
   if (response.statusCode == 200) {
     return ComentarioReview.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
-        'Error al eliminar el review. Código de estado: ${response.statusCode}');
+        'Error al responder comentario. Código de estado: ${response.statusCode}');
   }
+}
+
+Future<void> deleteComment(num commentId) async {
+  await http.delete(
+    Uri.parse('$commentUrl/$commentId'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  );
 }

@@ -8,3 +8,5 @@ const getUsernameByClienteIdUrl = '${url}username/cliente';
 const likeReviewUrl = '${url}like';
 const reviewsUrl = '${url}review';
 const commentUrl = '${url}comment';
+const commentReviewUrl = '${url}commentReview';
+const commentReviewCommentUrl = '${url}commentComment';

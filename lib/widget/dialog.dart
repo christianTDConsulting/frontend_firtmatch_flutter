@@ -1,3 +1,4 @@
+import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
@@ -9,8 +10,7 @@ class CustomDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    double dialogWidth =
-        width > 600 ? 600 : width * 0.9; // Ajustar ancho máximo
+    double dialogWidth = width > 600 ? 600 : width * 0.9;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -22,28 +22,27 @@ class CustomDialog extends StatelessWidget {
         children: [
           Container(
             width: dialogWidth,
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize
-                  .min, // Hace que el dialogo sea del tamaño de su contenido
-              children: [
-                child,
-              ],
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              // Envolver en un SingleChildScrollView
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  child,
+                ],
+              ),
             ),
           ),
           Positioned(
-            top:
-                -15.0, // Ajustar posición para alinear con la esquina del diálogo
+            top: -15.0,
             right: -15.0,
             child: CircleAvatar(
-              backgroundColor: Colors.red, // Color de fondo del botón cerrar
+              backgroundColor: Colors.red,
               radius: 15,
               child: IconButton(
-                icon: Icon(Icons.close,
-                    size: 20.0, color: Colors.white), // Icono blanco
+                icon: const Icon(Icons.close, size: 20.0, color: primaryColor),
                 onPressed: onClose,
-                padding:
-                    EdgeInsets.zero, // Remover padding extra para alinear icono
+                padding: EdgeInsets.zero,
               ),
             ),
           ),

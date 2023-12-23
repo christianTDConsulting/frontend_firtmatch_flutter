@@ -93,6 +93,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       appBar: AppBar(
         backgroundColor:
             width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
+        title: const Text("Filtros por terminar"),
       ),
       body: Container(
         color:

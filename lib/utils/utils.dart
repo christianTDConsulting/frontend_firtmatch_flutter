@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/utils/dimensions.dart';
 
 // for picking up image from gallery
 pickImage(ImageSource source) async {
@@ -62,6 +63,13 @@ void showToast(BuildContext context, String message) {
       textColor: primaryColor,
       webPosition: "right",
       fontSize: 16.0);
+}
+
+// for getting horizontal padding
+EdgeInsets getHorizontalPadding(BuildContext context) {
+  return MediaQuery.of(context).size.width > webScreenSize
+      ? EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 4)
+      : const EdgeInsets.symmetric(horizontal: 32);
 }
 
 // for displaying screens

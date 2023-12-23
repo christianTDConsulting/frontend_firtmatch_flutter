@@ -16,6 +16,12 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
   double _currentRating = 3; // Valor inicial de la calificación
 
   @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
