@@ -1,14 +1,15 @@
 import 'dart:typed_data';
 
-import 'package:fit_match/widget/custom_button.dart';
+import 'package:fit_match/models/preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:email_auth/email_auth.dart';
+
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
-import 'package:fit_match/utils/dimensions.dart';
+
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/date_picker.dart';
+import 'package:fit_match/widget/preferences_section.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:fit_match/screens/shared/login_screen.dart';
 
@@ -20,14 +21,13 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pswController = TextEditingController();
+  final _verifyPswController = TextEditingController();
   final _usernameController = TextEditingController();
   final _dobController = TextEditingController();
   final _otpController = TextEditingController();
-
-  final _emailAuth = EmailAuth(sessionName: "Fit-Match");
-  final _formKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
   Uint8List? _image;
@@ -37,22 +37,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _emailController.dispose();
     _pswController.dispose();
+    _verifyPswController.dispose();
     _usernameController.dispose();
     _dobController.dispose();
     _otpController.dispose();
+
     super.dispose();
   }
 
-  Future<void> _sendOTP() async {
-    bool result = await _emailAuth.sendOtp(
-        recipientMail: _emailController.text, otpLength: 4);
-    print(result ? "OTP sent successfully" : "Failed to send OTP");
+  Future<bool> _sendOTP() async {
+    return true; //se envia el OTP no esta implementado
   }
 
   Future<void> _verifyOTP() async {
     setState(() => _isLoading = true);
-    bool result = await _emailAuth.validateOtp(
-        recipientMail: _emailController.text, userOtp: _otpController.text);
+    bool result =
+        true; //se obtiene si la verificación es exitosa, no esta implementada
     if (result) {
       // Si la verificación es exitosa, avanza al siguiente paso
       if (_currentStep < 2) {
@@ -60,10 +60,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _currentStep += 1;
         });
       }
-    } else {
+    } /*else {
       // Mostrar mensaje de error si la verificación falla
       showToast(context, 'Verificación OTP fallida');
-    }
+    }*/
     setState(() => _isLoading = false);
   }
 
@@ -76,9 +76,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _selectImage() async {
-    Uint8List? im = await pickImage(ImageSource.gallery);
-    if (im != null) {
-      setState(() => _image = im);
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      Uint8List im = await image.readAsBytes();
+      setState(() {
+        _image = im;
+      });
     }
   }
 
@@ -93,56 +97,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return false;
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(title: _buildLoginOption(context)),
         body: SafeArea(
           child: Theme(
             data: Theme.of(context).copyWith(
               primaryColor: blueColor, // Definir el color del Stepper
             ),
-            child: Stepper(
-              type: StepperType.horizontal,
-              currentStep: _currentStep,
-              onStepContinue: () async {
-                if (_currentStep == 0) {
-                  // Lógica para el primer paso: verificar campos y enviar OTP
-                  if (_emailController.text.isNotEmpty &&
-                      _pswController.text.isNotEmpty &&
-                      _usernameController.text.isNotEmpty &&
-                      _dobController.text.isNotEmpty) {
-                    await _sendOTP();
-                    setState(() {
-                      _currentStep += 1;
-                    });
-                  } else {
-                    showToast(context, 'Por favor, completa todos los campos');
+            child: Form(
+              key: _formKey,
+              child: Stepper(
+                type: StepperType.horizontal,
+                currentStep: _currentStep,
+                onStepContinue: () async {
+                  if (_currentStep == 0) {
+                    if (_formKey.currentState!.validate()) {
+                      await _sendOTP();
+                      setState(() => _currentStep += 1);
+                    }
+                  } else if (_currentStep < 2) {
+                    if (_otpController.text.length == 4) {
+                      _verifyOTP();
+                    } else {
+                      showToast(
+                          context, 'Por favor, introduce un código OTP válido');
+                    }
                   }
-                } else if (_currentStep < 2) {
-                  // Avanzar al siguiente paso
-                  setState(() {
-                    _currentStep += 1;
-                  });
-                }
-              },
-              onStepCancel: _currentStep > 0
-                  ? () => setState(() => _currentStep -= 1)
-                  : null,
-              controlsBuilder: (BuildContext context, ControlsDetails details) {
-                return Row(
-                  children: <Widget>[
-                    TextButton(
-                      onPressed: details.onStepContinue,
-                      child: const Text('Continuar',
-                          style: TextStyle(color: blueColor)),
-                    ),
-                    TextButton(
-                      onPressed: details.onStepCancel,
-                      child: const Text('Atrás',
-                          style: TextStyle(color: blueColor)),
-                    ),
-                  ],
-                );
-              },
-              steps: _buildSteps(),
+                },
+                onStepCancel: _currentStep > 0
+                    ? () => setState(() => _currentStep -= 1)
+                    : null,
+                controlsBuilder:
+                    (BuildContext context, ControlsDetails details) {
+                  return Row(
+                    children: <Widget>[
+                      TextButton(
+                        onPressed: details.onStepContinue,
+                        child: _currentStep == 2
+                            ? const Text('Empezar en Fitmatch',
+                                style: TextStyle(color: blueColor))
+                            : const Text('Continuar',
+                                style: TextStyle(color: blueColor)),
+                      ),
+                      TextButton(
+                        onPressed: details.onStepCancel,
+                        child: const Text('Atrás',
+                            style: TextStyle(color: blueColor)),
+                      ),
+                    ],
+                  );
+                },
+                steps: _buildSteps(),
+              ),
             ),
           ),
         ),
@@ -165,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         state: _currentStep > 1 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Sobre tí'),
+        title: const Text('Sobre ti'),
         content: _buildPreferencesStep(),
         isActive: _currentStep >= 2,
         state: _currentStep > 2 ? StepState.complete : StepState.indexed,
@@ -183,6 +189,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 24),
           _buildPasswordTextField(),
           const SizedBox(height: 24),
+          _buildVerifyPasswordTextField(),
+          const SizedBox(height: 24),
           _buildUsernameTextField(),
           const SizedBox(height: 24),
           DatepickerWidget(controller: _dobController),
@@ -192,48 +200,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildVerificationStep() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _otpController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              hintText: 'Introduce el código OTP',
-              border: OutlineInputBorder(),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _otpController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: 'Introduce el código OTP',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 4,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+              ],
             ),
-            maxLength: 4, // Limita la longitud a 4
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly, // Acepta solo dígitos
-            ],
           ),
-        ),
-        CustomButton(
-          onTap: () {
-            if (_otpController.text.length == 4) {
-              _verifyOTP();
-            } else {
-              showToast(context, 'Por favor, introduce un código OTP válido');
-            }
-          },
-          text: 'Verificar OTP',
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildPreferencesStep() {
-    // Aquí puedes colocar el widget para las preferencias del usuario
-    return const Text('Pantalla de Preferencias');
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const Text(
+            'Háblanos un poco sobre ti. Esta información será útil para recomendarte a los mejores entrenadores!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: primaryColor,
+              fontSize: 16.0,
+            ),
+          ),
+          SectionContainer(
+            title: 'Objetivos',
+            child: PreferencesCheckboxesWidget(
+              options: objetivosOptions,
+            ),
+          ),
+          SectionContainer(
+            title: 'Experiencia',
+            child: PreferencesRadioButtonsWidget<String>(
+              options: experienciaOptions,
+              initialValue: 'Principiante',
+            ),
+          ),
+          SectionContainer(
+            title: 'Intereses',
+            child: PreferencesCheckboxesWidget(
+              options: objetivosOptions,
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  /* EdgeInsets _getHorizontalPadding(BuildContext context) =>
-      MediaQuery.of(context).size.width > webScreenSize
-          ? EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width / 3)
-          : const EdgeInsets.symmetric(horizontal: 32);
-*/
 
   Widget _buildTitle() => const Text(
         'Bienvenido a Fit-Match',
@@ -287,6 +311,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
         validator: (value) => value == null || value.isEmpty
             ? 'Por favor, ingresa tu contraseña'
             : null,
+      );
+  Widget _buildVerifyPasswordTextField() => TextFieldInput(
+        textEditingController: _verifyPswController,
+        hintText: 'Verifica tu contraseña',
+        textInputType: TextInputType.text,
+        isPsw: true,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Por favor, verifica tu contraseña';
+          }
+          if (value != _pswController.text) {
+            return 'Las contraseñas no coinciden';
+          }
+          return null;
+        },
       );
 
   Widget _buildUsernameTextField() => TextFieldInput(

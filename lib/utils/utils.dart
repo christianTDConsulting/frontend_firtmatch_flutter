@@ -1,3 +1,4 @@
+import 'package:fit_match/models/preferences.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/view_trainers_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -71,6 +72,40 @@ EdgeInsets getHorizontalPadding(BuildContext context) {
       ? EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 4)
       : const EdgeInsets.symmetric(horizontal: 32);
 }
+
+//for getting preferences
+List<CheckboxPreference> objetivosOptions = [
+  CheckboxPreference(title: 'Pérdida de peso'),
+  CheckboxPreference(title: 'Ganancia muscular'),
+  CheckboxPreference(title: 'Resistencia cardiovascular'),
+  CheckboxPreference(title: 'Flexibilidad y movilidad'),
+  CheckboxPreference(title: 'Salud'),
+  CheckboxPreference(title: 'Rehabilitacion'),
+  CheckboxPreference(title: 'Otros'),
+];
+List<CheckboxPreference> interesesOptions = [
+  CheckboxPreference(title: 'Culturismo'),
+  CheckboxPreference(title: 'Artes marciales'),
+  CheckboxPreference(title: 'Boxeo'),
+  CheckboxPreference(title: 'Ciclismo'),
+  CheckboxPreference(title: 'Gimnasia'),
+  CheckboxPreference(title: 'Natación'),
+  CheckboxPreference(title: 'Halterofilia'),
+  CheckboxPreference(title: 'Pilates'),
+  CheckboxPreference(title: 'Strongman'),
+  CheckboxPreference(title: 'Yoga'),
+  CheckboxPreference(title: 'Zumba'),
+  CheckboxPreference(title: 'Crossfit'),
+  CheckboxPreference(title: 'Calistenia'),
+  CheckboxPreference(title: 'Otros'),
+];
+
+List<RadioPreference<String>> experienciaOptions = [
+  RadioPreference(title: 'Principiante', value: 'Principiante'),
+  RadioPreference(title: 'Intermedio', value: 'Intermedio'),
+  RadioPreference(title: 'Avanzado', value: 'Avanzado'),
+  // Add more options as needed
+];
 
 // for displaying screens
 List<Widget> homeScreenItems = [
