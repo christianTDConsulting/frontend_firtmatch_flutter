@@ -3,7 +3,6 @@ import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fit_match/utils/colors.dart';
-import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/screens/shared/register_screen.dart';

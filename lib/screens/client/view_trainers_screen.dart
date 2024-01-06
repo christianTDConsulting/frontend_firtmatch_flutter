@@ -3,7 +3,7 @@ import 'package:fit_match/providers/get_jwt_token.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:flutter/material.dart';
-import 'package:fit_match/services/trainer_posts_service.dart';
+import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
 
@@ -15,13 +15,12 @@ class ViewTrainersScreen extends StatefulWidget {
 }
 
 class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
-  List<Post> posts = [];
+  List<PlantillaPost> posts = [];
   bool isLoading = false; // Inicializar como falso para el estado inicial
   bool hasMore = true;
   int currentPage = 1;
   int pageSize = 10;
   int userId = 0;
-  int clientId = 0;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -55,7 +54,6 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       if (token != null) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         userId = decodedToken['user']['user_id'];
-        clientId = decodedToken['user']['client_id'];
         var newPosts =
             await getAllPosts(userId, page: currentPage, pageSize: pageSize);
         if (mounted) {
@@ -110,8 +108,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: PostCard(
-                    post: posts[index], userId: userId, clientId: clientId),
+                child: PostCard(post: posts[index], userId: userId),
               );
             },
             controller: _scrollController,

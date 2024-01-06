@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fit_match/utils/backendUrls.dart';
@@ -62,39 +64,45 @@ class AuthMethods {
     return res;
   }
 
-  Future<void> createUsuario({
+  Future<String> createUsuario({
     required String username,
     required String email,
     required String password,
     required int profileId,
     required String birth,
-    required String profilePicturePath, // Ruta del archivo de la imagen
+    required Uint8List? profilePicture,
   }) async {
-    // Crear un MultipartRequest para manejar la imagen de perfil
-    var request = http.MultipartRequest('POST', Uri.parse(usuariosUrl));
+    String res = "Ha ocurrido algún error";
+    try {
+      var request = http.MultipartRequest('POST', Uri.parse(usuariosUrl));
 
-    // Agregar los campos de texto
-    request.fields['username'] = username;
-    request.fields['email'] = email;
-    request.fields['password'] = password;
-    request.fields['profile_id'] = profileId.toString();
-    request.fields['birth'] = birth;
+      request.fields['username'] = username;
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['profile_id'] = profileId.toString();
+      request.fields['birth'] = birth;
 
-    // Adjuntar la imagen de perfil como un MultipartFile
-    var profilePicture = await http.MultipartFile.fromPath(
-        'profile_picture', profilePicturePath);
-    request.files.add(profilePicture);
+      // Adjuntar la imagen de perfil si está presente
+      if (profilePicture != null) {
+        var pictureStream = http.ByteStream(Stream.value(profilePicture));
+        var pictureLength = profilePicture.length;
+        var multipartFile = http.MultipartFile(
+            'profile_picture', pictureStream, pictureLength,
+            filename: 'profile_picture.jpg');
+        request.files.add(multipartFile);
+      }
 
-    // Enviar la solicitud y capturar la respuesta
-    var response = await request.send();
+      var response = await request.send();
 
-    if (response.statusCode == 201) {
-      // Manejar la respuesta exitosa
-      print('Usuario creado con éxito.');
-    } else {
-      // Si la solicitud no fue exitosa, lanza una excepción o maneja el error
-      throw Exception(
-          'Error al crear el usuario. Código de estado: ${response.statusCode}');
+      if (response.statusCode == 201) {
+        res = successMessage;
+      } else {
+        res =
+            "Error al crear el usuario. Código de estado: ${response.statusCode}";
+      }
+    } catch (e) {
+      res = "Ha ocurrido un error al crear el usuario: $e";
     }
+    return res;
   }
 }

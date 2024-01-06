@@ -3,7 +3,7 @@ const url = 'http://localhost:3000/';
 
 const loginUrl = '${url}verificar';
 const usuariosUrl = '${url}usuarios';
-const trainerPostsUrl = '${url}trainersPosts';
+const plantillaPostsUrl = '${url}plantillaPosts';
 const getUsernameByClienteIdUrl = '${url}username/cliente';
 const likeReviewUrl = '${url}like';
 const reviewsUrl = '${url}review';

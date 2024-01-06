@@ -1,17 +1,18 @@
 import 'dart:typed_data';
 
-import 'package:fit_match/models/preferences.dart';
+import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/services/auth_service.dart';
 
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/date_picker.dart';
-import 'package:fit_match/widget/preferences_section.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:fit_match/screens/shared/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  //form
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _pswController = TextEditingController();
@@ -29,9 +31,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _dobController = TextEditingController();
   final _otpController = TextEditingController();
 
+  SharedPreferences? _preferences;
   bool _isLoading = false;
   Uint8List? _image;
-  int _currentStep = 0;
+  int _currentStep = 0; //stepper
 
   @override
   void dispose() {
@@ -45,34 +48,88 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  //async
   Future<bool> _sendOTP() async {
     return true; //se envia el OTP no esta implementado
   }
 
   Future<void> _verifyOTP() async {
-    setState(() => _isLoading = true);
-    bool result =
-        true; //se obtiene si la verificación es exitosa, no esta implementada
-    if (result) {
-      // Si la verificación es exitosa, avanza al siguiente paso
-      if (_currentStep < 2) {
-        setState(() {
-          _currentStep += 1;
-        });
-      }
-    } /*else {
-      // Mostrar mensaje de error si la verificación falla
-      showToast(context, 'Verificación OTP fallida');
-    }*/
-    setState(() => _isLoading = false);
+    bool isOtpValid = true; // no implementado
+    if (!isOtpValid) {
+      // Manejar el caso de OTP inválido.
+      showToast(context, 'OTP inválido');
+      setState(() => _isLoading = false); // Asegúrate de detener la carga aquí.
+      return;
+    }
+    // Si el OTP es válido, procede al registro.
+    await _signUpUser();
   }
 
   Future<void> _signUpUser() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
+
+      try {
+        // Convertir las preferencias en objetos Emparejamiento
+
+        // Llamar al servicio de creación de usuario
+        String result = await AuthMethods().createUsuario(
+          username: _usernameController.text,
+          email: _emailController.text,
+          password: _pswController.text,
+          profileId: 2, //2 es el profile del cliente
+          birth: _dobController.text,
+          profilePicture: _image,
+        );
+
+        // Navegar a la pantalla de inicio  mostrar un mensaje de éxito
+
+        if (result == AuthMethods.successMessage) {
+          await _autoLogin();
+        } else {
+          print("Error de autenticación: $result");
+        }
+      } catch (e) {
+        print('Error al crear el usuario: $e');
+      } finally {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _autoLogin() async {
     setState(() => _isLoading = true);
+    try {
+      String loginResult = await AuthMethods().loginUser(
+        email: _emailController.text,
+        password: _pswController.text,
+      );
 
-    // Implement signup logic here
+      if (loginResult == AuthMethods.successMessage) {
+        _navigateToHome();
+      } else {
+        print("Error de autenticación: $loginResult");
+      }
+    } catch (error) {
+      print("Error inesperado: $error");
+    } finally {
+      setState(() => _isLoading =
+          false); // Detén la carga después de la operación de inicio de sesión.
+    }
+  }
 
-    setState(() => _isLoading = false);
+  void _navigateToHome() {
+    final token = _preferences!.getString('token');
+
+    if (token != null) {
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => ResponsiveLayout(token: token),
+      ));
+    }
+  }
+
+  Future<void> _initSharedPreferences() async {
+    _preferences = await SharedPreferences.getInstance();
   }
 
   Future<void> _selectImage() async {
@@ -84,6 +141,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _image = im;
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPreferences();
   }
 
   @override
@@ -110,17 +173,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 type: StepperType.horizontal,
                 currentStep: _currentStep,
                 onStepContinue: () async {
-                  if (_currentStep == 0) {
-                    if (_formKey.currentState!.validate()) {
-                      await _sendOTP();
-                      setState(() => _currentStep += 1);
-                    }
-                  } else if (_currentStep < 2) {
-                    if (_otpController.text.length == 4) {
-                      _verifyOTP();
-                    } else {
-                      showToast(
-                          context, 'Por favor, introduce un código OTP válido');
+                  if (_currentStep < _buildSteps().length) {
+                    if (_currentStep == 0) {
+                      if (_formKey.currentState!.validate()) {
+                        await _sendOTP();
+
+                        setState(() => _currentStep += 1);
+                      }
+                    } else if (_currentStep == 1) {
+                      if (_otpController.text.length == 4) {
+                        await _verifyOTP();
+                      }
                     }
                   }
                 },
@@ -133,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: <Widget>[
                       TextButton(
                         onPressed: details.onStepContinue,
-                        child: _currentStep == 2
+                        child: _currentStep == 1
                             ? const Text('Empezar en Fitmatch',
                                 style: TextStyle(color: blueColor))
                             : const Text('Continuar',
@@ -159,22 +222,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   List<Step> _buildSteps() {
     return [
       Step(
-        title: const Text('Datos'),
+        title: const Text('Credenciales'),
         content: _buildUserDataStep(),
         isActive: _currentStep >= 0,
         state: _currentStep > 0 ? StepState.complete : StepState.indexed,
       ),
       Step(
-        title: const Text('Verificación'),
+        title: const Text('Verificar correo'),
         content: _buildVerificationStep(),
         isActive: _currentStep >= 1,
         state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-      ),
-      Step(
-        title: const Text('Sobre ti'),
-        content: _buildPreferencesStep(),
-        isActive: _currentStep >= 2,
-        state: _currentStep > 2 ? StepState.complete : StepState.indexed,
       ),
     ];
   }
@@ -216,42 +273,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreferencesStep() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const Text(
-            'Háblanos un poco sobre ti. Esta información será útil para recomendarte a los mejores entrenadores!',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: primaryColor,
-              fontSize: 16.0,
-            ),
-          ),
-          SectionContainer(
-            title: 'Objetivos',
-            child: PreferencesCheckboxesWidget(
-              options: objetivosOptions,
-            ),
-          ),
-          SectionContainer(
-            title: 'Experiencia',
-            child: PreferencesRadioButtonsWidget<String>(
-              options: experienciaOptions,
-              initialValue: 'Principiante',
-            ),
-          ),
-          SectionContainer(
-            title: 'Intereses',
-            child: PreferencesCheckboxesWidget(
-              options: objetivosOptions,
             ),
           ),
         ],
@@ -335,23 +356,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         validator: (value) => value == null || value.isEmpty
             ? 'Por favor, ingresa tu nombre de usuario'
             : null,
-      );
-
-  Widget _buildRegisterButton() => InkWell(
-        onTap: _sendOTP,
-        child: Container(
-          width: double.infinity,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: const ShapeDecoration(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(4))),
-            color: blueColor,
-          ),
-          child: _isLoading
-              ? const CircularProgressIndicator(color: primaryColor)
-              : const Text('Registrarse'),
-        ),
       );
 
   Widget _buildLoginOption(BuildContext context) => Wrap(

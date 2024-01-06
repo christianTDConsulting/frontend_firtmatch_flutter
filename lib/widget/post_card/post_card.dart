@@ -11,16 +11,14 @@ import 'review/review_summary.dart';
 import 'star.dart';
 
 class PostCard extends StatefulWidget {
-  final Post post;
+  final PlantillaPost post;
   final int userId;
-  final int clientId;
 
-  const PostCard(
-      {Key? key,
-      required this.post,
-      required this.userId,
-      required this.clientId})
-      : super(key: key);
+  const PostCard({
+    Key? key,
+    required this.post,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -60,7 +58,7 @@ class _PostCardState extends State<PostCard> {
 
   ListTile _buildListTile(String formattedAverage, double width) {
     return ListTile(
-      title: Text(widget.post.username,
+      title: Text(widget.post.templateName,
           style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -130,7 +128,7 @@ class _PostCardState extends State<PostCard> {
         const SizedBox(height: 8),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: ExpandableText(text: widget.post.description),
+          child: ExpandableText(text: widget.post.description ?? ''),
         ),
       ],
     );
@@ -144,8 +142,7 @@ class _PostCardState extends State<PostCard> {
           child: ReviewSummaryWidget(
               reviews: widget.post.reviews,
               userId: widget.userId,
-              clientId: widget.clientId,
-              trainerId: widget.post.trainerId,
+              templateId: widget.post.templateId,
               onReviewAdded: (Review review) {
                 setState(() {
                   widget.post.reviews.add(review);
@@ -179,7 +176,6 @@ class _PostCardState extends State<PostCard> {
                 ReviewListWidget(
                     reviews: widget.post.reviews,
                     userId: widget.userId,
-                    clientId: widget.clientId,
                     onReviewDeleted: (int reviewId) {
                       setState(() {
                         widget.post.reviews

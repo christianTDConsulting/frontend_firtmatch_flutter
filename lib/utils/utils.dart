@@ -1,4 +1,4 @@
-import 'package:fit_match/models/preferences.dart';
+import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/view_trainers_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';

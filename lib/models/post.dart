@@ -1,48 +1,61 @@
 import 'package:fit_match/models/review.dart';
 
-class Post {
-  final int trainerId;
+class PlantillaPost {
+  final int templateId;
   final int userId;
-  final String email;
-  final String username;
-  final String profilePicture;
-  final String description;
-  final String picture;
-  final num price;
-  List<Review> reviews;
-  final DateTime birth;
+  final String templateName;
+  final String? description;
+  final String? picture;
+  final List<Review> reviews;
+  final List<Etiqueta> etiquetas;
 
-  Post({
-    required this.trainerId,
+  PlantillaPost({
+    required this.templateId,
     required this.userId,
-    required this.email,
-    required this.username,
-    required this.profilePicture,
-    required this.description,
-    required this.picture,
-    required this.price,
+    required this.templateName,
+    this.description,
+    this.picture,
     required this.reviews,
-    required this.birth,
+    required this.etiquetas,
   });
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    List<Review> reviews = (json['reviews'] as List?)
-            ?.map((reviewJson) =>
-                Review.fromJson(reviewJson as Map<String, dynamic>))
-            .toList() ??
-        [];
-
-    return Post(
-      trainerId: json['trainer_id'] as int,
+  factory PlantillaPost.fromJson(Map<String, dynamic> json) {
+    return PlantillaPost(
+      templateId: json['template_id'] as int,
       userId: json['user_id'] as int,
-      email: json['email'] as String,
-      username: json['username'] as String,
-      profilePicture: json['profile_picture'] as String,
-      description: json['description'] as String,
-      picture: json['picture'] as String,
-      price: json['price'] as num,
-      birth: DateTime.parse(json['birth'] as String),
-      reviews: reviews,
+      templateName: json['template_name'] as String,
+      description: json['description'] as String?,
+      picture: json['picture'] as String?,
+      reviews: (json['reviews'] as List)
+          .map((reviewJson) => Review.fromJson(reviewJson))
+          .toList(),
+      etiquetas: (json['etiquetas'] as List)
+          .map((etiquetaJson) => Etiqueta.fromJson(etiquetaJson))
+          .toList(),
     );
+  }
+}
+
+class Etiqueta {
+  String? objetivos;
+  String? experiencia;
+  String? intereses;
+
+  Etiqueta({this.objetivos, this.experiencia, this.intereses});
+
+  factory Etiqueta.fromJson(Map<String, dynamic> json) {
+    return Etiqueta(
+      objetivos: json['objetivos'],
+      experiencia: json['experiencia'],
+      intereses: json['intereses'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'objetivos': objetivos,
+      'experiencia': experiencia,
+      'intereses': intereses,
+    };
   }
 }

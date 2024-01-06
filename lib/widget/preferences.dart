@@ -47,9 +47,13 @@ class RadioPreference<T> extends PreferenceOption<T> {
 //CLASE USANDO CHECK BOX
 class PreferencesCheckboxesWidget extends StatefulWidget {
   final List<CheckboxPreference> options;
+  final Function(Map<String, bool>) onSelectionChanged;
 
-  PreferencesCheckboxesWidget({Key? key, required this.options})
-      : super(key: key);
+  PreferencesCheckboxesWidget({
+    Key? key,
+    required this.options,
+    required this.onSelectionChanged,
+  }) : super(key: key);
 
   @override
   _PreferencesCheckboxesWidgetState createState() =>
@@ -63,8 +67,9 @@ class _PreferencesCheckboxesWidgetState
   @override
   void initState() {
     super.initState();
-    _checkboxStates = Map.fromIterable(widget.options,
-        key: (option) => option.title, value: (option) => option.value);
+    _checkboxStates = {
+      for (var option in widget.options) option.title: option.value
+    };
   }
 
   @override
@@ -77,6 +82,7 @@ class _PreferencesCheckboxesWidgetState
           onChanged: (bool? newValue) {
             setState(() {
               _checkboxStates[option.title] = newValue!;
+              widget.onSelectionChanged(_checkboxStates);
             });
           },
         );
@@ -89,10 +95,14 @@ class _PreferencesCheckboxesWidgetState
 class PreferencesRadioButtonsWidget<T> extends StatefulWidget {
   final List<RadioPreference<T>> options;
   final T initialValue;
+  final Function(T) onSelectionChanged;
 
-  PreferencesRadioButtonsWidget(
-      {Key? key, required this.options, required this.initialValue})
-      : super(key: key);
+  PreferencesRadioButtonsWidget({
+    Key? key,
+    required this.options,
+    required this.initialValue,
+    required this.onSelectionChanged,
+  }) : super(key: key);
 
   @override
   _PreferencesRadioButtonsWidgetState<T> createState() =>
@@ -119,7 +129,8 @@ class _PreferencesRadioButtonsWidgetState<T>
           groupValue: _currentValue,
           onChanged: (T? newValue) {
             setState(() {
-              _currentValue = newValue!;
+              _currentValue = newValue as T;
+              widget.onSelectionChanged(_currentValue);
             });
           },
         );

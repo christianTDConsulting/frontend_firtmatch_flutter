@@ -21,26 +21,25 @@ Future<MeGusta> likeReview(num userId, num reviewId) async {
 }
 
 Future<Review> addReview(
-    num clientId, num trainerId, num rating, String reviewContent) async {
+    num userId, num templateId, num rating, String reviewContent) async {
   final response = await http.post(
     Uri.parse(reviewsUrl),
     headers: {
       'Content-Type': 'application/json',
     },
     body: jsonEncode({
-      'userId': clientId,
-      'trainerId': trainerId,
+      'userId': userId,
+      'templateId': templateId,
       'rating': rating,
       'reviewContent': reviewContent
     }),
   );
 
   if (response.statusCode == 200) {
-    print(jsonDecode(response.body));
     return Review.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
-        'Error al crear la review. Código de estado: ${response.statusCode}');
+        'Error al crear la reseña. Código de estado: ${response.statusCode}');
   }
 }
 

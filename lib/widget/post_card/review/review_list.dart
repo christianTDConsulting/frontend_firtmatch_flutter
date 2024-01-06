@@ -12,14 +12,12 @@ import '../star.dart';
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
-  final int clientId;
   final Function onReviewDeleted; // Callback
 
   const ReviewListWidget(
       {Key? key,
       required this.reviews,
       required this.userId,
-      required this.clientId,
       required this.onReviewDeleted})
       : super(key: key);
 
@@ -85,7 +83,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       setState(() {
         widget.reviews
             .firstWhere((item) => item.reviewId == comment.reviewId)
-            .comentarios
+            .comentarioReview
             .removeWhere((item) => item.commentId == comment.commentId);
         showToast(context, 'Comentario eliminado');
       });
@@ -134,7 +132,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           await answerReview(userId, review.reviewId, answer);
 
       setState(() {
-        review.comentarios.add(comentarioReview);
+        review.comentarioReview.add(comentarioReview);
         showToast(context, 'Comentario añadido con éxito');
 
         activeReviewId = null;
@@ -162,7 +160,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           await answerComment(commentId, userId, review.reviewId, answer);
 
       setState(() {
-        review.comentarios.add(comentarioReview);
+        review.comentarioReview.add(comentarioReview);
         showToast(context, 'Comentario añadido con éxito');
       });
     } catch (e) {
@@ -229,7 +227,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
         _buildReviewActions(review),
         if (activeCommentId == review.reviewId) _buildResponderTextField(),
         if (commentsVisibility[review.reviewId] ?? false)
-          _buildCommentsSection(review.comentarios),
+          _buildCommentsSection(review.comentarioReview),
       ],
     );
   }
@@ -265,13 +263,13 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       children: [
         const SizedBox(width: 8),
         _likeButton(review),
-        if (review.comentarios.isNotEmpty)
+        if (review.comentarioReview.isNotEmpty)
           TextButton(
             onPressed: () => toggleCommentsVisibility(review.reviewId),
             child: Text(
                 commentsVisibility[review.reviewId]!
                     ? "Ocultar Respuestas"
-                    : "Ver ${review.comentarios.length} Respuestas",
+                    : "Ver ${review.comentarioReview.length} Respuestas",
                 style: const TextStyle(color: blueColor)),
           ),
         TextButton(
@@ -280,7 +278,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
               activeCommentId == review.reviewId ? "Ocultar" : "Responder",
               style: const TextStyle(color: blueColor)),
         ),
-        if (review.clientId == widget.clientId)
+        if (review.userId == widget.userId)
           IconButton(
             icon: const Icon(Icons.delete),
             color: Colors.red,
