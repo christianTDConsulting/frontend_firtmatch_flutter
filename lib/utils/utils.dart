@@ -115,5 +115,4 @@ List<Widget> homeScreenItems = [
   const Text('d'),
   const Text('e'),
   const Text('f'),
-  const Text('g'),
 ];
