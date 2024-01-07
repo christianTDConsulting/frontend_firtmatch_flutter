@@ -5,8 +5,9 @@ import 'package:fit_match/utils/colors.dart';
 
 class WebLayout extends StatefulWidget {
   final User user;
-
-  const WebLayout({Key? key, required this.user}) : super(key: key);
+  final int initialPage;
+  const WebLayout({Key? key, required this.user, this.initialPage = 0})
+      : super(key: key);
 
   @override
   _WebLayoutState createState() => _WebLayoutState();
@@ -19,7 +20,8 @@ class _WebLayoutState extends State<WebLayout> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController();
+    _page = widget.initialPage;
+    pageController = PageController(initialPage: _page);
   }
 
   @override
@@ -113,34 +115,28 @@ class _WebLayoutState extends State<WebLayout> {
                         (_page == 0) ? blueColor : Colors.grey,
                       ),
                       menuItem(
-                        Icons.search,
-                        'Búsqueda',
+                        Icons.favorite,
+                        'Notificaciones',
                         1,
                         (_page == 1) ? blueColor : Colors.grey,
                       ),
                       menuItem(
-                        Icons.favorite,
-                        'Notificaciones',
+                        Icons.bookmark,
+                        'Guardados',
                         2,
                         (_page == 2) ? blueColor : Colors.grey,
                       ),
                       menuItem(
-                        Icons.bookmark,
-                        'Guardados',
+                        Icons.fitness_center,
+                        'Entrenamientos',
                         3,
                         (_page == 3) ? blueColor : Colors.grey,
                       ),
                       menuItem(
-                        Icons.fitness_center,
-                        'Entrenamientos',
-                        4,
-                        (_page == 4) ? blueColor : Colors.grey,
-                      ),
-                      menuItem(
                         Icons.person,
                         'Perfil',
-                        5,
-                        (_page == 5) ? blueColor : Colors.grey,
+                        4,
+                        (_page == 4) ? blueColor : Colors.grey,
                       ),
                     ],
                   ),

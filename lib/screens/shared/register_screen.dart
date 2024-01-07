@@ -123,7 +123,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (token != null) {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ResponsiveLayout(token: token),
+        builder: (context) => const ResponsiveLayout(),
       ));
     }
   }
@@ -189,7 +189,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 onStepCancel: _currentStep > 0
                     ? () => setState(() => _currentStep -= 1)
-                    : null,
+                    : () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const LoginScreen())),
                 controlsBuilder:
                     (BuildContext context, ControlsDetails details) {
                   return Row(

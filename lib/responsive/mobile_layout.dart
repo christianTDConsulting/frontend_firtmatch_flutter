@@ -6,9 +6,12 @@ import 'package:fit_match/utils/utils.dart';
 
 class mobileLayout extends StatefulWidget {
   final User user;
+  final int initialPage;
+
   const mobileLayout({
     Key? key,
     required this.user,
+    this.initialPage = 0,
   }) : super(key: key);
 
   @override
@@ -22,7 +25,8 @@ class _mobileLayout extends State<mobileLayout> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController();
+    _page = widget.initialPage;
+    pageController = PageController(initialPage: _page);
   }
 
   @override

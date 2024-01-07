@@ -27,9 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark()
           .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
       home: (token != null && !JwtDecoder.isExpired(token!))
-          ? ResponsiveLayout(
-              token: token!,
-            )
+          ? const ResponsiveLayout()
           : const LoginScreen(),
     );
   }

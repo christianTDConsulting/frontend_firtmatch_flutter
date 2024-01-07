@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final token = _preferences!.getString('token');
       if (token != null) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => ResponsiveLayout(token: token),
+          builder: (context) => const ResponsiveLayout(),
         ));
       }
     }

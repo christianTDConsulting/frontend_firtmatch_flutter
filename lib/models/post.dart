@@ -6,6 +6,7 @@ class PlantillaPost {
   final String templateName;
   final String? description;
   final String? picture;
+  final bool public;
   final List<Review> reviews;
   final List<Etiqueta> etiquetas;
 
@@ -15,6 +16,7 @@ class PlantillaPost {
     required this.templateName,
     this.description,
     this.picture,
+    required this.public,
     required this.reviews,
     required this.etiquetas,
   });
@@ -26,6 +28,7 @@ class PlantillaPost {
       templateName: json['template_name'] as String,
       description: json['description'] as String?,
       picture: json['picture'] as String?,
+      public: json['public'] as bool,
       reviews: (json['reviews'] as List)
           .map((reviewJson) => Review.fromJson(reviewJson))
           .toList(),
@@ -34,28 +37,44 @@ class PlantillaPost {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'template_id': templateId,
+      'user_id': userId,
+      'template_name': templateName,
+      'description': description,
+      'picture': picture,
+      'public': public,
+      'reviews': reviews.map((review) => review.toJson()).toList(),
+      'etiquetas': etiquetas.map((etiqueta) => etiqueta.toJson()).toList(),
+    };
+  }
 }
 
 class Etiqueta {
-  String? objetivos;
-  String? experiencia;
-  String? intereses;
+  String? objectives;
+  String? experience;
+  String? interests;
+  String? equipment;
 
-  Etiqueta({this.objetivos, this.experiencia, this.intereses});
+  Etiqueta({this.objectives, this.experience, this.interests, this.equipment});
 
   factory Etiqueta.fromJson(Map<String, dynamic> json) {
     return Etiqueta(
-      objetivos: json['objetivos'],
-      experiencia: json['experiencia'],
-      intereses: json['intereses'],
+      objectives: json['objetivos'],
+      experience: json['experiencia'],
+      interests: json['intereses'],
+      equipment: json['equipo'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'objetivos': objetivos,
-      'experiencia': experiencia,
-      'intereses': intereses,
+      'objectives': objectives,
+      'experience': experience,
+      'interests': interests,
+      'equipment': equipment,
     };
   }
 }

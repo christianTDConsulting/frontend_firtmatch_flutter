@@ -1,6 +1,7 @@
+import 'package:fit_match/screens/client/view_training_screen.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
-import 'package:fit_match/screens/client/view_trainers_screen.dart';
+import 'package:fit_match/screens/client/view_plantilla_screen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -104,7 +105,15 @@ List<RadioPreference<String>> experienciaOptions = [
   RadioPreference(title: 'Principiante', value: 'Principiante'),
   RadioPreference(title: 'Intermedio', value: 'Intermedio'),
   RadioPreference(title: 'Avanzado', value: 'Avanzado'),
-  // Add more options as needed
+];
+
+List<RadioPreference<String>> equipmentOptions = [
+  RadioPreference(title: 'Gimnasio completo', value: 'Gimnasio completo'),
+  RadioPreference(title: 'Mancuernas y barras', value: 'Mancuernas y barras'),
+  RadioPreference(title: 'Solo mancuernas', value: 'Solo mancuernas'),
+  RadioPreference(title: 'Solo barras', value: 'Solo barra'),
+  RadioPreference(
+      title: 'Nada (sin equipamiento)', value: 'Nada (sin equipamiento)'),
 ];
 
 // for displaying screens
@@ -112,7 +121,6 @@ List<Widget> homeScreenItems = [
   const ViewTrainersScreen(),
   const Text('b'),
   const Text('c'),
-  const Text('d'),
+  ViewTrainingScreen(),
   const Text('e'),
-  const Text('f'),
 ];

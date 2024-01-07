@@ -38,6 +38,20 @@ class Review {
           .toList(),
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'review_id': reviewId,
+      'user_id': userId,
+      'template_id': templateId,
+      'rating': rating,
+      'review_content': reviewContent,
+      'timestamp': timestamp.toIso8601String(),
+      'username': username,
+      'comentario_review':
+          comentarioReview.map((comentario) => comentario.toJson()).toList(),
+      'me_gusta': meGusta.map((mg) => mg.toJson()).toList(),
+    };
+  }
 }
 
 //COMENTARIO
@@ -71,6 +85,18 @@ class ComentarioReview {
       commentResponded: json['comment_responded'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'comment_id': commentId,
+      'review_id': reviewId,
+      'user_id': userId,
+      'content': content,
+      'timestamp': timestamp.toIso8601String(),
+      'username': username,
+      'comment_responded': commentResponded,
+    };
+  }
 }
 
 //ME GUSTA
@@ -92,5 +118,13 @@ class MeGusta {
       reviewId: json['review_id'] as int,
       userId: json['user_id'] as int,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'liked_id': likedId,
+      'review_id': reviewId,
+      'user_id': userId,
+    };
   }
 }
