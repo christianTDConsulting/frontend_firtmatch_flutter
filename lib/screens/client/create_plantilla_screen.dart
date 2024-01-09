@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:fit_match/models/post.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:fit_match/widget/preferences.dart';
@@ -8,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CreateProgramScreen extends StatefulWidget {
+  const CreateProgramScreen({super.key});
+
   @override
   _CreateProgramScreenState createState() => _CreateProgramScreenState();
 }
@@ -54,8 +55,8 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   }
 
   Future<void> _selectImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       Uint8List im = await image.readAsBytes();
       setState(() {

@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:flutter/material.dart';
@@ -133,8 +132,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _selectImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       Uint8List im = await image.readAsBytes();
       setState(() {

@@ -49,7 +49,7 @@ class PreferencesCheckboxesWidget extends StatefulWidget {
   final List<CheckboxPreference> options;
   final Function(Map<String, bool>) onSelectionChanged;
 
-  PreferencesCheckboxesWidget({
+  const PreferencesCheckboxesWidget({
     Key? key,
     required this.options,
     required this.onSelectionChanged,
@@ -97,7 +97,7 @@ class PreferencesRadioButtonsWidget<T> extends StatefulWidget {
   final T initialValue;
   final Function(T) onSelectionChanged;
 
-  PreferencesRadioButtonsWidget({
+  const PreferencesRadioButtonsWidget({
     Key? key,
     required this.options,
     required this.initialValue,

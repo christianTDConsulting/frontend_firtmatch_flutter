@@ -121,6 +121,6 @@ List<Widget> homeScreenItems = [
   const ViewTrainersScreen(),
   const Text('b'),
   const Text('c'),
-  ViewTrainingScreen(),
+  const ViewTrainingScreen(),
   const Text('e'),
 ];

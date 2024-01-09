@@ -7,6 +7,8 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fit_match/providers/get_jwt_token.dart';
 
 class ViewTrainingScreen extends StatefulWidget {
+  const ViewTrainingScreen({super.key});
+
   @override
   _ViewTrainingScreen createState() => _ViewTrainingScreen();
 }
@@ -39,7 +41,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
   void _createNewTemplate() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => CreateProgramScreen()),
+      MaterialPageRoute(builder: (context) => const CreateProgramScreen()),
     );
   }
 

@@ -7,6 +7,7 @@ class PlantillaPost {
   final String? description;
   final String? picture;
   final bool public;
+  final bool hidden;
   final List<Review> reviews;
   final List<Etiqueta> etiquetas;
 
@@ -17,6 +18,7 @@ class PlantillaPost {
     this.description,
     this.picture,
     required this.public,
+    required this.hidden,
     required this.reviews,
     required this.etiquetas,
   });
@@ -29,6 +31,7 @@ class PlantillaPost {
       description: json['description'] as String?,
       picture: json['picture'] as String?,
       public: json['public'] as bool,
+      hidden: json['hidden'] as bool,
       reviews: (json['reviews'] as List)
           .map((reviewJson) => Review.fromJson(reviewJson))
           .toList(),
@@ -46,6 +49,7 @@ class PlantillaPost {
       'description': description,
       'picture': picture,
       'public': public,
+      'hidden': hidden,
       'reviews': reviews.map((review) => review.toJson()).toList(),
       'etiquetas': etiquetas.map((etiqueta) => etiqueta.toJson()).toList(),
     };

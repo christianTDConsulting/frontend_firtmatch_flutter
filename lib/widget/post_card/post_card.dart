@@ -92,8 +92,7 @@ class _PostCardState extends State<PostCard> {
           padding: const EdgeInsets.all(4.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: _selectedOption == option ? blueColor : Colors.grey,
-              onPrimary: Colors.white,
+              foregroundColor: Colors.white, backgroundColor: _selectedOption == option ? blueColor : Colors.grey,
             ),
             onPressed: () => _onSelectOption(option),
             child: Text(option),
