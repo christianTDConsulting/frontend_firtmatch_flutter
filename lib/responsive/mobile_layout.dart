@@ -65,7 +65,7 @@ class _mobileLayout extends State<mobileLayout> {
         body: PageView(
           controller: pageController,
           onPageChanged: onPageChanged,
-          children: homeScreenItems,
+          children: buildHomeScreenItems(widget.user),
         ),
         bottomNavigationBar: CupertinoTabBar(
           backgroundColor: mobileBackgroundColor,

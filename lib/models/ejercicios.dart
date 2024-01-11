@@ -128,6 +128,7 @@ class SetEjercicioEntrada {
   final int? setOrder;
   final String? video;
   final int? reps;
+  final double? weight;
   final DateTime? time;
 
   SetEjercicioEntrada({
@@ -136,6 +137,7 @@ class SetEjercicioEntrada {
     this.setOrder,
     this.video,
     this.reps,
+    this.weight,
     this.time,
   });
 
@@ -146,6 +148,7 @@ class SetEjercicioEntrada {
       setOrder: json['set_order'] as int?,
       video: json['video'] as String?,
       reps: json['reps'] as int?,
+      weight: json['weight'] as double,
       time: json.containsKey('time') && json['time'] != null
           ? DateTime.parse(json['time'])
           : null,
@@ -159,6 +162,7 @@ class SetEjercicioEntrada {
       'set_order': setOrder,
       'video': video,
       'reps': reps,
+      'weight': weight,
       'time': time?.toIso8601String(),
     };
   }

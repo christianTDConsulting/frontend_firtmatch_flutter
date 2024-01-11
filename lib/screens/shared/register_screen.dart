@@ -1,4 +1,4 @@
-
+import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +11,7 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/date_picker.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:fit_match/screens/shared/login_screen.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -121,9 +122,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final token = _preferences!.getString('token');
 
     if (token != null) {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => const ResponsiveLayout(),
-      ));
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+      if (decodedToken.containsKey('user')) {
+        User user = User.fromJson(decodedToken['user']);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => ResponsiveLayout(
+            user: user,
+          ),
+        ));
+      }
     }
   }
 

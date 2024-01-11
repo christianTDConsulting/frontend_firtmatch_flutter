@@ -1,4 +1,5 @@
-import 'package:fit_match/screens/client/view_training_screen.dart';
+import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/training/view_training_screen.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/view_plantilla_screen.dart';
@@ -84,6 +85,7 @@ List<CheckboxPreference> objetivosOptions = [
   CheckboxPreference(title: 'Rehabilitacion'),
   CheckboxPreference(title: 'Otros'),
 ];
+
 List<CheckboxPreference> interesesOptions = [
   CheckboxPreference(title: 'Culturismo'),
   CheckboxPreference(title: 'Artes marciales'),
@@ -117,10 +119,12 @@ List<RadioPreference<String>> equipmentOptions = [
 ];
 
 // for displaying screens
-List<Widget> homeScreenItems = [
-  const ViewTrainersScreen(),
-  const Text('b'),
-  const Text('c'),
-  const ViewTrainingScreen(),
-  const Text('e'),
-];
+List<Widget> buildHomeScreenItems(User user) {
+  return [
+    ViewTrainersScreen(user: user),
+    const Text('b'),
+    const Text('c'),
+    ViewTrainingScreen(user: user),
+    const Text('e'),
+  ];
+}

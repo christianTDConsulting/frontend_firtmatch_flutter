@@ -1,32 +1,21 @@
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/screens/client/create_plantilla_screen.dart';
+import 'package:fit_match/screens/client/training/create_plantilla_screen.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 
-import 'package:jwt_decoder/jwt_decoder.dart';
-import 'package:fit_match/providers/get_jwt_token.dart';
-
 class ViewTrainingScreen extends StatefulWidget {
-  const ViewTrainingScreen({super.key});
+  final User user;
+  const ViewTrainingScreen({super.key, required this.user});
 
   @override
   _ViewTrainingScreen createState() => _ViewTrainingScreen();
 }
 
 class _ViewTrainingScreen extends State<ViewTrainingScreen> {
-  User user = User(
-      user_id: 0,
-      username: '',
-      email: '',
-      password: '',
-      profile_picture: '',
-      birth: DateTime.now(),
-      profile_id: 0);
   final List<String> trainingTemplates = [
     'Plantilla 1',
     'Plantilla 2',
     'Plantilla 3',
-    // Agrega más plantillas según sea necesario
   ];
 
   void _editTemplate(String templateName) {
@@ -34,35 +23,18 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     print('Editar $templateName');
   }
 
-  void _deleteTemplate(String templateName) {
-    // Lógica para eliminar la plantilla
-    print('Eliminar $templateName');
-  }
+  void _deleteTemplate(String templateName) async {}
 
   void _createNewTemplate() {
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const CreateProgramScreen()),
+      MaterialPageRoute(
+          builder: (context) => CreateProgramScreen(user: widget.user)),
     );
   }
 
   @override
   void initState() {
     super.initState();
-    getToken();
-  }
-
-  void initUser() async {
-    try {
-      String? token = await getToken();
-      if (token != null) {
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-
-        user = decodedToken['user'];
-        print(user);
-      }
-    } catch (e) {
-      print('Error al decodificar el token o al manejar el userId: $e');
-    }
   }
 
   @override

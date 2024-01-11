@@ -149,7 +149,7 @@ class _WebLayoutState extends State<WebLayout> {
             child: PageView(
               controller: pageController,
               onPageChanged: onPageChanged,
-              children: homeScreenItems,
+              children: buildHomeScreenItems(widget.user),
             ),
           ),
         ],

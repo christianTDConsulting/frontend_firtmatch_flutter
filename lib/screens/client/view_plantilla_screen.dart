@@ -1,4 +1,5 @@
 import 'package:fit_match/models/post.dart';
+import 'package:fit_match/models/user.dart';
 import 'package:fit_match/providers/get_jwt_token.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -8,7 +9,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
 
 class ViewTrainersScreen extends StatefulWidget {
-  const ViewTrainersScreen({Key? key}) : super(key: key);
+  final User user;
+
+  const ViewTrainersScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   State<ViewTrainersScreen> createState() => _ViewTrainersScreenState();
@@ -54,8 +57,8 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       if (token != null) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
         userId = decodedToken['user']['user_id'];
-        var newPosts =
-            await getAllPosts(userId, page: currentPage, pageSize: pageSize);
+        var newPosts = await PlantillaPostsMethods()
+            .getAllPosts(userId, page: currentPage, pageSize: pageSize);
         if (mounted) {
           setState(() {
             if (newPosts.isNotEmpty) {

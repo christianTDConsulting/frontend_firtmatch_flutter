@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fit_match/utils/backendUrls.dart';
+import 'package:fit_match/utils/backend_urls.dart';
 import 'dart:async';
 import 'dart:convert';
 

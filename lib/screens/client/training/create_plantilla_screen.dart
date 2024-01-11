@@ -1,5 +1,10 @@
 import 'dart:typed_data';
+import 'package:fit_match/models/post.dart';
+import 'package:fit_match/models/user.dart';
+import 'package:fit_match/responsive/responsive_layout_screen.dart';
+import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/utils.dart';
+
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/widget/preferences_section.dart';
@@ -7,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CreateProgramScreen extends StatefulWidget {
-  const CreateProgramScreen({super.key});
+  final User user;
+
+  const CreateProgramScreen({super.key, required this.user});
 
   @override
   _CreateProgramScreenState createState() => _CreateProgramScreenState();
@@ -45,7 +52,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () => navigateBack(),
                 child: const Text('Sí'),
               ),
             ],
@@ -65,7 +72,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     // Verifica si el formulario es válido
     if (_formKey.currentState!.validate()) {
       bool hasSelectedObjective = selectedObjectives.containsValue(true);
@@ -78,11 +85,49 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             'Por favor, selecciona al menos un objetivo y un interés.');
         return;
       }
+      final programName = _programNameController.text;
+      final description = _descriptionController.text;
+      final thumbnailImage = _thumbnailImage;
 
-      // Si se seleccionó al menos un objetivo y un interés, procesa los datos
+      List<Etiqueta> etiquetas = [];
 
-      // Navega a la pantalla siguiente y realiza alguna acción
+      selectedObjectives.entries.where((element) => element.value).forEach((e) {
+        etiquetas.add(Etiqueta(objectives: e.key));
+      });
+
+      selectedInterests.entries.where((element) => element.value).forEach((e) {
+        etiquetas.add(Etiqueta(interests: e.key));
+      });
+
+      // Añadir experiencia y equipo como etiquetas individuales
+      etiquetas.add(Etiqueta(experience: selectedExperience));
+      etiquetas.add(Etiqueta(equipment: selectedEquipment));
+
+      int templateId = await PlantillaPostsMethods().postPlantilla(
+          userId: widget.user.user_id,
+          templateName: programName,
+          description: description,
+          picture: thumbnailImage,
+          etiquetas: etiquetas);
+
+      navigateNext(templateId);
     }
+  }
+
+  void navigateBack() {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => ResponsiveLayout(
+        user: widget.user,
+        initialPage: 3,
+      ),
+    ));
+  }
+
+  void navigateNext(int templateId) {
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => ResponsiveLayout(
+              user: widget.user,
+            )));
   }
 
   @override

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:fit_match/models/review.dart';
-import 'package:fit_match/utils/backendUrls.dart';
+import 'package:fit_match/utils/backend_urls.dart';
 import 'package:http/http.dart' as http;
 
 Future<MeGusta> likeReview(num userId, num reviewId) async {

@@ -9,7 +9,7 @@ import 'package:fit_match/widget/post_card/review/review_input_widget.dart';
 import 'package:fit_match/widget/post_card/review/review_list.dart';
 import 'package:fit_match/services/review_service.dart';
 
-import '../show_modal_bottom_sheet.dart';
+import '../../show_modal_bottom_sheet.dart';
 
 class ReviewSummaryWidget extends StatefulWidget {
   final List<Review> reviews;
