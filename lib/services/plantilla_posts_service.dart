@@ -5,25 +5,23 @@ import 'package:fit_match/models/post.dart'; // Asegúrate de importar tu clase 
 import 'package:fit_match/utils/backend_urls.dart';
 
 class PlantillaPostsMethods {
-  Future<List<PlantillaPost>> getAllPosts(num userId,
-      {int page = 1, int pageSize = 10}) async {
-    final String url = "$plantillaPostsUrl?page=$page&pageSize=$pageSize";
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body) as List;
-      return jsonData
-          .map((jsonItem) => PlantillaPost.fromJson(jsonItem))
-          .toList();
-    } else {
-      throw Exception(
-          'Error al obtener los posts. Código de estado: ${response.statusCode}');
+  Future<List<PlantillaPost>> getAllPosts(
+      {num? userId,
+      int? page = 1,
+      int? pageSize = 10,
+      bool? isPublic = true,
+      bool? isHidden = false}) async {
+    String url = "$plantillaPostsUrl?page=$page&pageSize=$pageSize";
+    if (userId != null) {
+      url += "&userId=$userId";
     }
-  }
+    if (isPublic != null) {
+      url += "&isPublic=$isPublic";
+    }
+    if (isHidden != null) {
+      url += "&isHidden=$isHidden";
+    }
 
-  Future<List<PlantillaPost>> getPostsById(num userId,
-      {int page = 1, int pageSize = 10}) async {
-    final String url =
-        "$plantillaPostsUrl/$userId?page=$page&pageSize=$pageSize";
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;
@@ -152,7 +150,9 @@ class EjerciciosMethods {
           'Error al crear el ejercicio. Código de estado: ${response.statusCode}');
     }
   }
+}
 
+class RutinaMethods {
   Future<void> createRutinaGuardada(int userId, int templateId) async {
     final response = await http.post(
       Uri.parse(rutinasGuardadasUrl),
@@ -174,6 +174,23 @@ class EjerciciosMethods {
     if (response.statusCode != 200) {
       throw Exception(
           'Error al eliminar la rutina guardada. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<List<PlantillaPost>> getPlantillas(
+      num userId, int page, int pageSize) async {
+    final response = await http.get(
+      Uri.parse(
+          '$rutinasGuardadasUrl?user_id=$userId&page=$page&pageSize=$pageSize'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse.map((json) => PlantillaPost.fromJson(json)).toList();
+    } else {
+      throw Exception(
+          'Error al obtener las plantillas. Código de estado: ${response.statusCode}');
     }
   }
 }

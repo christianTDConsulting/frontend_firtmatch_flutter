@@ -1,8 +1,10 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/providers/pageState.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/utils.dart';
+import 'package:provider/provider.dart';
 
 class mobileLayout extends StatefulWidget {
   final User user;
@@ -19,14 +21,15 @@ class mobileLayout extends StatefulWidget {
 }
 
 class _mobileLayout extends State<mobileLayout> {
-  int _page = 0;
   late PageController pageController; // for tabs animation
 
   @override
   void initState() {
     super.initState();
-    _page = widget.initialPage;
-    pageController = PageController(initialPage: _page);
+
+    pageController = PageController(
+      initialPage: Provider.of<PageState>(context, listen: false).currentPage,
+    );
   }
 
   @override
@@ -37,7 +40,7 @@ class _mobileLayout extends State<mobileLayout> {
 
   void onPageChanged(int page) {
     setState(() {
-      _page = page;
+      Provider.of<PageState>(context, listen: false).currentPage = page;
     });
   }
 
@@ -50,17 +53,32 @@ class _mobileLayout extends State<mobileLayout> {
     );
   }
 
-  BottomNavigationBarItem buildTabBarItem(IconData icon, int pageNumber) {
-    return BottomNavigationBarItem(
-      icon: Icon(
-        icon,
-        color: (_page == pageNumber) ? blueColor : primaryColor,
-      ),
-    );
+  Widget getProfileIcon(int pageNumber) {
+    int _page = Provider.of<PageState>(context).currentPage;
+
+    // Verificar si hay una imagen de perfil
+    if (pageNumber == 4 && widget.user.profile_picture.isNotEmpty == true) {
+      return CircleAvatar(
+        backgroundImage: NetworkImage(widget.user.profile_picture),
+        radius: 16,
+      );
+    } else {
+      // Ícono por defecto si no hay imagen de perfil
+      return Icon(
+        Icons.person,
+        color: _page == pageNumber ? blueColor : primaryColor,
+      );
+    }
+  }
+
+  BottomNavigationBarItem buildTabBarItem(Widget icon, int pageNumber) {
+    return BottomNavigationBarItem(icon: icon);
   }
 
   @override
   Widget build(BuildContext context) {
+    int _page = Provider.of<PageState>(context).currentPage;
+
     return Scaffold(
         body: PageView(
           controller: pageController,
@@ -70,11 +88,22 @@ class _mobileLayout extends State<mobileLayout> {
         bottomNavigationBar: CupertinoTabBar(
           backgroundColor: mobileBackgroundColor,
           items: <BottomNavigationBarItem>[
-            buildTabBarItem(Icons.home, 0),
-            buildTabBarItem(Icons.favorite, 1),
-            buildTabBarItem(Icons.bookmark, 2),
-            buildTabBarItem(Icons.fitness_center, 3),
-            buildTabBarItem(Icons.person, 4),
+            buildTabBarItem(
+                Icon(Icons.home, color: _page == 0 ? blueColor : primaryColor),
+                0),
+            buildTabBarItem(
+                Icon(Icons.favorite,
+                    color: _page == 1 ? blueColor : primaryColor),
+                1),
+            buildTabBarItem(
+                Icon(Icons.bookmark,
+                    color: _page == 2 ? blueColor : primaryColor),
+                2),
+            buildTabBarItem(
+                Icon(Icons.fitness_center,
+                    color: _page == 3 ? blueColor : primaryColor),
+                3),
+            buildTabBarItem(getProfileIcon(4), 4),
           ],
           onTap: navigationTapped,
           currentIndex: _page,

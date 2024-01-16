@@ -1,3 +1,4 @@
+import 'package:fit_match/providers/pageState.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/providers/get_jwt_token.dart';
@@ -5,12 +6,15 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/screens/shared/login_screen.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String? token = await getToken(); // Obtener el token JWT
 
-  runApp(MyApp(token: token));
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => PageState()),
+  ], child: MyApp(token: token)));
 }
 
 class MyApp extends StatelessWidget {

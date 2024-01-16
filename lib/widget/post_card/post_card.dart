@@ -79,7 +79,9 @@ class _PostCardState extends State<PostCard> {
       height: width > webScreenSize ? 500 : 250,
       decoration: BoxDecoration(
         border: Border.all(color: primaryColor, width: 2),
-        // Image code commented out
+      ),
+      child: Image.network(
+        widget.post.picture ?? '',
       ),
     );
   }
@@ -92,7 +94,9 @@ class _PostCardState extends State<PostCard> {
           padding: const EdgeInsets.all(4.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: _selectedOption == option ? blueColor : Colors.grey,
+              foregroundColor: primaryColor,
+              backgroundColor:
+                  _selectedOption == option ? blueColor : Colors.grey,
             ),
             onPressed: () => _onSelectOption(option),
             child: Text(option),
@@ -107,6 +111,7 @@ class _PostCardState extends State<PostCard> {
       _selectedOption = option;
     });
   }
+  // Obtiene el mapa de secciones cada vez que se construye el widget
 
   Widget _buildContentBasedOnSelection() {
     switch (_selectedOption) {
@@ -119,20 +124,73 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  Column _buildGeneralContent() {
+  ///GENERAL
+
+  Widget _buildGeneralContent() {
+    var sectionsMap = widget.post.getSectionsMap();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Sobre mí',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-        const SizedBox(height: 8),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: ExpandableText(text: widget.post.description ?? ''),
+        if (sectionsMap['Experiencia']!.isNotEmpty)
+          _buildChipsSection(
+              'Experiencia Recomendada', sectionsMap['Experiencia']!),
+        if (sectionsMap['Disciplinas']!.isNotEmpty)
+          _buildChipsSection('Disciplinas Usadas', sectionsMap['Disciplinas']!),
+        if (sectionsMap['Objetivos']!.isNotEmpty)
+          _buildChipsSection('Objetivos', sectionsMap['Objetivos']!),
+        if (sectionsMap['Equipamiento']!.isNotEmpty)
+          _buildChipsSection(
+              'Equipamiento Necesario', sectionsMap['Equipamiento']!),
+        _buildSectionTitle('Descripción'),
+        _buildSectionContent(widget.post.description ?? ''),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
+    );
+  }
+
+  Widget _buildSectionContent(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+      child: ExpandableText(text: content),
+    );
+  }
+
+  Widget _buildChipsSection(String title, List<dynamic> chipsContent) {
+    List<Widget> chips = [];
+
+    // Itera sobre la lista dinámica y agrega un Chip solo para los elementos que son String
+    for (var content in chipsContent) {
+      if (content is String) {
+        chips.add(Chip(
+          label: Text(content),
+          backgroundColor: blueColor,
+        ));
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(title),
+        Wrap(
+          spacing: 8.0,
+          children: chips,
         ),
       ],
     );
   }
 
+//REVIEWS
   Column _buildReviewsContent() {
     return Column(
       children: [

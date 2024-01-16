@@ -3,7 +3,6 @@ import 'package:fit_match/screens/client/training/view_training_screen.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/view_plantilla_screen.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -56,16 +55,16 @@ String formatTimeAgo(DateTime timestamp) {
 }
 
 //for displaying toast
-void showToast(BuildContext context, String message) {
-  Fluttertoast.showToast(
-      msg: message,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.TOP,
-      timeInSecForIosWeb: 2,
-      backgroundColor: secondaryColor,
-      textColor: primaryColor,
-      webPosition: "right",
-      fontSize: 16.0);
+void showToast(BuildContext context, String message, {bool exitoso = true}) {
+  final snackBar = SnackBar(
+    content: Text(message,
+        style:
+            const TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+    backgroundColor: exitoso ? Colors.green : Colors.red,
+    behavior: SnackBarBehavior.floating,
+    duration: const Duration(seconds: 2),
+  );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
 // for getting horizontal padding

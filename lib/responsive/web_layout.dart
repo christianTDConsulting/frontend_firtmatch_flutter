@@ -1,7 +1,9 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/providers/pageState.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:provider/provider.dart';
 
 class WebLayout extends StatefulWidget {
   final User user;
@@ -20,7 +22,7 @@ class _WebLayoutState extends State<WebLayout> {
   @override
   void initState() {
     super.initState();
-    _page = widget.initialPage;
+    _page = Provider.of<PageState>(context, listen: false).currentPage;
     pageController = PageController(initialPage: _page);
   }
 
@@ -32,7 +34,7 @@ class _WebLayoutState extends State<WebLayout> {
 
   void onPageChanged(int page) {
     setState(() {
-      _page = page;
+      Provider.of<PageState>(context, listen: false).currentPage = page;
     });
   }
 
@@ -44,6 +46,7 @@ class _WebLayoutState extends State<WebLayout> {
   }
 
   Widget menuItem(IconData icon, String label, int pageNumber, Color color) {
+    _page = Provider.of<PageState>(context, listen: false).currentPage;
     return Column(
       children: [
         IconButton(
@@ -64,8 +67,40 @@ class _WebLayoutState extends State<WebLayout> {
     );
   }
 
+  Widget profileMenuItem() {
+    return InkWell(
+      onTap: () => navigationTapped(4),
+      child: Column(
+        children: [
+          if (widget.user.profile_picture.isEmpty)
+            Icon(
+              Icons.person,
+              color: (_page == 4) ? blueColor : Colors.grey,
+              size: 30,
+            ),
+          if (widget.user.profile_picture.isNotEmpty)
+            CircleAvatar(
+              backgroundImage: NetworkImage(widget.user.profile_picture),
+              radius: 20,
+            ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              widget.user.username,
+              style: TextStyle(
+                color: (_page == 4) ? blueColor : Colors.grey,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    _page = Provider.of<PageState>(context, listen: false).currentPage;
     return Scaffold(
       body: Row(
         children: [
@@ -132,12 +167,7 @@ class _WebLayoutState extends State<WebLayout> {
                         3,
                         (_page == 3) ? blueColor : Colors.grey,
                       ),
-                      menuItem(
-                        Icons.person,
-                        'Perfil',
-                        4,
-                        (_page == 4) ? blueColor : Colors.grey,
-                      ),
+                      profileMenuItem(),
                     ],
                   ),
                 ],

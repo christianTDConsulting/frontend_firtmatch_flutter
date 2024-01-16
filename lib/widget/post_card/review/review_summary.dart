@@ -65,7 +65,7 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   }
 
   Future<void> onReviewSubmit(
-      num userId, num trainerId, double rating, String reviewText) async {
+      num userId, num templateId, double rating, String reviewText) async {
     try {
       if (reviewText.isEmpty) {
         setState(() {
@@ -74,15 +74,19 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
         });
         (context, 'El contenido no puede ser vacío');
       }
-      Review review = await addReview(userId, trainerId, rating, reviewText);
+      Review review = await addReview(userId, templateId, rating, reviewText);
 
       setState(() {
         Navigator.pop(context);
         showToast(context, 'Reseña anadida con éxito');
+        widget.onReviewAdded(review);
       });
-      widget.onReviewAdded(review);
-    } catch (e) {
-      print('Error al añadir la review: $e');
+    } catch (error) {
+      setState(() {
+        print('Error al añadir la review: $error');
+        Navigator.pop(context);
+        showToast(context, 'Ha surgido un error', exitoso: false);
+      });
     }
   }
 
@@ -96,20 +100,27 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
     final isReviewed =
         widget.reviews.any((review) => review.userId == widget.userId);
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildReviewHeader(),
-          widget.reviews.isNotEmpty
-              ? _buildHistogramAndStars(
-                  ratingCount, maxCount, averageRating, width)
-              : Container(),
-          if (!isReviewed) _buildReviewButton(context, width),
-          const SizedBox(height: 16),
-          widget.reviews.isNotEmpty ? _buildReviewList() : Container(),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // Usa constraints.maxWidth para obtener el ancho disponible
+        final width = constraints.maxWidth;
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildReviewHeader(),
+              widget.reviews.isNotEmpty
+                  ? _buildHistogramAndStars(
+                      ratingCount, maxCount, averageRating, width)
+                  : Container(),
+              if (!isReviewed) _buildReviewButton(context, width),
+              const SizedBox(height: 16),
+              widget.reviews.isNotEmpty ? _buildReviewList() : Container(),
+            ],
+          ),
+        );
+      },
     );
   }
 

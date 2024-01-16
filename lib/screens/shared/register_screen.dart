@@ -50,6 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   //async
   Future<bool> _sendOTP() async {
+    showToast(context, 'Mire en su bandeja de entrada');
     return true; //se envia el OTP no esta implementado
   }
 
@@ -57,7 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     bool isOtpValid = true; // no implementado
     if (!isOtpValid) {
       // Manejar el caso de OTP inválido.
-      showToast(context, 'OTP inválido');
+      showToast(context, 'OTP inválido', exitoso: false);
       setState(() => _isLoading = false); // Asegúrate de detener la carga aquí.
       return;
     }

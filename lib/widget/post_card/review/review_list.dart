@@ -183,14 +183,21 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text('Reseñas',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-        _buildFilterReviews(context),
-        const SizedBox(height: 8),
-        ...widget.reviews.map(_buildReviewItem).toList(),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical, // Agregar scroll vertical
+      child: Column(
+        children: [
+          Column(
+            children: [
+              const Text('Reseñas',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+              _buildFilterReviews(context),
+              const SizedBox(height: 8),
+              ...widget.reviews.map(_buildReviewItem).toList(),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

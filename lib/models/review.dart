@@ -17,8 +17,8 @@ class Review {
     required this.reviewContent,
     required this.timestamp,
     required this.username,
-    required this.comentarioReview,
-    required this.meGusta,
+    this.comentarioReview = const [],
+    this.meGusta = const [],
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
@@ -29,15 +29,19 @@ class Review {
       rating: json['rating'] as num,
       reviewContent: json['review_content'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
-      username: json['usuario']['username'] as String,
-      comentarioReview: (json['comentario_review'] as List)
-          .map((comentarioJson) => ComentarioReview.fromJson(comentarioJson))
-          .toList(),
-      meGusta: (json['me_gusta'] as List)
-          .map((meGustaJson) => MeGusta.fromJson(meGustaJson))
-          .toList(),
+      username: json['username'] as String,
+      comentarioReview: (json['comentario_review'] as List?)
+              ?.map(
+                  (comentarioJson) => ComentarioReview.fromJson(comentarioJson))
+              .toList() ??
+          [],
+      meGusta: (json['me_gusta'] as List?)
+              ?.map((meGustaJson) => MeGusta.fromJson(meGustaJson))
+              .toList() ??
+          [],
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'review_id': reviewId,

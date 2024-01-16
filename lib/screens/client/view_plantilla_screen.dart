@@ -1,11 +1,10 @@
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/providers/get_jwt_token.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
 
 class ViewTrainersScreen extends StatefulWidget {
@@ -23,7 +22,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   bool hasMore = true;
   int currentPage = 1;
   int pageSize = 10;
-  int userId = 0;
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -39,6 +38,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
     super.dispose();
   }
 
+// CARGA PEREZOSA
   void _loadMorePostsOnScroll() {
     if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent &&
@@ -48,44 +48,58 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   }
 
   Future<void> loadMorePosts() async {
+    // Si no hay más posts o ya está cargando, retorna.
     if (!hasMore || isLoading) return;
 
-    setState(() => isLoading = true);
+    // Inicia la carga de posts.
+    _setLoadingState(true);
 
     try {
-      String? token = await getToken();
-      if (token != null) {
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-        userId = decodedToken['user']['user_id'];
-        var newPosts = await PlantillaPostsMethods()
-            .getAllPosts(userId, page: currentPage, pageSize: pageSize);
-        if (mounted) {
-          setState(() {
-            if (newPosts.isNotEmpty) {
-              currentPage++;
-              posts.addAll(newPosts);
-            } else {
-              hasMore = false;
-            }
-            isLoading = false;
-          });
-        }
-      } else {
-        if (mounted) {
-          setState(() => isLoading = false);
-        }
-        print('No se encontró el token');
+      // Obtener nuevos posts.
+      var newPosts = await PlantillaPostsMethods()
+          .getAllPosts(page: currentPage, pageSize: pageSize);
+
+      // Actualizar la lista de posts y el estado si el componente sigue montado.
+      if (mounted) {
+        _updatePostsList(newPosts);
       }
     } catch (e) {
+      // En caso de error, actualiza el estado.
+      _handleLoadingError(e);
+    } finally {
+      // Finalmente, asegura que se actualice el estado de carga.
       if (mounted) {
-        setState(() => isLoading = false);
+        _setLoadingState(false);
       }
-      print('Error al cargar los posts: $e');
-      setState(() {
-        hasMore = false;
-      });
     }
   }
+
+  void _setLoadingState(bool loading) {
+    setState(() => isLoading = loading);
+  }
+
+  void _updatePostsList(List<PlantillaPost> newPosts) {
+    setState(() {
+      if (newPosts.isNotEmpty) {
+        currentPage++;
+        posts.addAll(newPosts);
+      } else {
+        hasMore = false;
+      }
+    });
+  }
+
+  void _handleLoadingError(error) {
+    setState(() {
+      hasMore = false;
+      showToast(context,
+          "Ha surgido un error al cargar las rutinas, prueba a recargar la página",
+          exitoso: false);
+    });
+    print(error);
+  }
+
+  //SCREEN
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +125,8 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
               }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: PostCard(post: posts[index], userId: userId),
+                child: PostCard(
+                    post: posts[index], userId: widget.user.user_id.toInt()),
               );
             },
             controller: _scrollController,

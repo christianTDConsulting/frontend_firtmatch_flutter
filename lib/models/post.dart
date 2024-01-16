@@ -54,6 +54,33 @@ class PlantillaPost {
       'etiquetas': etiquetas.map((etiqueta) => etiqueta.toJson()).toList(),
     };
   }
+
+  // Método para obtener un mapeo de las secciones basado en etiquetas
+  Map<String, dynamic> getSectionsMap() {
+    Map<String, dynamic> sections = {
+      'Experiencia': [],
+      'Disciplinas': [],
+      'Objetivos': [],
+      'Equipamiento': [],
+    };
+
+    for (var etiqueta in etiquetas) {
+      if (etiqueta.experience != null && etiqueta.experience!.isNotEmpty) {
+        sections['Experiencia'].add(etiqueta.experience);
+      }
+      if (etiqueta.interests != null && etiqueta.interests!.isNotEmpty) {
+        sections['Disciplinas'].add(etiqueta.interests);
+      }
+      if (etiqueta.objectives != null && etiqueta.objectives!.isNotEmpty) {
+        sections['Objetivos'].add(etiqueta.objectives);
+      }
+      if (etiqueta.equipment != null && etiqueta.equipment!.isNotEmpty) {
+        sections['Equipamiento'].add(etiqueta.equipment);
+      }
+    }
+
+    return sections;
+  }
 }
 
 class Etiqueta {
@@ -66,10 +93,10 @@ class Etiqueta {
 
   factory Etiqueta.fromJson(Map<String, dynamic> json) {
     return Etiqueta(
-      objectives: json['objetivos'],
-      experience: json['experiencia'],
-      interests: json['intereses'],
-      equipment: json['equipo'],
+      objectives: json['objectives'],
+      experience: json['experience'],
+      interests: json['interests'],
+      equipment: json['equipment'],
     );
   }
 
