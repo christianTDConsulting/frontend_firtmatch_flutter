@@ -62,6 +62,7 @@ class PlantillaPost {
       'Disciplinas': [],
       'Objetivos': [],
       'Equipamiento': [],
+      'Duración': [],
     };
 
     for (var etiqueta in etiquetas) {
@@ -77,6 +78,9 @@ class PlantillaPost {
       if (etiqueta.equipment != null && etiqueta.equipment!.isNotEmpty) {
         sections['Equipamiento'].add(etiqueta.equipment);
       }
+      if (etiqueta.duration != null && etiqueta.duration!.isNotEmpty) {
+        sections['Duración'].add(etiqueta.duration);
+      }
     }
 
     return sections;
@@ -88,8 +92,14 @@ class Etiqueta {
   String? experience;
   String? interests;
   String? equipment;
+  String? duration;
 
-  Etiqueta({this.objectives, this.experience, this.interests, this.equipment});
+  Etiqueta(
+      {this.objectives,
+      this.experience,
+      this.interests,
+      this.equipment,
+      this.duration});
 
   factory Etiqueta.fromJson(Map<String, dynamic> json) {
     return Etiqueta(
@@ -97,6 +107,7 @@ class Etiqueta {
       experience: json['experience'],
       interests: json['interests'],
       equipment: json['equipment'],
+      duration: json['duration'],
     );
   }
 
@@ -106,6 +117,7 @@ class Etiqueta {
       'experience': experience,
       'interests': interests,
       'equipment': equipment,
+      'duration': duration,
     };
   }
 }

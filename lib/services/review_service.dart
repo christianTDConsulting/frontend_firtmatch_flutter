@@ -20,6 +20,23 @@ Future<MeGustaReviews> likeReview(num userId, num reviewId) async {
   }
 }
 
+Future<MeGustaComentarios> likeComment(num userId, num commentId) async {
+  final response = await http.post(
+    Uri.parse(likeCommentUrl),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({'userId': userId, 'commentId': commentId}),
+  );
+
+  if (response.statusCode == 200) {
+    return MeGustaComentarios.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception(
+        'Error al dar Like Código de estado: ${response.statusCode}');
+  }
+}
+
 Future<Review> addReview(
     num userId, num templateId, num rating, String reviewContent) async {
   final response = await http.post(

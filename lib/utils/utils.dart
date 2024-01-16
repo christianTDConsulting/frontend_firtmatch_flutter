@@ -117,6 +117,20 @@ List<RadioPreference<String>> equipmentOptions = [
       title: 'Nada (sin equipamiento)', value: 'Nada (sin equipamiento)'),
 ];
 
+List<RadioPreference<String>> durationOptions = [
+  RadioPreference(title: '15 minutos o menos', value: '15 minutos o menos'),
+  RadioPreference(title: '30 minutos', value: '30 minutos'),
+  RadioPreference(
+      title: 'Entre 30 minutos y 1 hora', value: 'Entre 30 minutos y 1 hora'),
+  RadioPreference(
+      title: 'Entre 1 hora  y 1 hora y 30 minutos',
+      value: 'Entre 1 hora  y 1 hora y 30 minutos'),
+  RadioPreference(
+      title: 'Entre 1 hora y 30 minutos 2 horas',
+      value: 'Entre 1 hora y 30 minutos 2 horas'),
+  RadioPreference(title: 'Mas de 2 horas', value: 'Mas de 2 horas'),
+];
+
 // for displaying screens
 List<Widget> buildHomeScreenItems(User user) {
   return [

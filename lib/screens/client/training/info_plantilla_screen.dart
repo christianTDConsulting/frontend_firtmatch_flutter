@@ -30,6 +30,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   Map<String, bool> selectedInterests = {};
   String selectedExperience = 'Principiante';
   String selectedEquipment = 'Gimnasio completo';
+  String selectedDuration = '30 minutos';
 
   Uint8List? _thumbnailImage;
 
@@ -163,6 +164,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
                 buildInterestsSection(),
                 buildExperienceSection(),
                 buildEquipmentSection(),
+                buildDurationSection(),
                 buildSubmitButton(),
               ],
             ),
@@ -286,6 +288,19 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
         },
       ),
     );
+  }
+
+  Widget buildDurationSection() {
+    return SectionContainer(
+        title: 'Duración aproximada de las sesiones de entrenamiento',
+        child: PreferencesRadioButtonsWidget<String>(
+            options: durationOptions,
+            initialValue: selectedDuration,
+            onSelectionChanged: (selection) {
+              setState(() {
+                selectedDuration = selection;
+              });
+            }));
   }
 
   Widget buildSubmitButton() {

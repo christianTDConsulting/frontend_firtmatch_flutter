@@ -120,6 +120,36 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     }
   }
 
+  Future<bool> handleLikeCommentButtonPress(
+      ComentarioReview comentario, bool isLiked) async {
+    try {
+      if (isLiked) {
+        // Llamar al backend para quitar el 'me gusta'
+        MeGustaComentarios likeToDelete =
+            await likeComment(widget.userId, comentario.commentId);
+
+        // Actualizar el estado con los nuevos 'me gusta' una vez confirmado
+        setState(() {
+          comentario.meGusta.removeWhere(
+              (item) => item.likedCommentId == likeToDelete.likedCommentId);
+        });
+      } else {
+        // Llamar al backend para dar 'me gusta'
+        MeGustaComentarios like =
+            await likeComment(widget.userId, comentario.commentId);
+
+        // Añadir el 'me gusta' a la lista localmente
+        setState(() {
+          comentario.meGusta.add(like);
+        });
+      }
+      return true;
+    } catch (e) {
+      print('Error al dar o quitar me gusta: $e');
+      return false;
+    }
+  }
+
   Future<void> onAnswerReview(num userId, Review review, String answer) async {
     try {
       if (answer.trim().isEmpty) {
@@ -334,7 +364,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           const SizedBox(height: 8),
           Row(
             children: [
-              //_likeComment(activeCommentId),
+              _likeComment(comentario),
               IconButton(
                 icon: const Icon(Icons.delete),
                 color: Colors.red,
@@ -356,6 +386,20 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       likeCount: review.meGusta.length,
       onTap: (bool isLiked) async {
         return await handleLikeButtonPress(review, isLiked);
+      },
+    );
+  }
+
+  Widget _likeComment(ComentarioReview comentario) {
+    bool isLiked =
+        comentario.meGusta.any((like) => like.userId == widget.userId);
+
+    return LikeButton(
+      size: 25,
+      isLiked: isLiked,
+      likeCount: comentario.meGusta.length,
+      onTap: (bool isLiked) async {
+        return await handleLikeCommentButtonPress(comentario, isLiked);
       },
     );
   }

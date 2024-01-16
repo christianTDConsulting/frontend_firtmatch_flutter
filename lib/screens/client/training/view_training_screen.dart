@@ -1,6 +1,6 @@
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/screens/client/training/create_plantilla_screen.dart';
+import 'package:fit_match/screens/client/training/info_plantilla_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';

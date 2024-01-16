@@ -137,19 +137,19 @@ class MeGustaReviews {
 
 class MeGustaComentarios {
   final int likedCommentId;
-  final int reviewId;
+  final int commentId;
   final int userId;
 
   MeGustaComentarios({
     required this.likedCommentId,
-    required this.reviewId,
+    required this.commentId,
     required this.userId,
   });
 
   factory MeGustaComentarios.fromJson(Map<String, dynamic> json) {
     return MeGustaComentarios(
       likedCommentId: json['liked_comment_id'] as int,
-      reviewId: json['review_id'] as int,
+      commentId: json['comment_id'] as int,
       userId: json['user_id'] as int,
     );
   }
@@ -157,7 +157,7 @@ class MeGustaComentarios {
   Map<String, dynamic> toJson() {
     return {
       'liked_comment_id': likedCommentId,
-      'review_id': reviewId,
+      'comment_id': commentId,
       'user_id': userId,
     };
   }
