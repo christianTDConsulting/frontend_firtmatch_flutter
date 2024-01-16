@@ -7,7 +7,7 @@ class Review {
   final DateTime timestamp;
   final String username;
   final List<ComentarioReview> comentarioReview;
-  final List<MeGusta> meGusta;
+  final List<MeGustaReviews> meGusta;
 
   Review({
     required this.reviewId,
@@ -35,8 +35,8 @@ class Review {
                   (comentarioJson) => ComentarioReview.fromJson(comentarioJson))
               .toList() ??
           [],
-      meGusta: (json['me_gusta'] as List?)
-              ?.map((meGustaJson) => MeGusta.fromJson(meGustaJson))
+      meGusta: (json['me_gusta_reviews'] as List?)
+              ?.map((meGustaJson) => MeGustaReviews.fromJson(meGustaJson))
               .toList() ??
           [],
     );
@@ -53,7 +53,7 @@ class Review {
       'username': username,
       'comentario_review':
           comentarioReview.map((comentario) => comentario.toJson()).toList(),
-      'me_gusta': meGusta.map((mg) => mg.toJson()).toList(),
+      'me_gusta_reviews': meGusta.map((mg) => mg.toJson()).toList(),
     };
   }
 }
@@ -66,7 +66,7 @@ class ComentarioReview {
   final String username;
   final String content;
   final DateTime timestamp;
-  final int? commentResponded;
+  final List<MeGustaComentarios> meGusta;
 
   ComentarioReview({
     required this.commentId,
@@ -75,19 +75,21 @@ class ComentarioReview {
     required this.content,
     required this.timestamp,
     required this.username,
-    this.commentResponded,
+    this.meGusta = const [],
   });
 
   factory ComentarioReview.fromJson(Map<String, dynamic> json) {
     return ComentarioReview(
-      commentId: json['comment_id'] as int,
-      reviewId: json['review_id'] as int,
-      userId: json['user_id'] as num,
-      content: json['content'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      username: json['username'] as String,
-      commentResponded: json['comment_responded'],
-    );
+        commentId: json['comment_id'] as int,
+        reviewId: json['review_id'] as int,
+        userId: json['user_id'] as num,
+        content: json['content'] as String,
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        username: json['username'] as String,
+        meGusta: (json['me_gusta_comentarios'] as List?)
+                ?.map((meGustaJson) => MeGustaComentarios.fromJson(meGustaJson))
+                .toList() ??
+            []);
   }
 
   Map<String, dynamic> toJson() {
@@ -98,27 +100,27 @@ class ComentarioReview {
       'content': content,
       'timestamp': timestamp.toIso8601String(),
       'username': username,
-      'comment_responded': commentResponded,
+      'me_gusta_comentarios': meGusta.map((mg) => mg.toJson()).toList(),
     };
   }
 }
 
 //ME GUSTA
 
-class MeGusta {
-  final int likedId;
+class MeGustaReviews {
+  final int likedReviewId;
   final int reviewId;
   final int userId;
 
-  MeGusta({
-    required this.likedId,
+  MeGustaReviews({
+    required this.likedReviewId,
     required this.reviewId,
     required this.userId,
   });
 
-  factory MeGusta.fromJson(Map<String, dynamic> json) {
-    return MeGusta(
-      likedId: json['liked_id'] as int,
+  factory MeGustaReviews.fromJson(Map<String, dynamic> json) {
+    return MeGustaReviews(
+      likedReviewId: json['liked_review_id'] as int,
       reviewId: json['review_id'] as int,
       userId: json['user_id'] as int,
     );
@@ -126,7 +128,35 @@ class MeGusta {
 
   Map<String, dynamic> toJson() {
     return {
-      'liked_id': likedId,
+      'liked_review_id': likedReviewId,
+      'review_id': reviewId,
+      'user_id': userId,
+    };
+  }
+}
+
+class MeGustaComentarios {
+  final int likedCommentId;
+  final int reviewId;
+  final int userId;
+
+  MeGustaComentarios({
+    required this.likedCommentId,
+    required this.reviewId,
+    required this.userId,
+  });
+
+  factory MeGustaComentarios.fromJson(Map<String, dynamic> json) {
+    return MeGustaComentarios(
+      likedCommentId: json['liked_comment_id'] as int,
+      reviewId: json['review_id'] as int,
+      userId: json['user_id'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'liked_comment_id': likedCommentId,
       'review_id': reviewId,
       'user_id': userId,
     };

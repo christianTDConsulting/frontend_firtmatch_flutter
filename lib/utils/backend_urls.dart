@@ -24,7 +24,8 @@ const sesionEntrenamientoEntradaUrl = '${url}sesionEntrenamientoEntrada';
 
 // Comentarios y Reviews (Comments and Reviews)
 const getUsernameByClienteIdUrl = '${url}username/cliente';
-const likeReviewUrl = '${url}like';
+const likeReviewUrl = '${url}likeReview';
+const likeCommentUrl = '${url}likeComment';
 const reviewsUrl = '${url}review';
 const commentUrl = '${url}comment';
 const commentReviewUrl = '${url}commentReview';

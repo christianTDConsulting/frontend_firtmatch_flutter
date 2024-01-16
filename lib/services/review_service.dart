@@ -3,7 +3,7 @@ import 'package:fit_match/models/review.dart';
 import 'package:fit_match/utils/backend_urls.dart';
 import 'package:http/http.dart' as http;
 
-Future<MeGusta> likeReview(num userId, num reviewId) async {
+Future<MeGustaReviews> likeReview(num userId, num reviewId) async {
   final response = await http.post(
     Uri.parse(likeReviewUrl),
     headers: {
@@ -13,7 +13,7 @@ Future<MeGusta> likeReview(num userId, num reviewId) async {
   );
 
   if (response.statusCode == 200) {
-    return MeGusta.fromJson(jsonDecode(response.body));
+    return MeGustaReviews.fromJson(jsonDecode(response.body));
   } else {
     throw Exception(
         'Error al dar Like Código de estado: ${response.statusCode}');

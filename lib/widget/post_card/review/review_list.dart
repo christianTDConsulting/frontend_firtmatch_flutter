@@ -96,16 +96,17 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     try {
       if (isLiked) {
         // Llamar al backend para quitar el 'me gusta'
-        MeGusta likeToDelete = await likeReview(widget.userId, review.reviewId);
+        MeGustaReviews likeToDelete =
+            await likeReview(widget.userId, review.reviewId);
 
         // Actualizar el estado con los nuevos 'me gusta' una vez confirmado
         setState(() {
-          review.meGusta
-              .removeWhere((item) => item.likedId == likeToDelete.likedId);
+          review.meGusta.removeWhere(
+              (item) => item.likedReviewId == likeToDelete.likedReviewId);
         });
       } else {
         // Llamar al backend para dar 'me gusta'
-        MeGusta like = await likeReview(widget.userId, review.reviewId);
+        MeGustaReviews like = await likeReview(widget.userId, review.reviewId);
 
         // Añadir el 'me gusta' a la lista localmente
         setState(() {
@@ -276,7 +277,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
             child: Text(
                 commentsVisibility[review.reviewId]!
                     ? "Ocultar Respuestas"
-                    : "Ver ${review.comentarioReview.length} Respuestas",
+                    : "Ver ${review.comentarioReview.length} respuestas más",
                 style: const TextStyle(color: blueColor)),
           ),
         TextButton(
@@ -333,12 +334,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           const SizedBox(height: 8),
           Row(
             children: [
-              TextButton(
-                onPressed: () =>
-                    onResponderCommentPressed(comentario.commentId),
-                child:
-                    const Text("Responder", style: TextStyle(color: blueColor)),
-              ),
+              //_likeComment(activeCommentId),
               IconButton(
                 icon: const Icon(Icons.delete),
                 color: Colors.red,
@@ -346,8 +342,6 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
               ),
             ],
           ),
-          if (activeCommentRespondingId == comentario.commentId)
-            _buildResponderTextFieldForComment(comentario.commentId),
         ],
       ),
     );
@@ -390,35 +384,6 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           },
           child: const Text('Comentar', style: TextStyle(color: blueColor)),
         )
-      ],
-    );
-  }
-
-  Widget _buildResponderTextFieldForComment(num commentId) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextFieldInput(
-            textEditingController: _textController,
-            hintText: 'Escribe una respuesta...',
-            textInputType: TextInputType.multiline,
-            isPsw: false,
-            maxLine: true,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            if (activeReviewId != null) {
-              onAnswerComment(widget.userId, activeReviewId!, commentId,
-                  _textController.text);
-              _textController.clear();
-              setState(() {
-                activeCommentRespondingId = null;
-              });
-            }
-          },
-          child: const Text('Comentar', style: TextStyle(color: blueColor)),
-        ),
       ],
     );
   }
