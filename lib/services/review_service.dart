@@ -119,3 +119,30 @@ Future<void> deleteComment(num commentId) async {
     },
   );
 }
+
+Future<List<Review>> getAllReviews(num templateId,
+    {int? page = 1, int? pageSize = 10, String? reviewOrder}) async {
+  String url = "$reviewsUrl?templateId=$templateId";
+
+  if (page != null) {
+    url += "&page=$page";
+  }
+
+  if (pageSize != null) {
+    url += "&pageSize=$pageSize";
+  }
+
+  if (reviewOrder != null) {
+    url += "&reviewOrder=$reviewOrder";
+  }
+
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final List<dynamic> jsonData = json.decode(response.body) as List;
+    return jsonData.map((jsonItem) => Review.fromJson(jsonItem)).toList();
+  } else {
+    throw Exception(
+        'Error al obtener los posts. Código de estado: ${response.statusCode}');
+  }
+}

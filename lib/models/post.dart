@@ -1,5 +1,3 @@
-import 'package:fit_match/models/review.dart';
-
 class PlantillaPost {
   final int templateId;
   final int userId;
@@ -8,7 +6,6 @@ class PlantillaPost {
   final String? picture;
   final bool public;
   final bool hidden;
-  final List<Review> reviews;
   final List<Etiqueta> etiquetas;
 
   PlantillaPost({
@@ -19,7 +16,6 @@ class PlantillaPost {
     this.picture,
     required this.public,
     required this.hidden,
-    required this.reviews,
     required this.etiquetas,
   });
 
@@ -32,9 +28,6 @@ class PlantillaPost {
       picture: json['picture'] as String?,
       public: json['public'] as bool,
       hidden: json['hidden'] as bool,
-      reviews: (json['reviews'] as List)
-          .map((reviewJson) => Review.fromJson(reviewJson))
-          .toList(),
       etiquetas: (json['etiquetas'] as List)
           .map((etiquetaJson) => Etiqueta.fromJson(etiquetaJson))
           .toList(),
@@ -50,7 +43,6 @@ class PlantillaPost {
       'picture': picture,
       'public': public,
       'hidden': hidden,
-      'reviews': reviews.map((review) => review.toJson()).toList(),
       'etiquetas': etiquetas.map((etiqueta) => etiqueta.toJson()).toList(),
     };
   }

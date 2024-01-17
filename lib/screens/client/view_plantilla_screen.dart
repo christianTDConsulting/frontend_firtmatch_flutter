@@ -106,6 +106,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor:
             width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         title: const Text("Filtros por terminar"),

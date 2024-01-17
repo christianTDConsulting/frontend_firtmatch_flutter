@@ -1,3 +1,4 @@
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/custom_toggle_button.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   num? activeReviewId;
   num? activeCommentId;
   num? activeCommentRespondingId;
+  String selectedFilter = 'likes';
 
   @override
   void dispose() {
@@ -60,21 +62,23 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   void _sortReviews(int index) {
-    switch (index) {
-      case 0: // Ordenar por 'Me Gusta'
-        widget.reviews
-            .sort((a, b) => b.meGusta.length.compareTo(a.meGusta.length));
-        break;
-      case 1: // Ordenar por 'Recientes'
-        widget.reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        break;
-      case 2: // Ordenar por 'Calificación Alta'
-        widget.reviews.sort((a, b) => b.rating.compareTo(a.rating));
-        break;
-      case 3: // Ordenar por 'Calificación Baja'
-        widget.reviews.sort((a, b) => a.rating.compareTo(b.rating));
-        break;
-    }
+    setState(() {
+      switch (index) {
+        case 0: // Ordenar por 'Me Gusta'
+          widget.reviews
+              .sort((a, b) => b.meGusta.length.compareTo(a.meGusta.length));
+          break;
+        case 1: // Ordenar por 'Recientes'
+          widget.reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          break;
+        case 2: // Ordenar por 'Calificación Alta'
+          widget.reviews.sort((a, b) => b.rating.compareTo(a.rating));
+          break;
+        case 3: // Ordenar por 'Calificación Baja'
+          widget.reviews.sort((a, b) => a.rating.compareTo(b.rating));
+          break;
+      }
+    });
   }
 
   Future<void> _deleteComment(ComentarioReview comment) async {
@@ -214,6 +218,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical, // Agregar scroll vertical
       child: Column(
@@ -222,7 +227,11 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
             children: [
               const Text('Reseñas',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-              _buildFilterReviews(context),
+              widget.reviews.length > 1
+                  ? (width < webScreenSize)
+                      ? _buildDropdownFilter()
+                      : _buildFilterReviews(context)
+                  : Container(),
               const SizedBox(height: 8),
               ...widget.reviews.map(_buildReviewItem).toList(),
             ],
@@ -251,6 +260,50 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
         )
       ],
     );
+  }
+
+  Widget _buildDropdownFilter() {
+    return Row(children: [
+      const Text('Ordenar por', style: TextStyle(fontSize: 16)),
+      const SizedBox(width: 8),
+      DropdownButton<String>(
+        value: selectedFilter,
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              selectedFilter = value;
+              if (value == 'likes') {
+                _sortReviews(0);
+              } else if (value == 'recent') {
+                _sortReviews(1);
+              } else if (value == 'highRating') {
+                _sortReviews(2);
+              } else if (value == 'lowRating') {
+                _sortReviews(3);
+              }
+            });
+          }
+        },
+        items: const [
+          DropdownMenuItem<String>(
+            value: 'likes',
+            child: Text('Me Gusta'),
+          ),
+          DropdownMenuItem<String>(
+            value: 'recent',
+            child: Text('Recientes'),
+          ),
+          DropdownMenuItem<String>(
+            value: 'highRating',
+            child: Text('Calificación Alta'),
+          ),
+          DropdownMenuItem<String>(
+            value: 'lowRating',
+            child: Text('Calificación Baja'),
+          ),
+        ],
+      )
+    ]);
   }
 
   Widget _buildReviewItem(Review review) {
@@ -365,11 +418,13 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           Row(
             children: [
               _likeComment(comentario),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                color: Colors.red,
-                onPressed: () => _deleteComment(comentario),
-              ),
+              comentario.userId == widget.userId
+                  ? IconButton(
+                      icon: const Icon(Icons.delete),
+                      color: Colors.red,
+                      onPressed: () => _deleteComment(comentario),
+                    )
+                  : const SizedBox.shrink(),
             ],
           ),
         ],

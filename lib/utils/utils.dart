@@ -20,35 +20,42 @@ pickImage(ImageSource source) async {
 // for calculating average rating
 num calculateAverageRating(List<Review> reviews) {
   if (reviews.isEmpty) return 0;
-  return reviews.map((r) => r.rating).reduce((a, b) => a + b) ~/ reviews.length;
+  return reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
 }
 
 // for formatting time
 String formatTimeAgo(DateTime timestamp) {
   final now = DateTime.now();
   final difference = now.difference(timestamp);
+  final int days = difference.inDays;
+  final int hours = difference.inHours;
+  final int minutes = difference.inMinutes;
 
-  if (difference.inDays >= 365) {
-    final int years = (difference.inDays / 365).floor();
-    return 'hace $years ${years == 1 ? 'año' : 'años'}';
-  } else if (difference.inDays >= 30) {
-    final int months = (difference.inDays / 30).floor();
-    return 'hace $months ${months == 1 ? 'mes' : 'meses'}';
-  } else if (difference.inDays >= 7) {
-    final int weeks = (difference.inDays / 7).floor();
-    return 'hace $weeks ${weeks == 1 ? 'semana' : 'semanas'}';
-  } else if (difference.inDays == 1) {
+  String pluralize(int count, String singular, String plural) {
+    return count == 1 ? singular : plural;
+  }
+
+  if (days >= 365) {
+    final int years = (days / 365).floor();
+    return 'hace $years ${pluralize(years, 'año', 'años')}';
+  } else if (days >= 30) {
+    final int months = (days / 30).floor();
+    return 'hace $months ${pluralize(months, 'mes', 'meses')}';
+  } else if (days >= 7) {
+    final int weeks = (days / 7).floor();
+    return 'hace $weeks ${pluralize(weeks, 'semana', 'semanas')}';
+  } else if (days == 1) {
     return 'hace 1 día';
-  } else if (difference.inDays > 0) {
-    return 'hace ${difference.inDays} días';
-  } else if (difference.inHours == 1) {
+  } else if (days > 0) {
+    return 'hace $days días';
+  } else if (hours == 1) {
     return 'hace 1 hora';
-  } else if (difference.inHours > 0) {
-    return 'hace ${difference.inHours} horas';
-  } else if (difference.inMinutes == 1) {
+  } else if (hours > 0) {
+    return 'hace $hours horas';
+  } else if (minutes == 1) {
     return 'hace 1 minuto';
-  } else if (difference.inMinutes > 0) {
-    return 'hace ${difference.inMinutes} minutos';
+  } else if (minutes > 0) {
+    return 'hace $minutes minutos';
   } else {
     return 'Justo ahora';
   }

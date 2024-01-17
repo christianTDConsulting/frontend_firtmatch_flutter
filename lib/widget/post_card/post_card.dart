@@ -1,3 +1,4 @@
+import 'package:fit_match/services/review_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:intl/intl.dart';
@@ -26,11 +27,37 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   String _selectedOption = 'General';
+  bool _isLoading = true; // Indicador de carga
+  num _averageRating = 0; // Calificación promedio
+  List<Review> reviews = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReviewsAndCalculateRating();
+  }
+
+  void _loadReviewsAndCalculateRating() async {
+    // Mostrar el indicador de progreso
+    setState(() {
+      _isLoading = true;
+    });
+
+    List<Review> reviews = await getAllReviews(widget.post.templateId);
+
+    if (mounted) {
+      {
+        setState(() {
+          this.reviews = reviews;
+          _averageRating = calculateAverageRating(reviews);
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final formattedAverage =
-        NumberFormat("0.0").format(calculateAverageRating(widget.post.reviews));
     final width = MediaQuery.of(context).size.width;
 
     return SizedBox(
@@ -43,7 +70,7 @@ class _PostCardState extends State<PostCard> {
         child: Column(
           children: <Widget>[
             const SizedBox(height: 12),
-            _buildListTile(formattedAverage, width),
+            _buildListTile(width),
             const SizedBox(height: 12),
             _buildPostImage(width),
             const SizedBox(height: 12),
@@ -56,20 +83,23 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  ListTile _buildListTile(String formattedAverage, double width) {
+  ListTile _buildListTile(double width) {
     return ListTile(
       title: Text(widget.post.templateName,
           style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(formattedAverage, style: const TextStyle(fontSize: 32)),
-          StarDisplay(
-              value: calculateAverageRating(widget.post.reviews),
-              size: width > webScreenSize ? 48 : 16),
-          const SizedBox(width: 5),
-        ],
-      ),
+      trailing: _isLoading
+          ? CircularProgressIndicator() // Muestra el indicador de progreso mientras los datos se están cargando
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(NumberFormat("0.0").format(_averageRating),
+                    style: const TextStyle(fontSize: 32)),
+                StarDisplay(
+                    value: _averageRating.round(),
+                    size: width > webScreenSize ? 48 : 16),
+                const SizedBox(width: 5),
+              ],
+            ),
     );
   }
 
@@ -191,25 +221,26 @@ class _PostCardState extends State<PostCard> {
   }
 
 //REVIEWS
-  Column _buildReviewsContent() {
+  Widget _buildReviewsContent() {
     return Column(
       children: [
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 30.0),
           child: ReviewSummaryWidget(
-              reviews: widget.post.reviews,
+              reviews: reviews,
               userId: widget.userId,
               templateId: widget.post.templateId,
               onReviewAdded: (Review review) {
+                //se añade en local en vez de obtener todas de nuevo
                 setState(() {
-                  widget.post.reviews.add(review);
+                  reviews.add(review);
                 });
               }),
         ),
         Row(
           children: [
             const SizedBox(width: 24),
-            widget.post.reviews.length > 1
+            reviews.length > 1
                 ? TextButton(
                     onPressed: _showDialog,
                     child: const Text("Ver todas las reseñas"))
@@ -231,11 +262,11 @@ class _PostCardState extends State<PostCard> {
             children: [
               if (_selectedOption == 'Reviews')
                 ReviewListWidget(
-                    reviews: widget.post.reviews,
+                    reviews: reviews,
                     userId: widget.userId,
                     onReviewDeleted: (int reviewId) {
                       setState(() {
-                        widget.post.reviews
+                        reviews
                             .removeWhere((item) => item.reviewId == reviewId);
                         showToast(context, 'Reseña elimianda con éxito');
                       });
