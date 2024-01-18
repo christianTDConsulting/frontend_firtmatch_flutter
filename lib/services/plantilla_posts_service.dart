@@ -177,11 +177,24 @@ class RutinaMethods {
     }
   }
 
-  Future<List<PlantillaPost>> getPlantillas(
-      num userId, int page, int pageSize) async {
+  Future<List<PlantillaPost>> getPlantillas(num userId) async {
     final response = await http.get(
-      Uri.parse(
-          '$rutinasGuardadasUrl?user_id=$userId&page=$page&pageSize=$pageSize'),
+      Uri.parse('$rutinasGuardadasUrl/$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonResponse = jsonDecode(response.body);
+      return jsonResponse.map((json) => PlantillaPost.fromJson(json)).toList();
+    } else {
+      throw Exception(
+          'Error al obtener las plantillas. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<List<PlantillaPost>> getCreatedPlantillas(num userId) async {
+    final response = await http.get(
+      Uri.parse('$rutinasGuardadasUrl/$userId'),
       headers: {'Content-Type': 'application/json'},
     );
 
