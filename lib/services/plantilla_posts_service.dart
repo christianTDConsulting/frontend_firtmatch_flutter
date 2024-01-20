@@ -152,7 +152,7 @@ class EjerciciosMethods {
   }
 }
 
-class RutinaMethods {
+class RutinaGuardadaMethods {
   Future<void> createRutinaGuardada(int userId, int templateId) async {
     final response = await http.post(
       Uri.parse(rutinasGuardadasUrl),
@@ -191,10 +191,36 @@ class RutinaMethods {
           'Error al obtener las plantillas. Código de estado: ${response.statusCode}');
     }
   }
+}
 
-  Future<List<PlantillaPost>> getCreatedPlantillas(num userId) async {
+class RutinasArchivadaMethods {
+  Future<void> createRutinaArchivada(int userId, int templateId) async {
+    final response = await http.post(
+      Uri.parse(rutinasArchivadasUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': userId,
+        'template_id': templateId,
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw Exception(
+          'Error al archivar la rutina. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deleteRutinaGuardada(int archivedId) async {
+    final response =
+        await http.delete(Uri.parse('$rutinasArchivadasUrl/$archivedId'));
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Error al archivar la rutina. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<List<PlantillaPost>> getPlantillas(num userId) async {
     final response = await http.get(
-      Uri.parse('$rutinasGuardadasUrl/$userId'),
+      Uri.parse('$rutinasArchivadasUrl/$userId'),
       headers: {'Content-Type': 'application/json'},
     );
 

@@ -17,6 +17,7 @@ class ViewTrainingScreen extends StatefulWidget {
 class _ViewTrainingScreen extends State<ViewTrainingScreen> {
   List<PlantillaPost> trainingTemplates = [];
   List<PlantillaPost> createdTrainingTemplates = [];
+  List<PlantillaPost> arhivedTrainingTemplates = [];
   bool isLoading = false;
   int _currentPage = 0;
 
@@ -27,17 +28,20 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
     try {
       var resultados = await Future.wait([
-        RutinaMethods().getPlantillas(widget.user.user_id),
+        RutinaGuardadaMethods().getPlantillas(widget.user.user_id),
+        RutinasArchivadaMethods().getPlantillas(widget.user.user_id),
         PlantillaPostsMethods().getAllPosts(userId: widget.user.user_id),
       ]);
 
       var newTemplates = resultados[0];
       var newCreatedTemplates = resultados[1];
+      var newArchivedTemplates = resultados[2];
 
       if (mounted) {
         setState(() {
           trainingTemplates = newTemplates;
           createdTrainingTemplates = newCreatedTemplates;
+          arhivedTrainingTemplates = newArchivedTemplates;
           isLoading = false;
         });
       }
@@ -58,6 +62,13 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     // Lógica para archivar la plantilla
     print('Archivar $templateName');
   }
+
+  void _quitar_de_archivado(String templateName) {
+    // Lógica para quitar de archivado la plantilla
+    print('Quitar de archivado $templateName');
+  }
+
+  void _eliminar_de_archivados(String templateName) {}
 
   void _deleteTemplate(String templateName) async {}
 
@@ -169,7 +180,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
         ),
-        content: const Text("implementar"),
+        content: showProgramasArchivados(context),
         isActive: _currentPage == 2,
       )
     ];
