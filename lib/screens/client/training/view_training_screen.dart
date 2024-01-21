@@ -29,8 +29,8 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     try {
       var resultados = await Future.wait([
         RutinaGuardadaMethods().getPlantillas(widget.user.user_id),
-        RutinasArchivadaMethods().getPlantillas(widget.user.user_id),
         PlantillaPostsMethods().getAllPosts(userId: widget.user.user_id),
+        RutinasArchivadaMethods().getPlantillas(widget.user.user_id),
       ]);
 
       var newTemplates = resultados[0];
@@ -53,9 +53,12 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     }
   }
 
-  void _editTemplate(String templateName) {
-    // Lógica para editar la plantilla
-    print('Editar $templateName');
+  void _editTemplate(PlantillaPost template) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+          builder: (context) => CreateProgramScreen(
+              user: widget.user, editingTemplate: template)),
+    );
   }
 
   void _archivarTemplate(String templateName) {
@@ -72,6 +75,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
   void _deleteTemplate(String templateName) async {}
 
+  void _verMas() {}
   void _createNewTemplate() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -157,58 +161,74 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
   List<Step> _buildSteps() {
     return [
       Step(
-        title: const Text(
-          "Activos",
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
-        ),
-        content: showProgramasGuardados(context),
+        title: const Text("Activos",
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: primaryColor)),
+        content: _buildProgramList(context, "Activos"),
         isActive: _currentPage == 0,
       ),
       Step(
-        title: const Text(
-          "Creados",
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
-        ),
-        content: showCrearProgramas(context),
+        title: const Text("Creados",
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: primaryColor)),
+        content: _buildProgramList(context, "Creados"),
         isActive: _currentPage == 1,
       ),
       Step(
-        title: const Text(
-          "Archivados",
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
-        ),
-        content: showProgramasArchivados(context),
+        title: const Text("Archivados",
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: primaryColor)),
+        content: _buildProgramList(context, "Archivados"),
         isActive: _currentPage == 2,
-      )
+      ),
     ];
   }
 
-  Widget showProgramasGuardados(BuildContext context) {
+  Widget _buildProgramList(BuildContext context, String tipo) {
+    List<PlantillaPost> lista = [];
+    switch (tipo) {
+      case "Activos":
+        lista = trainingTemplates;
+        break;
+      case "Creados":
+        lista = createdTrainingTemplates;
+        break;
+      case "Archivados":
+        lista = arhivedTrainingTemplates;
+        break;
+    }
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-            child: Text(
-              "Programas activos",
-              style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: primaryColor),
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+            child: Text(tipo,
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: primaryColor)),
           ),
-          ...listActiveProgramsWidgets(context),
+          ...lista.map((template) => _buildListItem(template, tipo)).toList(),
         ],
       ),
     );
   }
 
-  List<Widget> listActiveProgramsWidgets(BuildContext context) {
-    return trainingTemplates.map((template) {
-      return Card(
+  Widget _buildListItem(PlantillaPost template, String tipo) {
+    return GestureDetector(
+      onTap: () {
+        if (tipo == "Creados" || tipo == "Archivados") {
+          _verMas();
+        }
+      },
+      child: Card(
         margin: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(template.templateName,
@@ -216,81 +236,65 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
           trailing: PopupMenuButton<String>(
             iconColor: primaryColor,
             color: mobileSearchColor,
-            onSelected: (value) {
-              switch (value) {
-                case 'mas':
-                  _editTemplate(template.templateName);
-                  break;
-
-                case 'archivar':
-                  _archivarTemplate(template.templateName);
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'archivar',
-                child: Text('Archivar', style: TextStyle(color: primaryColor)),
-              ),
-              const PopupMenuItem<String>(
-                value: 'mas',
-                child: Text('Ver más', style: TextStyle(color: primaryColor)),
-              ),
-            ],
+            onSelected: (value) => _handleMenuItemSelected(value, template),
+            itemBuilder: (BuildContext context) => _buildPopupMenuItems(tipo),
           ),
-        ),
-      );
-    }).toList();
-  }
-
-  Widget showCrearProgramas(BuildContext context) {
-    return SingleChildScrollView(
-        child: Column(children: [
-      const Padding(
-        padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-        child: Text(
-          "Creador de programas",
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
         ),
       ),
-      ...listCreatedProgramsWidget(context),
-    ]));
+    );
   }
 
-  List<Widget> listCreatedProgramsWidget(BuildContext context) {
-    return createdTrainingTemplates.map((template) {
-      return Card(
-        margin: const EdgeInsets.all(8.0),
-        child: ListTile(
-          title: Text(template.templateName,
-              style: const TextStyle(color: primaryColor)),
-          trailing: PopupMenuButton<String>(
-            iconColor: primaryColor,
-            color: mobileSearchColor,
-            onSelected: (value) {
-              switch (value) {
-                case 'edit':
-                  _editTemplate(template.templateName);
-                  break;
-                case 'delete':
-                  _deleteTemplate(template.templateName);
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'edit',
-                child: Text('Editar', style: TextStyle(color: primaryColor)),
-              ),
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Text('Eliminar', style: TextStyle(color: primaryColor)),
-              ),
-            ],
-          ),
-        ),
-      );
-    }).toList();
+  List<PopupMenuEntry<String>> _buildPopupMenuItems(String tipo) {
+    switch (tipo) {
+      case "Activos":
+        return [
+          const PopupMenuItem<String>(
+              value: 'archivar',
+              child: Text('Archivar', style: TextStyle(color: primaryColor))),
+          const PopupMenuItem<String>(
+              value: 'mas',
+              child: Text('Ver más', style: TextStyle(color: primaryColor))),
+          const PopupMenuItem<String>(
+              value: 'delete_guardados',
+              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+        ];
+      case "Creados":
+        return [
+          const PopupMenuItem<String>(
+              value: 'edit',
+              child: Text('Editar', style: TextStyle(color: primaryColor))),
+          const PopupMenuItem<String>(
+              value: 'delete_creados',
+              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+        ];
+      case "Archivados":
+        return [
+          const PopupMenuItem<String>(
+              value: 'mas',
+              child: Text('Ver más', style: TextStyle(color: primaryColor))),
+          const PopupMenuItem<String>(
+              value: 'delete_archivados',
+              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+        ];
+    }
+    return [];
+  }
+
+  void _handleMenuItemSelected(String value, PlantillaPost template) {
+    switch (value) {
+      case 'archivar':
+        _archivarTemplate(template.templateName);
+        break;
+      case 'mas':
+        // Acción para 'Ver más'
+        break;
+      case 'edit':
+        _editTemplate(template);
+        break;
+      case 'delete':
+        _deleteTemplate(template.templateName);
+        break;
+      // Agregar más casos según sea necesario...
+    }
   }
 }
