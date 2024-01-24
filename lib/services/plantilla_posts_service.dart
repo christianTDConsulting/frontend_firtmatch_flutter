@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:http/http.dart' as http;
 import 'package:fit_match/models/post.dart'; // Asegúrate de importar tu clase Post
 import 'package:fit_match/utils/backend_urls.dart';
@@ -153,6 +154,22 @@ class SesionEntrenamientoMethods {
     if (response.statusCode != 200) {
       throw Exception(
           'Error al editar la sesión de entrenamiento. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<List<SesionEntrenamiento>> getSesionesEntrenamientoByTemplateId(
+      templateId) async {
+    final response = await http.get(
+      Uri.parse('$sesionEntrenamientoUrl?template_id=$templateId'),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body) as List;
+      return jsonData
+          .map((jsonItem) => SesionEntrenamiento.fromJson(jsonItem))
+          .toList();
+    } else {
+      throw Exception(
+          'Error al obtener los posts. Código de estado: ${response.statusCode}');
     }
   }
 }
