@@ -5,6 +5,7 @@ import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/colors.dart';
 
 import 'package:flutter/material.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class ViewTrainingScreen extends StatefulWidget {
   final User user;
@@ -19,9 +20,8 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
   List<PlantillaPost> createdTrainingTemplates = [];
   List<PlantillaPost> arhivedTrainingTemplates = [];
   bool isLoading = false;
-  int _currentPage = 0;
 
-  Future<void> loadTrainingTemplates() async {
+  Future<void> _loadTrainingTemplates() async {
     if (isLoading) return;
 
     setState(() => isLoading = true);
@@ -86,111 +86,42 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
   @override
   void initState() {
     super.initState();
-    loadTrainingTemplates();
+    _loadTrainingTemplates();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Plantillas de entrenamiento'),
-      ),
-      floatingActionButton: _currentPage == 1
-          ? FloatingActionButton(
-              onPressed: _createNewTemplate,
-              backgroundColor: blueColor,
-              child: const Icon(Icons.add),
-            )
-          : null,
-      body: SafeArea(
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSwatch(
-              cardColor: blueColor,
-              backgroundColor: primaryColor,
-            ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plantillas de entrenamiento'),
+          bottom: const TabBar(
+            indicatorColor: blueColor,
+            labelColor: blueColor,
+            unselectedLabelColor: primaryColor,
+            tabs: [
+              Tab(text: 'Activas'),
+              Tab(text: 'Creadas'),
+              Tab(text: 'Archivadas'),
+            ],
           ),
-          child: Stepper(
-            type: StepperType.horizontal,
-            currentStep: _currentPage,
-            onStepTapped: (int step) => setState(() => _currentPage = step),
-            onStepContinue: () {
-              setState(() {
-                if (_currentPage < 1) {
-                  _currentPage++;
-                }
-              });
-            },
-            onStepCancel: () {
-              setState(() {
-                if (_currentPage > 0) {
-                  _currentPage--;
-                }
-              });
-            },
-            steps: _buildSteps(),
-            controlsBuilder: (BuildContext context, ControlsDetails details) {
-              return Row(children: <Widget>[
-                if (_currentPage != 0)
-                  TextButton(
-                    onPressed: () => setState(() => _currentPage = 0),
-                    child: const Text('Ir a Programas Activos',
-                        style: TextStyle(color: blueColor)),
-                  ),
-                if (_currentPage != 1)
-                  TextButton(
-                    onPressed: () => setState(() => _currentPage = 1),
-                    child: const Text('Ir a Programas Creados',
-                        style: TextStyle(color: blueColor)),
-                  ),
-                if (_currentPage != 2) // Botón para el tercer paso
-                  TextButton(
-                    onPressed: () => setState(() => _currentPage = 2),
-                    child: const Text('Ir a Programas Archivados',
-                        style: TextStyle(color: blueColor)),
-                  ),
-              ]);
-            },
-          ),
+        ),
+        body: SafeArea(
+          child: TabBarView(children: [
+            _buildProgramList(context, 'Activos'),
+            _buildProgramList(context, 'Creados'),
+            _buildProgramList(context, 'Archivados'),
+          ]),
         ),
       ),
     );
   }
 
-  List<Step> _buildSteps() {
-    return [
-      Step(
-        title: const Text("Activos",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: primaryColor)),
-        content: _buildProgramList(context, "Activos"),
-        isActive: _currentPage == 0,
-      ),
-      Step(
-        title: const Text("Creados",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: primaryColor)),
-        content: _buildProgramList(context, "Creados"),
-        isActive: _currentPage == 1,
-      ),
-      Step(
-        title: const Text("Archivados",
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: primaryColor)),
-        content: _buildProgramList(context, "Archivados"),
-        isActive: _currentPage == 2,
-      ),
-    ];
-  }
-
-  Widget _buildProgramList(BuildContext context, String tipo) {
+  Widget _buildProgramList(
+    BuildContext context,
+    String tipo,
+  ) {
     List<PlantillaPost> lista = [];
     switch (tipo) {
       case "Activos":
@@ -204,8 +135,11 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
         break;
     }
 
-    return SingleChildScrollView(
-      child: Column(
+    return LiquidPullToRefresh(
+      onRefresh: _loadTrainingTemplates,
+      backgroundColor: mobileBackgroundColor,
+      color: blueColor,
+      child: ListView(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
@@ -216,6 +150,18 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
                     color: primaryColor)),
           ),
           ...lista.map((template) => _buildListItem(template, tipo)).toList(),
+          if (tipo == 'Creados')
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FloatingActionButton(
+                  onPressed: _createNewTemplate,
+                  backgroundColor: blueColor,
+                  child: const Icon(Icons.add),
+                ),
+              ),
+            ),
         ],
       ),
     );

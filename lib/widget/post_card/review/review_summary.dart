@@ -1,4 +1,3 @@
-import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/post_card/star.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -8,8 +7,6 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/review/review_input_widget.dart';
 import 'package:fit_match/widget/post_card/review/review_list.dart';
 import 'package:fit_match/services/review_service.dart';
-
-import '../../show_modal_bottom_sheet.dart';
 
 class ReviewSummaryWidget extends StatefulWidget {
   final List<Review> reviews;
@@ -31,11 +28,14 @@ class ReviewSummaryWidget extends StatefulWidget {
 
 class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   void _showReviewInput(BuildContext context, double width) {
-    ReviewInputWidget(
-      onReviewSubmit: (double rating, String reviewText) async {
-        await onReviewSubmit(
-            widget.userId, widget.templateId, rating, reviewText);
-      },
+    Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (context) => ReviewInputWidget(
+                onReviewSubmit: (double rating, String reviewText) async {
+                  await onReviewSubmit(
+                      widget.userId, widget.templateId, rating, reviewText);
+                },
+              )),
     );
   }
 

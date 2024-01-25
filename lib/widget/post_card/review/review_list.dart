@@ -308,16 +308,11 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     commentsVisibility.putIfAbsent(review.reviewId, () => false);
 
     return Card(
-      margin: const EdgeInsets.all(8.0),
+      margin: const EdgeInsets.all(4.0),
       child: Column(
         children: [
           ListTile(
             title: _buildReviewTitle(review),
-            subtitle: Container(
-              margin: EdgeInsets.only(
-                  top: 8.0), // Ajusta el valor según sea necesario
-              child: Text(review.reviewContent),
-            ),
           ),
           _buildReviewActions(review),
           if (activeCommentId == review.reviewId) _buildResponderTextField(),
@@ -333,24 +328,40 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     final timeAgo = formatTimeAgo(review.timestamp);
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         CircleAvatar(
           backgroundImage: NetworkImage(review.profilePicture),
           radius: 20,
         ),
         const SizedBox(width: 8),
-        review.username.isNotEmpty
-            ? Text(review.username,
-                style: const TextStyle(
-                    fontSize: 16,
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold))
-            : const Text('Cargando...', style: TextStyle(fontSize: 12)),
-        const SizedBox(width: 8),
-        StarDisplay(value: review.rating, size: 20),
-        const SizedBox(width: 5),
-        Text('$formattedRating/5.0', style: const TextStyle(fontSize: 12)),
-        Text(' - $timeAgo', style: const TextStyle(fontSize: 12)),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                children: [
+                  review.username.isNotEmpty
+                      ? Text(review.username,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold))
+                      : const Text('Cargando...',
+                          style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 5),
+                  Text('$formattedRating/5.0',
+                      style: const TextStyle(fontSize: 14)),
+                  Text(' - $timeAgo', style: const TextStyle(fontSize: 14)),
+                ],
+              ),
+              Text(review.reviewContent,
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -364,16 +375,20 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           TextButton(
             onPressed: () => toggleCommentsVisibility(review.reviewId),
             child: Text(
-                commentsVisibility[review.reviewId]!
-                    ? "Ocultar Respuestas"
-                    : "Ver ${review.comentarioReview.length} respuestas más",
-                style: const TextStyle(color: blueColor)),
+              commentsVisibility[review.reviewId]!
+                  ? "Ocultar Respuestas"
+                  : "Ver ${review.comentarioReview.length} respuestas más",
+              style: const TextStyle(color: blueColor),
+              textScaler: const TextScaler.linear(0.8),
+            ),
           ),
         TextButton(
           onPressed: () => onResponderPressed(review.reviewId),
           child: Text(
-              activeCommentId == review.reviewId ? "Ocultar" : "Responder",
-              style: const TextStyle(color: blueColor)),
+            activeCommentId == review.reviewId ? "Ocultar" : "Responder",
+            style: const TextStyle(color: blueColor),
+            textScaler: const TextScaler.linear(0.8),
+          ),
         ),
         if (review.userId == widget.userId)
           IconButton(
