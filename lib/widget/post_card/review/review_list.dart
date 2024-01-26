@@ -253,25 +253,31 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     }
   }
 
-//Este Widget se exporta para ser usado post_card
   Widget _contentReviews(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical, // Agregar scroll vertical
-      child: Column(
-        children: [
-          Column(
-            children: [
-              widget.reviews.length > 1
-                  ? (width < webScreenSize)
-                      ? _buildDropdownFilter()
-                      : _buildFilterReviews(context)
-                  : Container(),
-              const SizedBox(height: 8),
-              ...widget.reviews.map(_buildReviewItem).toList(),
-            ],
-          ),
-        ],
+      child: Padding(
+        padding: widget.fullScreen
+            ? const EdgeInsets.all(16.0)
+            : const EdgeInsets.all(0),
+        child: Column(
+          children: [
+            Column(
+              children: [
+                widget.reviews.length > 1
+                    ? (width < webScreenSize)
+                        ? _buildDropdownFilter()
+                        : _buildFilterReviews(context)
+                    : Container(),
+                const SizedBox(height: 8),
+                ...widget.reviews
+                    .map((review) => _buildReviewItem(review, width))
+                    .toList(),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -341,7 +347,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     ]);
   }
 
-  Widget _buildReviewItem(Review review) {
+  Widget _buildReviewItem(Review review, num width) {
     commentsVisibility.putIfAbsent(review.reviewId, () => false);
 
     return Card(
@@ -349,18 +355,18 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
       child: Column(
         children: [
           ListTile(
-            title: _buildReviewTitle(review),
+            title: _buildReviewTitle(review, width),
           ),
-          _buildReviewActions(review),
+          _buildReviewActions(review, width),
           if (activeCommentId == review.reviewId) _buildResponderTextField(),
           if (commentsVisibility[review.reviewId] ?? false)
-            _buildCommentsSection(review.comentarioReview),
+            _buildCommentsSection(review.comentarioReview, width),
         ],
       ),
     );
   }
 
-  Widget _buildReviewTitle(Review review) {
+  Widget _buildReviewTitle(Review review, num width) {
     final formattedRating = NumberFormat("0.00").format(review.rating);
     final timeAgo = formatTimeAgo(review.timestamp);
 
@@ -384,18 +390,28 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                           style: const TextStyle(
                               fontSize: 14,
                               color: primaryColor,
-                              fontWeight: FontWeight.bold))
+                              fontWeight: FontWeight.bold),
+                          textScaler: width < webScreenSize
+                              ? const TextScaler.linear(0.8)
+                              : const TextScaler.linear(1.2))
                       : const Text('Cargando...',
                           style: TextStyle(fontSize: 14)),
                   const SizedBox(width: 5),
-                  Text(' - $timeAgo', style: const TextStyle(fontSize: 14)),
+                  Text(' - $timeAgo',
+                      style: const TextStyle(fontSize: 14),
+                      textScaler: width < webScreenSize
+                          ? const TextScaler.linear(0.8)
+                          : const TextScaler.linear(1.2)),
                 ],
               ),
               Wrap(children: [
                 StarDisplay(value: review.rating, size: 14),
                 const SizedBox(width: 5),
                 Text('$formattedRating/5.0',
-                    style: const TextStyle(fontSize: 14)),
+                    style: const TextStyle(fontSize: 14),
+                    textScaler: width < webScreenSize
+                        ? const TextScaler.linear(0.8)
+                        : const TextScaler.linear(1.2)),
               ]),
               widget.fullScreen
                   ? ExpandableText(
@@ -414,7 +430,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     );
   }
 
-  Widget _buildReviewActions(Review review) {
+  Widget _buildReviewActions(Review review, num width) {
     return Row(
       children: [
         const SizedBox(width: 8),
@@ -427,7 +443,9 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                   ? "Ocultar Respuestas"
                   : "Ver ${review.comentarioReview.length} respuestas más",
               style: const TextStyle(color: blueColor),
-              textScaler: const TextScaler.linear(0.8),
+              textScaler: width < webScreenSize
+                  ? const TextScaler.linear(0.8)
+                  : const TextScaler.linear(1.2),
             ),
           ),
         TextButton(
@@ -435,7 +453,9 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
           child: Text(
             activeCommentId == review.reviewId ? "Ocultar" : "Responder",
             style: const TextStyle(color: blueColor),
-            textScaler: const TextScaler.linear(0.8),
+            textScaler: width < webScreenSize
+                ? const TextScaler.linear(0.8)
+                : const TextScaler.linear(1.2),
           ),
         ),
         if (review.userId == widget.userId)
@@ -448,53 +468,77 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     );
   }
 
-  Widget _buildCommentsSection(List<ComentarioReview>? comentarios) {
+  Widget _buildCommentsSection(List<ComentarioReview>? comentarios, num width) {
     return comentarios?.isEmpty ?? true
         ? const SizedBox.shrink()
         : Padding(
             padding: const EdgeInsets.only(left: 35),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: comentarios!.map(_buildCommentItem).toList(),
+              children: comentarios!
+                  .map((comentario) => _buildCommentItem(comentario, width))
+                  .toList(),
             ),
           );
   }
 
-  Widget _buildCommentItem(ComentarioReview comentario) {
-    final timeAgo = formatTimeAgo(comentario.timestamp);
+  Widget _buildCommentItem(ComentarioReview comentario, num width) {
+    final _timeAgo = formatTimeAgo(comentario.timestamp);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(comentario.username,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(width: 4),
-              Text("-$timeAgo",
-                  style: const TextStyle(fontSize: 12, color: primaryColor)),
-            ],
+          CircleAvatar(
+            backgroundImage: NetworkImage(comentario.profilePicture),
+            radius: 20,
           ),
-          const SizedBox(height: 8),
-          Text(comentario.content,
-              style: const TextStyle(fontSize: 14, color: primaryColor)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _likeComment(comentario),
-              comentario.userId == widget.userId
-                  ? IconButton(
-                      icon: const Icon(Icons.delete),
-                      color: Colors.red,
-                      onPressed: () => _deleteComment(comentario),
-                    )
-                  : const SizedBox.shrink(),
-            ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  children: [
+                    Text(comentario.username,
+                        style: const TextStyle(
+                            fontSize: 16,
+                            color: primaryColor,
+                            fontWeight: FontWeight.bold),
+                        textScaler: width < webScreenSize
+                            ? const TextScaler.linear(0.8)
+                            : const TextScaler.linear(1.2)),
+                    const SizedBox(width: 4),
+                    Text(
+                      "-$_timeAgo",
+                      style: const TextStyle(fontSize: 14, color: primaryColor),
+                      textScaler: width < webScreenSize
+                          ? const TextScaler.linear(0.8)
+                          : const TextScaler.linear(1.2),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ExpandableText(
+                  text: comentario.content,
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    _likeComment(comentario),
+                    comentario.userId == widget.userId
+                        ? IconButton(
+                            icon: const Icon(Icons.delete),
+                            color: Colors.red,
+                            onPressed: () => _deleteComment(comentario),
+                          )
+                        : const SizedBox.shrink(),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),

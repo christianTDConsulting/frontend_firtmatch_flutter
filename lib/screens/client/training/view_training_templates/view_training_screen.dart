@@ -1,6 +1,6 @@
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/screens/client/training/info_plantilla_screen.dart';
+import 'package:fit_match/screens/client/training/view_training_sessions/info_plantilla_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/colors.dart';
 
@@ -141,14 +141,6 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
       color: blueColor,
       child: ListView(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-            child: Text(tipo,
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: primaryColor)),
-          ),
           ...lista.map((template) => _buildListItem(template, tipo)).toList(),
           if (tipo == 'Creados')
             Align(

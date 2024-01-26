@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
-import 'package:fit_match/screens/client/training/view_sesion_entrenamientos_screen.dart';
+import 'package:fit_match/screens/client/training/view_training_sessions/view_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';

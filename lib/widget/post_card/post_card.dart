@@ -106,7 +106,7 @@ class _PostCardState extends State<PostCard> {
                 ]),
               ),
               const SizedBox(height: 12),
-              _buildContentBasedOnSelection(),
+              _buildContentBasedOnSelection(width),
             ],
           ),
         ),
@@ -167,12 +167,12 @@ class _PostCardState extends State<PostCard> {
 
   // Obtiene el mapa de secciones cada vez que se construye el widget
 
-  Widget _buildContentBasedOnSelection() {
+  Widget _buildContentBasedOnSelection(num width) {
     switch (_selectedOption) {
       case 'General':
         return _buildGeneralContent();
       case 'Reviews':
-        return _buildReviewsContent();
+        return _buildReviewsContent(width);
       default:
         return Container(); // Placeholder for 'Información' content
     }
@@ -249,7 +249,7 @@ class _PostCardState extends State<PostCard> {
   }
 
 //REVIEWS
-  Widget _buildReviewsContent() {
+  Widget _buildReviewsContent(num width) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,8 +263,12 @@ class _PostCardState extends State<PostCard> {
                       foregroundColor:
                           MaterialStateProperty.all<Color>(secondaryColor),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Ver todas las reseñas",
+                      style: TextStyle(color: secondaryColor, fontSize: 14),
+                      textScaler: width < webScreenSize
+                          ? const TextScaler.linear(0.9)
+                          : const TextScaler.linear(1.2),
                     ),
                   )
                 : Container(),

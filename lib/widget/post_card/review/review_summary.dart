@@ -180,14 +180,17 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   }
 
   Widget _buildReviewButton(BuildContext context, double width) {
-    return Center(
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.edit),
-        label: const Text('Escribir una Reseña'),
-        onPressed: () => _showReviewInput(context, width),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: blueColor,
-          foregroundColor: primaryColor,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: ElevatedButton.icon(
+          icon: const Icon(Icons.edit),
+          label: const Text('Escribir una Reseña'),
+          onPressed: () => _showReviewInput(context, width),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: blueColor,
+            foregroundColor: primaryColor,
+          ),
         ),
       ),
     );

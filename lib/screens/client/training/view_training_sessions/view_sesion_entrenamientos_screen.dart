@@ -1,7 +1,7 @@
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
-import 'package:fit_match/screens/client/training/info_sesion_entrenamientos_screen.dart';
+import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
