@@ -366,6 +366,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
           backgroundImage: NetworkImage(review.profilePicture),

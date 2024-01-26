@@ -87,20 +87,28 @@ class _PostCardState extends State<PostCard> {
       width: 400,
       child: Card(
         color:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
+            width > webScreenSize ? mobileBackgroundColor : webBackgroundColor,
         surfaceTintColor:
             width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
-        child: Column(
-          children: <Widget>[
-            const SizedBox(height: 12),
-            _buildListTile(width),
-            const SizedBox(height: 12),
-            _buildPostImage(width),
-            const SizedBox(height: 12),
-            _buildSelectButtons(),
-            const SizedBox(height: 12),
-            _buildContentBasedOnSelection(),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Center(
+                child: Column(children: [
+                  const SizedBox(height: 12),
+                  _buildListTile(width),
+                  const SizedBox(height: 12),
+                  _buildPostImage(width),
+                  const SizedBox(height: 12),
+                  _buildSelectButtons(),
+                ]),
+              ),
+              const SizedBox(height: 12),
+              _buildContentBasedOnSelection(),
+            ],
+          ),
         ),
       ),
     );
@@ -112,8 +120,7 @@ class _PostCardState extends State<PostCard> {
           style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
       trailing: _isLoading
           ? CircularProgressIndicator() // Muestra el indicador de progreso mientras los datos se están cargando
-          : Row(
-              mainAxisSize: MainAxisSize.min,
+          : Wrap(
               children: [
                 Text(NumberFormat("0.0").format(_averageRating),
                     style: const TextStyle(fontSize: 32)),
@@ -140,8 +147,7 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildSelectButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
       children: ['General', 'Reviews', 'Información'].map((option) {
         return Padding(
           padding: const EdgeInsets.all(4.0),
@@ -226,23 +232,28 @@ class _PostCardState extends State<PostCard> {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle(title),
-        Wrap(
-          spacing: 8.0,
-          children: chips,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(title),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 8.0,
+            children: chips,
+          ),
+        ],
+      ),
     );
   }
 
 //REVIEWS
   Widget _buildReviewsContent() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Wrap(
           children: [
             const SizedBox(width: 24),
             reviews.length > 1

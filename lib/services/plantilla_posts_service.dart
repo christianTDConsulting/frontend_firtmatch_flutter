@@ -29,6 +29,8 @@ class PlantillaPostsMethods {
       return jsonData
           .map((jsonItem) => PlantillaPost.fromJson(jsonItem))
           .toList();
+    } else if (response.statusCode == 204) {
+      return [];
     } else {
       throw Exception(
           'Error al obtener los posts. Código de estado: ${response.statusCode}');

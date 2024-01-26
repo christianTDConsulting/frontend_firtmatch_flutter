@@ -59,9 +59,17 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       // Obtener nuevos posts.
       var newPosts = await PlantillaPostsMethods()
           .getAllPosts(page: currentPage, pageSize: pageSize);
-
+      if (newPosts.isEmpty) {
+        setState(() {
+          hasMore = false;
+          showToast(
+            context,
+            "No hay mas rutinas disponibles.",
+          );
+        });
+      }
       // Actualizar la lista de posts y el estado si el componente sigue montado.
-      if (mounted) {
+      else if (mounted) {
         _updatePostsList(newPosts);
       }
     } catch (e) {
