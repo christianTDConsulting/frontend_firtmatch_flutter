@@ -1,24 +1,27 @@
+import 'package:fit_match/widget/expandable_text.dart';
+import 'package:fit_match/widget/post_card/star.dart';
+import 'package:flutter/material.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/custom_toggle_button.dart';
 import 'package:fit_match/widget/text_field_input.dart';
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:like_button/like_button.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/services/review_service.dart';
-import '../star.dart';
 
 class ReviewListWidget extends StatefulWidget {
   final List<Review> reviews;
   final int userId;
+  final bool fullScreen;
   final Function onReviewDeleted; // Callback
 
   const ReviewListWidget(
       {Key? key,
       required this.reviews,
       required this.userId,
+      this.fullScreen = false,
       required this.onReviewDeleted})
       : super(key: key);
 
@@ -61,21 +64,36 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     });
   }
 
+  void _sortReviewsByLikes() {
+    widget.reviews.sort((a, b) => b.meGusta.length.compareTo(a.meGusta.length));
+  }
+
+  void _sortReviewsByRecent() {
+    widget.reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  void _sortReviewsByHighRating() {
+    widget.reviews.sort((a, b) => b.rating.compareTo(a.rating));
+  }
+
+  void _sortReviewsByLowRating() {
+    widget.reviews.sort((a, b) => a.rating.compareTo(b.rating));
+  }
+
   void _sortReviews(int index) {
     setState(() {
       switch (index) {
         case 0: // Ordenar por 'Me Gusta'
-          widget.reviews
-              .sort((a, b) => b.meGusta.length.compareTo(a.meGusta.length));
+          _sortReviewsByLikes();
           break;
         case 1: // Ordenar por 'Recientes'
-          widget.reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          _sortReviewsByRecent();
           break;
         case 2: // Ordenar por 'Calificación Alta'
-          widget.reviews.sort((a, b) => b.rating.compareTo(a.rating));
+          _sortReviewsByHighRating();
           break;
         case 3: // Ordenar por 'Calificación Baja'
-          widget.reviews.sort((a, b) => a.rating.compareTo(b.rating));
+          _sortReviewsByLowRating();
           break;
       }
     });
@@ -218,6 +236,25 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.fullScreen) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Reviews',
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        body: _contentReviews(context),
+      );
+    } else {
+      return _contentReviews(context);
+    }
+  }
+
+//Este Widget se exporta para ser usado post_card
+  Widget _contentReviews(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical, // Agregar scroll vertical
@@ -350,15 +387,25 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                       : const Text('Cargando...',
                           style: TextStyle(fontSize: 14)),
                   const SizedBox(width: 5),
-                  Text('$formattedRating/5.0',
-                      style: const TextStyle(fontSize: 14)),
                   Text(' - $timeAgo', style: const TextStyle(fontSize: 14)),
                 ],
               ),
-              Text(review.reviewContent,
-                  style: const TextStyle(fontSize: 12),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis),
+              Wrap(children: [
+                StarDisplay(value: review.rating, size: 14),
+                const SizedBox(width: 5),
+                Text('$formattedRating/5.0',
+                    style: const TextStyle(fontSize: 14)),
+              ]),
+              widget.fullScreen
+                  ? ExpandableText(
+                      text: review.reviewContent,
+                      maxLines: 3,
+                    )
+                  : Text(
+                      review.reviewContent,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
             ],
           ),
         ),

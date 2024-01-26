@@ -1,4 +1,4 @@
-import 'package:fit_match/widget/text_field_input.dart';
+import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -29,11 +29,12 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Escribe tu reseña'),
+        title: const Text('Escribe tu reseña'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(bottom: bottomPadding),
+          padding: const EdgeInsets.all(16.0) +
+              EdgeInsets.only(bottom: bottomPadding),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -41,7 +42,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
               _buildRatingBar(),
               const SizedBox(height: 20),
               _buildReviewTextField(),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildSubmitButton(),
             ],
           ),
@@ -79,43 +80,30 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
       controller: _textController,
       maxLines: null,
       keyboardType: TextInputType.multiline,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         hintText: 'Escribe tu reseña aquí',
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderSide: Divider.createBorderSide(context),
+        ),
       ),
     );
   }
 
   Widget _buildSubmitButton() {
-    return ElevatedButton(
+    return ElevatedButton.icon(
+      icon: const Icon(Icons.send),
+      label: const Text('Enviar Reseña'),
       onPressed: () async {
-        if (_textController.text.trim().isNotEmpty) {
+        if (_currentRating >= 0) {
           await widget.onReviewSubmit(_currentRating, _textController.text);
-          // Puedes cerrar la pantalla después de enviar la reseña si lo deseas
-          Navigator.pop(context);
         }
       },
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(
             50), // Establece una altura mínima para el botón
+        backgroundColor: blueColor,
+        foregroundColor: primaryColor,
       ),
-      child: const Text('Enviar Reseña'),
     );
   }
 }
-  /*
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-         
-        ],
-      ),
-    );
-  }
-  */
-

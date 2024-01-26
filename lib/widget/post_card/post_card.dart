@@ -56,6 +56,29 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
+  void _onSelectOption(String option) {
+    setState(() {
+      _selectedOption = option;
+    });
+  }
+
+  void _showReviews() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ReviewListWidget(
+            reviews: reviews,
+            userId: widget.userId,
+            fullScreen: true,
+            onReviewDeleted: (int reviewId) {
+              setState(() {
+                reviews.removeWhere((item) => item.reviewId == reviewId);
+                showToast(context, 'Reseña elimianda con éxito');
+              });
+            }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -136,11 +159,6 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  void _onSelectOption(String option) {
-    setState(() {
-      _selectedOption = option;
-    });
-  }
   // Obtiene el mapa de secciones cada vez que se construye el widget
 
   Widget _buildContentBasedOnSelection() {
@@ -229,7 +247,7 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(width: 24),
             reviews.length > 1
                 ? TextButton(
-                    onPressed: _showDialog,
+                    onPressed: _showReviews,
                     style: ButtonStyle(
                       foregroundColor:
                           MaterialStateProperty.all<Color>(secondaryColor),
@@ -251,46 +269,11 @@ class _PostCardState extends State<PostCard> {
                 //se añade en local en vez de obtener todas de nuevo
                 setState(() {
                   reviews.add(review);
+                  showToast(context, 'Reseña anadida con exito');
                 });
               }),
         ),
       ],
-    );
-  }
-
-  void _showDialog() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.topRight,
-            children: [
-              if (_selectedOption == 'Reviews')
-                ReviewListWidget(
-                    reviews: reviews,
-                    userId: widget.userId,
-                    onReviewDeleted: (int reviewId) {
-                      setState(() {
-                        reviews
-                            .removeWhere((item) => item.reviewId == reviewId);
-                        showToast(context, 'Reseña elimianda con éxito');
-                      });
-                    }),
-              // Placeholder for 'Información' content
-              Positioned(
-                right: -10.0,
-                top: -10.0,
-                child: IconButton(
-                  icon: const Icon(Icons.close, size: 30.0),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
