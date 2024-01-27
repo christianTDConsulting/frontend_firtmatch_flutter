@@ -77,7 +77,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
   void _verMas() {}
   void _createNewTemplate() {
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       MaterialPageRoute(
           builder: (context) => CreateProgramScreen(user: widget.user)),
     );

@@ -1,6 +1,7 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/training/view_training_sessions/exercise/exercise_selection_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/view_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -42,16 +43,18 @@ class _InfoSesionEntrenamientoScreen
 
   void initSesionEntrenamients() async {}
 
-  void _addExercise() {}
+  void _addExercise() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ExecriseSelectionScreen(),
+      ),
+    );
+  }
 
   void _saveEntrenamiento() {}
 
   void _navigateBack() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ViewSesionEntrenamientoScreen(
-              templateId: widget.templateId,
-              user: widget.user,
-            )));
+    Navigator.of(context).pop();
   }
 
   @override

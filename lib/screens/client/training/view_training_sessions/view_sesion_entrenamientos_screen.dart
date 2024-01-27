@@ -29,7 +29,7 @@ class _ViewSesionEntrenamientoScreen
     super.initState();
   }
 
-  void initSesionEntrenamients() async {
+  void initSesionEntrenamientos() async {
     try {
       // Obtener nuevos posts.
       var sesiones = await SesionEntrenamientoMethods()
@@ -55,10 +55,7 @@ class _ViewSesionEntrenamientoScreen
   void _saveEntrenamientos() {}
 
   void _navigateBack() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ResponsiveLayout(
-              user: widget.user,
-            )));
+    Navigator.pop(context);
   }
 
   @override

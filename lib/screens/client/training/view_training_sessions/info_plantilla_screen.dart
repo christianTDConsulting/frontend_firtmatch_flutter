@@ -204,73 +204,102 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     _setLoadingState(true);
 
     try {
-      // Verifica si el formulario es válido
-      if (_formKey.currentState!.validate()) {
-        bool hasSelectedObjective = selectedObjectives.containsValue(true);
-        bool hasSelectedInterest = selectedInterests.containsValue(true);
-
-        // Si no se seleccionó al menos un objetivo o un interés, muestra un error
-        if (!hasSelectedObjective || !hasSelectedInterest) {
-          showToast(context,
-              'Por favor, selecciona al menos un objetivo y un interés.');
-          return;
-        }
-
-        final programName = _programNameController.text;
-        final description = _descriptionController.text;
-        final thumbnailImage = _thumbnailImage;
-
-        List<Etiqueta> etiquetas = [];
-
-        selectedObjectives.entries
-            .where((element) => element.value)
-            .forEach((e) {
-          etiquetas.add(Etiqueta(objectives: e.key));
-        });
-
-        selectedInterests.entries
-            .where((element) => element.value)
-            .forEach((e) {
-          etiquetas.add(Etiqueta(interests: e.key));
-        });
-
-        // Añadir experiencia y equipo como etiquetas individuales
-        etiquetas.add(Etiqueta(experience: selectedExperience));
-        etiquetas.add(Etiqueta(equipment: selectedEquipment));
-
-        if (widget.editingTemplate != null) {
-          PlantillaPost plantillaActualizada = PlantillaPost(
-              templateId: widget.editingTemplate!.templateId,
-              userId: widget.editingTemplate!.userId,
-              templateName: _programNameController.text,
-              description: _descriptionController.text,
-              public: false,
-              hidden: false,
-              etiquetas: etiquetas);
-
-          int templateId = widget.editingTemplate!.templateId;
-          if (plantillaActualizada != widget.editingTemplate) {
-            templateId = await PlantillaPostsMethods()
-                .updatePlantilla(plantillaActualizada, thumbnailImage);
-          }
-
-          navigateNext(templateId);
-        } else {
-          int templateId = await PlantillaPostsMethods().postPlantilla(
-              userId: widget.user.user_id,
-              templateName: programName,
-              description: description,
-              picture: thumbnailImage,
-              etiquetas: etiquetas);
-
-          navigateNext(templateId);
-        }
+      if (_isFormValid()) {
+        _processFormSubmission();
       }
     } catch (e) {
       print(e);
+      showToast(context, 'Ha ocurrido un error. Por favor, intenta de nuevo.',
+          exitoso: false);
     } finally {
       _setLoadingState(false);
     }
+  }
+
+  bool _isFormValid() {
+    if (!_formKey.currentState!.validate()) {
+      return false;
+    }
+
+    bool hasSelectedObjective = selectedObjectives.containsValue(true);
+    bool hasSelectedInterest = selectedInterests.containsValue(true);
+
+    if (!hasSelectedObjective || !hasSelectedInterest) {
+      showToast(
+          context, 'Por favor, selecciona al menos un objetivo y un interés.');
+      return false;
+    }
+
+    return true;
+  }
+
+  void _processFormSubmission() async {
+    final programName = _programNameController.text;
+    final description = _descriptionController.text;
+    final thumbnailImage = _thumbnailImage;
+
+    List<Etiqueta> etiquetas = _createEtiquetas();
+
+    if (widget.editingTemplate != null) {
+      await _updateTemplate(
+          programName, description, thumbnailImage, etiquetas);
+    } else {
+      await _createTemplate(
+          programName, description, thumbnailImage, etiquetas);
+    }
+  }
+
+  List<Etiqueta> _createEtiquetas() {
+    List<Etiqueta> etiquetas = [];
+
+    etiquetas.addAll(_createEtiquetasFromMap(selectedObjectives, 'objectives'));
+    etiquetas.addAll(_createEtiquetasFromMap(selectedInterests, 'interests'));
+
+    etiquetas.add(Etiqueta(experience: selectedExperience));
+    etiquetas.add(Etiqueta(equipment: selectedEquipment));
+
+    return etiquetas;
+  }
+
+  Future<void> _updateTemplate(String programName, String description,
+      dynamic thumbnailImage, List<Etiqueta> etiquetas) async {
+    PlantillaPost plantillaActualizada = PlantillaPost(
+        templateId: widget.editingTemplate!.templateId,
+        userId: widget.editingTemplate!.userId,
+        templateName: programName,
+        description: description,
+        public: false,
+        hidden: false,
+        etiquetas: etiquetas);
+
+    int templateId = widget.editingTemplate!.templateId;
+    if (plantillaActualizada != widget.editingTemplate) {
+      templateId = await PlantillaPostsMethods()
+          .updatePlantilla(plantillaActualizada, thumbnailImage);
+    }
+
+    navigateNext(templateId);
+  }
+
+  Future<void> _createTemplate(String programName, String description,
+      dynamic thumbnailImage, List<Etiqueta> etiquetas) async {
+    int templateId = await PlantillaPostsMethods().postPlantilla(
+        userId: widget.user.user_id,
+        templateName: programName,
+        description: description,
+        picture: thumbnailImage,
+        etiquetas: etiquetas);
+
+    navigateNext(templateId);
+  }
+
+  List<Etiqueta> _createEtiquetasFromMap(Map map, String type) {
+    return map.entries
+        .where((element) => element.value)
+        .map((e) => type == 'objectives'
+            ? Etiqueta(objectives: e.key)
+            : Etiqueta(interests: e.key))
+        .toList();
   }
 
   void _setLoadingState(bool loading) {
@@ -278,7 +307,9 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   }
 
   void navigateBack() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
+    //Navigator.of(context).pop();
+
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ResponsiveLayout(
         user: widget.user,
         initialPage: 3,
@@ -287,7 +318,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   }
 
   void navigateNext(int templateId) {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
+    Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => ViewSesionEntrenamientoScreen(
         user: widget.user,
         templateId: templateId,
@@ -306,8 +337,9 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
               if (await _onWillPop()) {
-                Navigator.of(context).pop();
+                navigateBack();
               }
+              ;
             },
           ),
         ),
