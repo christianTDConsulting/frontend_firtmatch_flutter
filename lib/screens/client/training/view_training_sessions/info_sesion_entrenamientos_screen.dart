@@ -2,7 +2,6 @@ import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/exercise/exercise_selection_screen.dart';
-import 'package:fit_match/screens/client/training/view_training_sessions/view_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -26,13 +25,14 @@ class _InfoSesionEntrenamientoScreen
     extends State<InfoSesionEntrenamientoScreen> {
   List<EjercicioDetallados> ejercicios = [];
 
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _instructionsController = TextEditingController();
+  final TextEditingController _tituloContoller = TextEditingController();
+  final TextEditingController _instruccionesContoller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _instructionsController.dispose();
+    _tituloContoller.dispose();
+    _instruccionesContoller.dispose();
     super.dispose();
   }
 
@@ -71,15 +71,22 @@ class _InfoSesionEntrenamientoScreen
         ),
         body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildEntrenamientosList(context),
-                  const SizedBox(height: 16),
-                  _buildNewExerciseButton(context),
-                  const SizedBox(height: 16),
-                  _buildSaveButton(context),
-                ])));
+            child: Form(
+              key: _formKey,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildTitle(context),
+                    const SizedBox(height: 16),
+                    _buildInstructions(context),
+                    const SizedBox(height: 16),
+                    _buildEntrenamientosList(context),
+                    const SizedBox(height: 16),
+                    _buildNewExerciseButton(context),
+                    const SizedBox(height: 16),
+                    _buildSaveButton(context),
+                  ]),
+            )));
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
@@ -95,6 +102,38 @@ class _InfoSesionEntrenamientoScreen
         return ListTile(
           title: Text(ejercicios[index].exerciseId.toString()),
         );
+      },
+    );
+  }
+
+  Widget _buildTitle(BuildContext context) {
+    return TextFormField(
+      controller: _tituloContoller,
+      decoration: const InputDecoration(
+        labelText: 'Nombre de la sesión de entrenamiento',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, escribe el nombre de tu sesión de entrenamiento';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildInstructions(BuildContext context) {
+    return TextFormField(
+      controller: _instruccionesContoller,
+      decoration: const InputDecoration(
+        labelText: 'Instrucciones de la sesión de entrenamiento',
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Por favor, escribe el nombre de tu programa';
+        }
+        return null;
       },
     );
   }

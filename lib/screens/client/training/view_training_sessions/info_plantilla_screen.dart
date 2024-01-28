@@ -339,7 +339,6 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
               if (await _onWillPop()) {
                 navigateBack();
               }
-              ;
             },
           ),
         ),

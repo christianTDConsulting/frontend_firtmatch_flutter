@@ -1,8 +1,7 @@
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
-import 'package:fit_match/services/plantilla_posts_service.dart';
+import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +26,12 @@ class _ViewSesionEntrenamientoScreen
   @override
   void initState() {
     super.initState();
+    initSesionEntrenamientos();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void initSesionEntrenamientos() async {
@@ -71,16 +76,16 @@ class _ViewSesionEntrenamientoScreen
           ),
         ),
         body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildEntrenamientosList(context),
-                  const SizedBox(height: 16),
-                  _buildNewSesionButton(context),
-                  const SizedBox(height: 16),
-                  _buildSaveButton(context),
-                ])));
+          padding: const EdgeInsets.all(16.0),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _buildEntrenamientosList(context),
+            const SizedBox(height: 16),
+            _buildNewSesionButton(context),
+            const SizedBox(height: 16),
+            _buildSaveButton(context),
+          ]),
+        ));
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
