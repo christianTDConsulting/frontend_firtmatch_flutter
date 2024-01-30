@@ -47,25 +47,28 @@ class EjercicioDetallados {
 
 class Ejercicios {
   final int exerciseId;
+  final int? user_id;
   final String name;
   final String? description;
-  final int muscularGroupId;
+  final int muscleGroupId;
   final int? materialId;
 
   Ejercicios({
     required this.exerciseId,
+    this.user_id,
     required this.name,
     this.description,
-    required this.muscularGroupId,
+    required this.muscleGroupId,
     this.materialId,
   });
 
   factory Ejercicios.fromJson(Map<String, dynamic> json) {
     return Ejercicios(
       exerciseId: json['exercise_id'],
+      user_id: json['user_id'],
       name: json['name'],
       description: json['description'],
-      muscularGroupId: json['muscular_group_id'],
+      muscleGroupId: json['muscle_group_id'],
       materialId: json['material_id'],
     );
   }
@@ -73,9 +76,10 @@ class Ejercicios {
   Map<String, dynamic> toJson() {
     return {
       'exercise_id': exerciseId,
+      'user_id': user_id,
       'name': name,
       'description': description,
-      'muscular_group_id': muscularGroupId,
+      'muscle_group_id': muscleGroupId,
       'material_id': materialId,
     };
   }
@@ -150,31 +154,64 @@ class TipoDeRegistro {
 }
 
 class GrupoMuscular {
-  final int muscularGroupId;
+  final int muscleGroupId;
   final String? name;
-  final List<Ejercicios> ejercicios;
+  //final List<Ejercicios> ejercicios;
 
   GrupoMuscular({
-    required this.muscularGroupId,
+    required this.muscleGroupId,
     this.name,
-    required this.ejercicios,
+    //required this.ejercicios,
   });
 
   factory GrupoMuscular.fromJson(Map<String, dynamic> json) {
     return GrupoMuscular(
-      muscularGroupId: json['muscular_group_id'],
+      muscleGroupId: json['muscle_group_id'],
       name: json['name'],
-      ejercicios: (json['ejercicios'] as List)
+      /* 
+     ejercicios: (json['ejercicios'] as List)
           .map((ejercicio) => Ejercicios.fromJson(ejercicio))
           .toList(),
+      */
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'muscular_group_id': muscularGroupId,
+      'muscle_group_id': muscleGroupId,
       'name': name,
-      'ejercicios': ejercicios.map((ejercicio) => ejercicio.toJson()).toList(),
+      //'ejercicios': ejercicios.map((ejercicio) => ejercicio.toJson()).toList(),
+    };
+  }
+}
+
+class Equipment {
+  final int materialId;
+  final String name;
+  //final List<Ejercicios> ejercicios;
+
+  Equipment({
+    required this.materialId,
+    required this.name,
+    //required this.ejercicios,
+  });
+
+  factory Equipment.fromJson(Map<String, dynamic> json) {
+    return Equipment(
+      materialId: json['material_id'],
+      name: json['name'],
+      /*ejercicios: (json['ejercicios'] as List)
+          .map((ejercicio) => Ejercicios.fromJson(ejercicio))
+          .toList(),
+          */
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'material_id': materialId,
+      'name': name,
+      //'ejercicios': ejercicios.map((ejercicio) => ejercicio.toJson()).toList(),
     };
   }
 }

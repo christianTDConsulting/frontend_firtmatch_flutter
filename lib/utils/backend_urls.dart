@@ -16,6 +16,12 @@ const sesionEntrenamientoUrl = '${url}sesionEntrenamiento';
 // Ejercicios (Exercises)
 const ejerciciosUrl = '${url}ejercicios';
 
+// Grupos Musculares
+const grupoMuscularesUrl = '${url}grupoMuscular';
+// Material
+const materialUrl = '${url}material';
+//Tipo de registro
+const tipoRegistroUrl = '${url}tipoRegistro';
 // Rutinas Guardadas (Saved Routines)
 const rutinasGuardadasUrl = '${url}rutinasGuardadas';
 

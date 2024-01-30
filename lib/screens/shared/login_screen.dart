@@ -53,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _navigateToHome();
       } else {
         print("Error de autenticación: $result");
+        showToast(context, "Error de autenticación: $result", exitoso: false);
       }
     } catch (error) {
       print("Error inesperado: $error");

@@ -46,7 +46,7 @@ class _InfoSesionEntrenamientoScreen
   void _addExercise() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ExecriseSelectionScreen(),
+        builder: (context) => ExecriseSelectionScreen(user: widget.user),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:fit_match/services/review_service.dart';
+import 'package:fit_match/widget/chip_section.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:intl/intl.dart';
@@ -83,31 +84,45 @@ class _PostCardState extends State<PostCard> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
-    return SizedBox(
-      width: 400,
-      child: Card(
-        color:
-            width > webScreenSize ? mobileBackgroundColor : webBackgroundColor,
-        surfaceTintColor:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Center(
-                child: Column(children: [
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Planilla de entrenamiento"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Center(
+        child: Card(
+          color: width > webScreenSize
+              ? webBackgroundColor
+              : mobileBackgroundColor,
+          surfaceTintColor: width > webScreenSize
+              ? webBackgroundColor
+              : mobileBackgroundColor,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Column(children: [
+                      const SizedBox(height: 12),
+                      _buildListTile(width),
+                      const SizedBox(height: 12),
+                      _buildPostImage(width),
+                      const SizedBox(height: 12),
+                      _buildSelectButtons(),
+                    ]),
+                  ),
                   const SizedBox(height: 12),
-                  _buildListTile(width),
-                  const SizedBox(height: 12),
-                  _buildPostImage(width),
-                  const SizedBox(height: 12),
-                  _buildSelectButtons(),
-                ]),
+                  _buildContentBasedOnSelection(width),
+                ],
               ),
-              const SizedBox(height: 12),
-              _buildContentBasedOnSelection(width),
-            ],
+            ),
           ),
         ),
       ),
@@ -187,28 +202,18 @@ class _PostCardState extends State<PostCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (sectionsMap['Experiencia']!.isNotEmpty)
-          _buildChipsSection(
+          buildChipsSection(
               'Experiencia Recomendada', sectionsMap['Experiencia']!),
         if (sectionsMap['Disciplinas']!.isNotEmpty)
-          _buildChipsSection('Disciplinas Usadas', sectionsMap['Disciplinas']!),
+          buildChipsSection('Disciplinas Usadas', sectionsMap['Disciplinas']!),
         if (sectionsMap['Objetivos']!.isNotEmpty)
-          _buildChipsSection('Objetivos', sectionsMap['Objetivos']!),
+          buildChipsSection('Objetivos', sectionsMap['Objetivos']!),
         if (sectionsMap['Equipamiento']!.isNotEmpty)
-          _buildChipsSection(
+          buildChipsSection(
               'Equipamiento Necesario', sectionsMap['Equipamiento']!),
-        _buildSectionTitle('Descripción'),
+        buildSectionTitle('Descripción'),
         _buildSectionContent(widget.post.description ?? ''),
       ],
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      ),
     );
   }
 
@@ -216,35 +221,6 @@ class _PostCardState extends State<PostCard> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
       child: ExpandableText(text: content),
-    );
-  }
-
-  Widget _buildChipsSection(String title, List<dynamic> chipsContent) {
-    List<Widget> chips = [];
-
-    // Itera sobre la lista dinámica y agrega un Chip solo para los elementos que son String
-    for (var content in chipsContent) {
-      if (content is String) {
-        chips.add(Chip(
-          label: Text(content),
-          backgroundColor: blueColor,
-        ));
-      }
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle(title),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: chips,
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,6 +1,9 @@
 class PlantillaPost {
   final int templateId;
   final int userId;
+  final String? username;
+  num? ratingAverage;
+  num? numReviews;
   final String templateName;
   final String? description;
   final String? picture;
@@ -11,6 +14,9 @@ class PlantillaPost {
   PlantillaPost({
     required this.templateId,
     required this.userId,
+    this.username,
+    this.ratingAverage,
+    this.numReviews,
     required this.templateName,
     this.description,
     this.picture,
@@ -23,6 +29,9 @@ class PlantillaPost {
     return PlantillaPost(
       templateId: json['template_id'] as int,
       userId: json['user_id'] as int,
+      username: json['usuario']['username'] as String,
+      ratingAverage: json['rating_average'] as num,
+      numReviews: json['num_reviews'] as num,
       templateName: json['template_name'] as String,
       description: json['description'] as String?,
       picture: json['picture'] as String?,
@@ -38,6 +47,9 @@ class PlantillaPost {
     return {
       'template_id': templateId,
       'user_id': userId,
+      'username': username,
+      'rating_average': ratingAverage,
+      'num_reviews': numReviews,
       'template_name': templateName,
       'description': description,
       'picture': picture,

@@ -205,7 +205,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
 
     try {
       if (_isFormValid()) {
-        _processFormSubmission();
+        await _processFormSubmission();
       }
     } catch (e) {
       print(e);
@@ -233,7 +233,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     return true;
   }
 
-  void _processFormSubmission() async {
+  Future<void> _processFormSubmission() async {
     final programName = _programNameController.text;
     final description = _descriptionController.text;
     final thumbnailImage = _thumbnailImage;
@@ -241,13 +241,28 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     List<Etiqueta> etiquetas = _createEtiquetas();
 
     if (widget.editingTemplate != null) {
+      //if (_hasChanges()) {
       await _updateTemplate(
           programName, description, thumbnailImage, etiquetas);
+      //}
     } else {
       await _createTemplate(
           programName, description, thumbnailImage, etiquetas);
     }
   }
+
+  /*bool _hasChanges() {
+    bool hasChanges = _programNameController.text !=
+            widget.editingTemplate?.templateName ||
+        _descriptionController.text != widget.editingTemplate?.description ||
+        _thumbnailImage != null;
+
+    hasChanges = hasChanges || _hasEtiquetasChanged();
+
+    return hasChanges;
+  }*/
+
+  //bool _hasEtiquetasChanged() {}
 
   List<Etiqueta> _createEtiquetas() {
     List<Etiqueta> etiquetas = [];
@@ -303,6 +318,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   }
 
   void _setLoadingState(bool loading) {
+    //print("loading: " + loading.toString());
     setState(() => _isLoading = loading);
   }
 
