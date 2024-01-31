@@ -3,6 +3,8 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_plantilla_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/colors.dart';
+import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/widget/post_card/preview_post_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -15,11 +17,13 @@ class ViewTrainingScreen extends StatefulWidget {
   _ViewTrainingScreen createState() => _ViewTrainingScreen();
 }
 
-class _ViewTrainingScreen extends State<ViewTrainingScreen> {
+class _ViewTrainingScreen extends State<ViewTrainingScreen>
+    with SingleTickerProviderStateMixin {
   List<PlantillaPost> trainingTemplates = [];
   List<PlantillaPost> createdTrainingTemplates = [];
   List<PlantillaPost> arhivedTrainingTemplates = [];
   bool isLoading = false;
+  late TabController _tabController;
 
   Future<void> _loadTrainingTemplates() async {
     if (isLoading) return;
@@ -75,7 +79,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
   void _deleteTemplate(String templateName) async {}
 
-  void _verMas() {}
+  void _verMas(PlantillaPost template) {}
   void _createNewTemplate() {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -87,20 +91,34 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
   void initState() {
     super.initState();
     _loadTrainingTemplates();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor:
+            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         appBar: AppBar(
+          backgroundColor: width > webScreenSize
+              ? webBackgroundColor
+              : mobileBackgroundColor,
           title: const Text('Plantillas de entrenamiento'),
-          bottom: const TabBar(
+          bottom: TabBar(
+            controller: _tabController,
             indicatorColor: blueColor,
             labelColor: blueColor,
             unselectedLabelColor: primaryColor,
-            tabs: [
+            tabs: const [
               Tab(text: 'Activas'),
               Tab(text: 'Creadas'),
               Tab(text: 'Archivadas'),
@@ -108,12 +126,19 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
           ),
         ),
         body: SafeArea(
-          child: TabBarView(children: [
+          child: TabBarView(controller: _tabController, children: [
             _buildProgramList(context, 'Activos'),
             _buildProgramList(context, 'Creados'),
             _buildProgramList(context, 'Archivados'),
           ]),
         ),
+        floatingActionButton: _tabController.index == 1
+            ? FloatingActionButton(
+                onPressed: _createNewTemplate,
+                backgroundColor: blueColor,
+                child: const Icon(Icons.add),
+              )
+            : null,
       ),
     );
   }
@@ -122,6 +147,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     BuildContext context,
     String tipo,
   ) {
+    final width = MediaQuery.of(context).size.width;
     List<PlantillaPost> lista = [];
     switch (tipo) {
       case "Activos":
@@ -137,11 +163,14 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
 
     return LiquidPullToRefresh(
       onRefresh: _loadTrainingTemplates,
-      backgroundColor: mobileBackgroundColor,
+      backgroundColor:
+          width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
       color: blueColor,
       child: ListView(
         children: [
-          ...lista.map((template) => _buildListItem(template, tipo)).toList(),
+          ...lista
+              .map((template) => _buildListItem(width, template, tipo))
+              .toList(),
           if (tipo == 'Creados')
             Align(
               alignment: Alignment.bottomRight,
@@ -159,25 +188,18 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen> {
     );
   }
 
-  Widget _buildListItem(PlantillaPost template, String tipo) {
-    return GestureDetector(
-      onTap: () {
-        if (tipo == "Creados" || tipo == "Archivados") {
-          _verMas();
-        }
-      },
-      child: Card(
-        margin: const EdgeInsets.all(8.0),
-        child: ListTile(
-          title: Text(template.templateName,
-              style: const TextStyle(color: primaryColor)),
-          trailing: PopupMenuButton<String>(
-            iconColor: primaryColor,
-            color: mobileSearchColor,
-            onSelected: (value) => _handleMenuItemSelected(value, template),
-            itemBuilder: (BuildContext context) => _buildPopupMenuItems(tipo),
-          ),
-        ),
+  Widget _buildListItem(double width, PlantillaPost template, String tipo) {
+    return buildPostItem(
+      template,
+      width,
+      showPost: () => tipo == 'Activos'
+          ? _verMas(template)
+          : (tipo == 'Creados' ? _editTemplate(template) : null),
+      trailing: PopupMenuButton<String>(
+        iconColor: primaryColor,
+        color: mobileSearchColor,
+        onSelected: (value) => _handleMenuItemSelected(value, template),
+        itemBuilder: (BuildContext context) => _buildPopupMenuItems(tipo),
       ),
     );
   }
