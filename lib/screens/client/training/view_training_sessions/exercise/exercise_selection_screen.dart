@@ -1,8 +1,8 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/widget/dialog.dart';
 import 'package:flutter/material.dart';
 
 class ExecriseSelectionScreen extends StatefulWidget {
@@ -88,6 +88,16 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     Navigator.pop(context);
   }
 
+  void _showDialog(String description) async {
+    CustomDialog.show(
+      context,
+      Text(description),
+      () {
+        print('Diálogo cerrado');
+      },
+    );
+  }
+
   void _setLoadingState(bool loading) {
     setState(() => _isLoading = loading);
   }
@@ -160,7 +170,9 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
             IconButton(
               icon: const Icon(Icons.info_outline),
               onPressed: () {
-                // Acción al presionar el icono de información
+                _showDialog(ejercicio.description != null
+                    ? ejercicio.description!
+                    : 'Sin descripción');
               },
             ),
           ],

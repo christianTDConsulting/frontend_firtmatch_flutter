@@ -37,7 +37,7 @@ class CustomDialog extends StatelessWidget {
             top: -15.0,
             right: -15.0,
             child: CircleAvatar(
-              backgroundColor: Colors.red,
+              backgroundColor: blueColor,
               radius: 15,
               child: IconButton(
                 icon: const Icon(Icons.close, size: 20.0, color: primaryColor),
