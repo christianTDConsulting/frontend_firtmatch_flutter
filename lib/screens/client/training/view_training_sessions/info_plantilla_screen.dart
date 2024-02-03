@@ -7,6 +7,7 @@ import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 
+import 'package:collection/collection.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/widget/preferences_section.dart';
 import 'package:flutter/material.dart';
@@ -241,28 +242,74 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     List<Etiqueta> etiquetas = _createEtiquetas();
 
     if (widget.editingTemplate != null) {
-      //if (_hasChanges()) {
-      await _updateTemplate(
-          programName, description, thumbnailImage, etiquetas);
-      //}
+      if (_hasChanges()) {
+        await _updateTemplate(
+            programName, description, thumbnailImage, etiquetas);
+      }
     } else {
       await _createTemplate(
           programName, description, thumbnailImage, etiquetas);
     }
   }
 
-  /*bool _hasChanges() {
+  bool _hasChanges() {
     bool hasChanges = _programNameController.text !=
             widget.editingTemplate?.templateName ||
         _descriptionController.text != widget.editingTemplate?.description ||
         _thumbnailImage != null;
 
+    // Comprobar si las etiquetas han cambiado
     hasChanges = hasChanges || _hasEtiquetasChanged();
 
     return hasChanges;
-  }*/
+  }
 
-  //bool _hasEtiquetasChanged() {}
+  bool _hasEtiquetasChanged() {
+    if (widget.editingTemplate == null) {
+      return false; // No hay plantilla previa con la cual comparar.
+    }
+
+    Map<String, List<String>> currentEtiquetasMap = _getCurrentEtiquetasMap();
+    Map<String, dynamic> initialEtiquetasMap =
+        widget.editingTemplate!.getSectionsMap();
+
+    // Comprobar si hay la misma cantidad de etiquetas para cada tipo.
+    for (var key in initialEtiquetasMap.keys) {
+      if (initialEtiquetasMap[key]!.length !=
+          currentEtiquetasMap[key]!.length) {
+        return true; // Diferente cantidad de etiquetas.
+      }
+    }
+
+    // Comprobar si todos los valores de las etiquetas son iguales.
+    for (var key in initialEtiquetasMap.keys) {
+      List<String> initialValues =
+          initialEtiquetasMap[key]!.map((e) => e.toString()).toList();
+      List<String> currentValues =
+          currentEtiquetasMap[key]!.map((e) => e.toString()).toList();
+
+      // Si hay una diferencia en los valores de la lista, hay cambios.
+      if (!ListEquality().equals(initialValues, currentValues)) {
+        return true;
+      }
+    }
+
+    // Si llegamos aquí, no hay cambios en las etiquetas.
+    return false;
+  }
+
+  Map<String, List<String>> _getCurrentEtiquetasMap() {
+    Map<String, List<String>> etiquetasMap = {
+      'Experiencia': [selectedExperience],
+      'Disciplinas':
+          selectedInterests.keys.where((k) => selectedInterests[k]!).toList(),
+      'Objetivos':
+          selectedObjectives.keys.where((k) => selectedObjectives[k]!).toList(),
+      'Equipamiento': [selectedEquipment],
+      'Duración': [selectedDuration],
+    };
+    return etiquetasMap;
+  }
 
   List<Etiqueta> _createEtiquetas() {
     List<Etiqueta> etiquetas = [];

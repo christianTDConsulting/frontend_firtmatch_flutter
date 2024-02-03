@@ -80,22 +80,33 @@ class EjerciciosMethods {
 
   Future<List<Ejercicios>> getAllEjercicios({
     num? userId,
-    int? page = 1,
-    int? pageSize = 20,
+    String? name,
+    int? idGrupoMuscular,
+    int? idMaterial,
+    int page = 1,
+    int pageSize = 20,
   }) async {
+    // Comienza con la URL base y los parámetros de paginación.
     String url = "$ejerciciosUrl?page=$page&pageSize=$pageSize";
 
-    if (userId != null) {
-      url += "&userId=$userId";
-    }
+    // Añade los parámetros adicionales si están presentes.
+    if (userId != null) url += "&userId=$userId";
+    if (name != null)
+      url +=
+          "&name=${Uri.encodeComponent(name)}"; // Codifica el nombre para URL.
+    if (idGrupoMuscular != null) url += "&idGrupoMuscular=$idGrupoMuscular";
+    if (idMaterial != null) url += "&idMaterial=$idMaterial";
 
+    // Realiza la solicitud HTTP.
     final response = await http.get(Uri.parse(url));
+
+    // Procesa la respuesta.
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;
       return jsonData.map((jsonItem) => Ejercicios.fromJson(jsonItem)).toList();
     } else {
       throw Exception(
-          'Error al obtener los posts. Código de estado: ${response.statusCode}');
+          'Error al obtener los ejercicios. Código de estado: ${response.statusCode}');
     }
   }
 

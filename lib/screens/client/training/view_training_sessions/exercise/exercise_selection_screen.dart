@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/dialog.dart';
+import 'package:fit_match/widget/exercise_list_item_seletable.dart';
+import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/material.dart';
 
 class ExecriseSelectionScreen extends StatefulWidget {
@@ -22,8 +27,12 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
   final ScrollController _scrollController = ScrollController();
 
   List<Ejercicios> exercises = [];
+  Map<int, int> selectedExercisesOrder = {};
   List<GrupoMuscular> muscleGroups = [];
   List<Equipment> equipment = [];
+
+  String filtroBusqueda = '';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -32,6 +41,13 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     _loadExercises();
     _initMuscleGroups();
     _initEquipment();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_loadMoreExercisesOnScroll);
+    _debounce?.cancel();
   }
 
   void _loadMoreExercisesOnScroll() {
@@ -53,7 +69,13 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     try {
       // Obtener ejercicios.
       List<Ejercicios> exercises = await EjerciciosMethods().getAllEjercicios(
-          userId: widget.user.user_id, page: _currentPage, pageSize: _pageSize);
+        userId: widget.user.user_id,
+        page: _currentPage,
+        pageSize: _pageSize,
+        name: filtroBusqueda.isNotEmpty
+            ? filtroBusqueda
+            : null, // Añadido filtro por nombre
+      );
       if (exercises.isEmpty) {
         setState(() {
           _hasMore = false;
@@ -84,10 +106,6 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
 
   void _initEquipment() async {}
 
-  void _navigateBack() {
-    Navigator.pop(context);
-  }
-
   void _showDialog(String description) async {
     CustomDialog.show(
       context,
@@ -98,8 +116,38 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     );
   }
 
+  void _selectExercise(Ejercicios ejercicio) {
+    setState(() {
+      if (selectedExercisesOrder.containsKey(ejercicio.exerciseId)) {
+        selectedExercisesOrder.remove(ejercicio.exerciseId);
+      } else {
+        selectedExercisesOrder[ejercicio.exerciseId] =
+            selectedExercisesOrder.length + 1;
+      }
+    });
+  }
+
+  void _navigateBack() {
+    Navigator.pop(context);
+  }
+
   void _setLoadingState(bool loading) {
     setState(() => _isLoading = loading);
+  }
+
+  void _onSearchChanged(String text) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        filtroBusqueda = text;
+      });
+
+      // Iniciar una nueva búsqueda con el nuevo filtro
+      exercises
+          .clear(); // Limpia la lista actual antes de cargar nuevos resultados
+      _currentPage = 1; // Restablece a la primera página
+      _loadExercises();
+    });
   }
 
   @override
@@ -108,34 +156,62 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ejercicios'),
+        bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(50),
+            child: SearchWidget(
+              text: filtroBusqueda,
+              hintText: 'Buscar ejercicios',
+              onChanged: (text) => _onSearchChanged(text),
+            )),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              // Navega a la pantalla de creación de ejercicios
-            },
-          )
-        ],
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding:
-                const EdgeInsets.only(bottom: 80.0), // Espacio para los botones
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildFiltros(),
-                _buildEjerciciosList(),
-              ],
+          GestureDetector(
+            onTap: () {},
+            child: Card(
+              child: Text(
+                'Crear ejercicio',
+                style: const TextStyle(fontSize: 12, color: primaryColor),
+                textScaler: width < webScreenSize
+                    ? const TextScaler.linear(1)
+                    : const TextScaler.linear(1.5),
+              ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildPersistentFooterButtons(width),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount:
+                  exercises.length + 1, // +1 para el posible indicador de carga
+              itemBuilder: (context, index) {
+                if (index < exercises.length) {
+                  final isSelected = selectedExercisesOrder
+                      .containsKey(exercises[index].exerciseId);
+                  return BuildExerciseItem(
+                    ejercicio: exercises[index],
+                    isSelected: isSelected,
+                    order: selectedExercisesOrder[exercises[index].exerciseId],
+                    onSelectedEjercicio: (exercise) =>
+                        _selectExercise(exercise),
+                    onPressedInfo: () {
+                      _showDialog(exercises[index].description != null
+                          ? exercises[index].description!
+                          : 'Sin descripción');
+                    },
+                  );
+                } else {
+                  return _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Container();
+                }
+              },
+            ),
           ),
+          selectedExercisesOrder.isNotEmpty
+              ? _buildPersistentFooterButtons(MediaQuery.of(context).size.width)
+              : Container(),
         ],
       ),
     );
@@ -145,45 +221,6 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     return Container();
   }
 
-  Widget _buildEjerciciosList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      controller: _scrollController,
-      itemCount: exercises.length + 1,
-      itemBuilder: (context, index) {
-        if (index < exercises.length) {
-          return _buildExerciseItem(exercises[index]);
-        } else {
-          return _isLoading ? CircularProgressIndicator() : Container();
-        }
-      },
-    );
-  }
-
-  Widget _buildExerciseItem(Ejercicios ejercicio) {
-    return Card(
-      child: ListTile(
-        title: Text(ejercicio.name),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () {
-                _showDialog(ejercicio.description != null
-                    ? ejercicio.description!
-                    : 'Sin descripción');
-              },
-            ),
-          ],
-        ),
-        onTap: () {
-          // Muestra información sobre el ejercicio o realiza alguna acción
-        },
-      ),
-    );
-  }
-
   Widget _buildPersistentFooterButtons(num width) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -191,29 +228,29 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ElevatedButton(
-            onPressed: () {
-              // Agrega como super set
-            },
-            child: Text(
-              'Añadir como super set',
-              style: const TextStyle(fontSize: 12),
-              textScaler: width < webScreenSize
-                  ? const TextScaler.linear(1)
-                  : const TextScaler.linear(1.2),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Agrega individualmente
-            },
+            onPressed: () {},
             child: Text(
               'Añadir individualmente',
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12, color: primaryColor),
               textScaler: width < webScreenSize
                   ? const TextScaler.linear(1)
                   : const TextScaler.linear(1.2),
             ),
           ),
+          selectedExercisesOrder.length > 1
+              ? ElevatedButton(
+                  onPressed: () {
+                    // Agrega como super set
+                  },
+                  child: Text(
+                    'Añadir como super set',
+                    style: const TextStyle(fontSize: 12, color: primaryColor),
+                    textScaler: width < webScreenSize
+                        ? const TextScaler.linear(1)
+                        : const TextScaler.linear(1.2),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
@@ -224,6 +261,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
   }
 }
 
+ 
 
 /*
  return Column(
