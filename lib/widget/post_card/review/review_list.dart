@@ -48,6 +48,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
     setState(() {
       activeCommentId = activeCommentId == reviewId ? null : reviewId;
       activeReviewId = activeCommentId;
+      // focus
     });
   }
 
@@ -431,31 +432,37 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   Widget _buildReviewActions(Review review, num width) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     return Row(
       children: [
-        const SizedBox(width: 8),
         _likeButton(review),
         if (review.comentarioReview.isNotEmpty)
-          TextButton(
-            onPressed: () => toggleCommentsVisibility(review.reviewId),
+          Expanded(
+            child: TextButton(
+              onPressed: () => toggleCommentsVisibility(review.reviewId),
+              child: Text(
+                commentsVisibility[review.reviewId]!
+                    ? "Ocultar Respuestas"
+                    : "Ver ${review.comentarioReview.length} respuestas más",
+                style: TextStyle(color: primaryColor),
+                textScaler: width < webScreenSize
+                    ? const TextScaler.linear(0.8)
+                    : const TextScaler.linear(1.2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        Expanded(
+          child: TextButton(
+            onPressed: () => onResponderPressed(review.reviewId),
             child: Text(
-              commentsVisibility[review.reviewId]!
-                  ? "Ocultar Respuestas"
-                  : "Ver ${review.comentarioReview.length} respuestas más",
-              style: const TextStyle(color: blueColor),
+              activeCommentId == review.reviewId ? "Ocultar" : "Responder",
+              style: TextStyle(color: primaryColor),
               textScaler: width < webScreenSize
                   ? const TextScaler.linear(0.8)
                   : const TextScaler.linear(1.2),
+              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        TextButton(
-          onPressed: () => onResponderPressed(review.reviewId),
-          child: Text(
-            activeCommentId == review.reviewId ? "Ocultar" : "Responder",
-            style: const TextStyle(color: blueColor),
-            textScaler: width < webScreenSize
-                ? const TextScaler.linear(0.8)
-                : const TextScaler.linear(1.2),
           ),
         ),
         if (review.userId == widget.userId)
@@ -573,6 +580,8 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   Widget _buildResponderTextField() {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Row(
@@ -598,7 +607,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                 _textController.clear();
               }
             },
-            child: const Text('Comentar', style: TextStyle(color: blueColor)),
+            child: Text('Comentar', style: TextStyle(color: primaryColor)),
           )
         ],
       ),

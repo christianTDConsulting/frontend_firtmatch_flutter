@@ -151,20 +151,4 @@ class EjerciciosMethods {
           'Error al obtener los posts. Código de estado: ${response.statusCode}');
     }
   }
-
-  Future<List<Ejercicios>> getEjerciciosByMaterial({
-    required int materialId,
-    int? page = 1,
-    int? pageSize = 20,
-  }) async {
-    String url =
-        "$ejerciciosUrl/material/$materialId?page=$page&pageSize=$pageSize";
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body) as List;
-      return jsonData.map((jsonItem) => Ejercicios.fromJson(jsonItem)).toList();
-    } else {
-      throw Exception('Error al obtener los ejercicios');
-    }
-  }
 }

@@ -2,8 +2,7 @@ import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_plantilla_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
-import 'package:fit_match/utils/colors.dart';
-import 'package:fit_match/utils/dimensions.dart';
+
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
 
 import 'package:flutter/material.dart';
@@ -106,18 +105,10 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        backgroundColor:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         appBar: AppBar(
-          backgroundColor: width > webScreenSize
-              ? webBackgroundColor
-              : mobileBackgroundColor,
           title: const Text('Plantillas de entrenamiento'),
           bottom: TabBar(
             controller: _tabController,
-            indicatorColor: blueColor,
-            labelColor: blueColor,
-            unselectedLabelColor: primaryColor,
             tabs: const [
               Tab(text: 'Activas'),
               Tab(text: 'Creadas'),
@@ -135,7 +126,6 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
         floatingActionButton: _tabController.index == 1
             ? FloatingActionButton(
                 onPressed: _createNewTemplate,
-                backgroundColor: blueColor,
                 child: const Icon(Icons.add),
               )
             : null,
@@ -163,9 +153,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
 
     return LiquidPullToRefresh(
       onRefresh: _loadTrainingTemplates,
-      backgroundColor:
-          width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
-      color: blueColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: ListView(
         children: [
           ...lista
@@ -178,7 +166,6 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
                 padding: const EdgeInsets.all(16.0),
                 child: FloatingActionButton(
                   onPressed: _createNewTemplate,
-                  backgroundColor: blueColor,
                   child: const Icon(Icons.add),
                 ),
               ),
@@ -196,8 +183,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
           ? _verMas(template)
           : (tipo == 'Creados' ? _editTemplate(template) : null),
       trailing: PopupMenuButton<String>(
-        iconColor: primaryColor,
-        color: mobileSearchColor,
+        color: Theme.of(context).colorScheme.primary,
         onSelected: (value) => _handleMenuItemSelected(value, template),
         itemBuilder: (BuildContext context) => _buildPopupMenuItems(tipo),
       ),
@@ -208,33 +194,47 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
     switch (tipo) {
       case "Activos":
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
               value: 'archivar',
-              child: Text('Archivar', style: TextStyle(color: primaryColor))),
-          const PopupMenuItem<String>(
+              child: Text('Archivar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
               value: 'mas',
-              child: Text('Ver más', style: TextStyle(color: primaryColor))),
-          const PopupMenuItem<String>(
+              child: Text('Ver más',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
               value: 'delete_guardados',
-              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+              child: Text('Eliminar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
         ];
       case "Creados":
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
               value: 'edit',
-              child: Text('Editar', style: TextStyle(color: primaryColor))),
-          const PopupMenuItem<String>(
+              child: Text('Editar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
               value: 'delete_creados',
-              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+              child: Text('Eliminar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
         ];
       case "Archivados":
         return [
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
               value: 'mas',
-              child: Text('Ver más', style: TextStyle(color: primaryColor))),
-          const PopupMenuItem<String>(
+              child: Text('Ver más',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
               value: 'delete_archivados',
-              child: Text('Eliminar', style: TextStyle(color: primaryColor))),
+              child: Text('Eliminar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
         ];
     }
     return [];

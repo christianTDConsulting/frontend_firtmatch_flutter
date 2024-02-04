@@ -1,4 +1,3 @@
-import 'package:fit_match/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
@@ -90,9 +89,17 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
   }
 
   Widget _buildSubmitButton() {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
     return ElevatedButton.icon(
-      icon: const Icon(Icons.send),
-      label: const Text('Enviar Reseña'),
+      icon: Icon(
+        Icons.send,
+        color: onPrimaryColor,
+      ),
+      label: Text(
+        'Enviar Reseña',
+        style: TextStyle(color: onPrimaryColor),
+      ),
       onPressed: () async {
         if (_currentRating >= 0) {
           await widget.onReviewSubmit(_currentRating, _textController.text);
@@ -101,8 +108,7 @@ class _ReviewInputWidgetState extends State<ReviewInputWidget> {
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(
             50), // Establece una altura mínima para el botón
-        backgroundColor: blueColor,
-        foregroundColor: primaryColor,
+        backgroundColor: primaryColor,
       ),
     );
   }

@@ -9,7 +9,6 @@ Widget buildChipsSection(String? title, List<dynamic> chipsContent) {
     if (content is String) {
       chips.add(Chip(
         label: Text(content),
-        backgroundColor: blueColor,
       ));
     }
   }

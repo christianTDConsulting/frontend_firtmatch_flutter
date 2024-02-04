@@ -1,7 +1,5 @@
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/utils/colors.dart';
-import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
 import 'package:flutter/material.dart';
@@ -128,40 +126,35 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryContainer = Theme.of(context).colorScheme.primaryContainer;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         title: const Text("Filtros por terminar"),
       ),
-      body: Container(
-        color:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
-        child: LiquidPullToRefresh(
-          onRefresh: _handleRefresh,
-          backgroundColor: mobileBackgroundColor,
-          color: blueColor,
-          child: ListView.builder(
-            itemCount: posts.length + (hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == posts.length) {
-                return hasMore
-                    ? const Center(child: CircularProgressIndicator())
-                    : const Text("Estás al día");
-              }
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                child: buildPostItem(
-                  posts[index],
-                  width,
-                  showPost: () => _showPost(posts[index]),
-                ),
-              );
-            },
-            controller: _scrollController,
-          ),
+      body: LiquidPullToRefresh(
+        onRefresh: _handleRefresh,
+        color: primaryContainer,
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: posts.length + (hasMore ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (index == posts.length) {
+              return hasMore
+                  ? const Center(child: CircularProgressIndicator())
+                  : const Text("Estás al día");
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15.0),
+              child: buildPostItem(
+                posts[index],
+                width,
+                showPost: () => _showPost(posts[index]),
+              ),
+            );
+          },
+          controller: _scrollController,
         ),
       ),
     );

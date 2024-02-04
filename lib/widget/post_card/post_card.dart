@@ -86,41 +86,38 @@ class _PostCardState extends State<PostCard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Planilla de entrenamiento"),
+        title: const Text("Plantilla de entrenamiento"),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
       ),
       body: Center(
-        child: Card(
-          color: width > webScreenSize
-              ? webBackgroundColor
-              : mobileBackgroundColor,
-          surfaceTintColor: width > webScreenSize
-              ? webBackgroundColor
-              : mobileBackgroundColor,
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Column(children: [
-                      const SizedBox(height: 12),
-                      _buildListTile(width),
-                      const SizedBox(height: 12),
-                      _buildPostImage(width),
-                      const SizedBox(height: 12),
-                      _buildSelectButtons(),
-                    ]),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildContentBasedOnSelection(width),
-                ],
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: Card(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Column(children: [
+                        const SizedBox(height: 12),
+                        _buildListTile(width),
+                        const SizedBox(height: 12),
+                        _buildPostImage(width),
+                        const SizedBox(height: 12),
+                        _buildSelectButtons(),
+                      ]),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildContentBasedOnSelection(width),
+                  ],
+                ),
               ),
             ),
           ),
@@ -134,7 +131,7 @@ class _PostCardState extends State<PostCard> {
       title: Text(widget.post.templateName,
           style: TextStyle(fontSize: width > webScreenSize ? 24 : 16)),
       trailing: _isLoading
-          ? CircularProgressIndicator() // Muestra el indicador de progreso mientras los datos se están cargando
+          ? const CircularProgressIndicator() // Muestra el indicador de progreso mientras los datos se están cargando
           : Wrap(
               children: [
                 Text(NumberFormat("0.0").format(_averageRating),
@@ -162,18 +159,27 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _buildSelectButtons() {
-    return Wrap(
-      children: ['General', 'Reviews', 'Información'].map((option) {
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              foregroundColor: primaryColor,
-              backgroundColor:
-                  _selectedOption == option ? blueColor : Colors.grey,
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
+    return Row(
+      children: ['General', 'Reseñas', 'Info'].map((option) {
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: primaryColor,
+                backgroundColor:
+                    _selectedOption == option ? primaryColor : Colors.grey,
+              ),
+              onPressed: () => _onSelectOption(option),
+              child: Text(
+                option,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(color: onPrimaryColor),
+              ),
             ),
-            onPressed: () => _onSelectOption(option),
-            child: Text(option),
           ),
         );
       }).toList(),
@@ -186,7 +192,7 @@ class _PostCardState extends State<PostCard> {
     switch (_selectedOption) {
       case 'General':
         return _buildGeneralContent();
-      case 'Reviews':
+      case 'Reseñas':
         return _buildReviewsContent(width);
       default:
         return Container(); // Placeholder for 'Información' content
@@ -241,7 +247,8 @@ class _PostCardState extends State<PostCard> {
                     ),
                     child: Text(
                       "Ver todas las reseñas",
-                      style: TextStyle(color: secondaryColor, fontSize: 14),
+                      style:
+                          const TextStyle(color: secondaryColor, fontSize: 14),
                       textScaler: width < webScreenSize
                           ? const TextScaler.linear(0.9)
                           : const TextScaler.linear(1.2),

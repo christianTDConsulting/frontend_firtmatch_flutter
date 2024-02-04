@@ -405,26 +405,31 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             },
           ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                buildNameField(),
-                const SizedBox(height: 16),
-                buildDescriptionField(),
-                const SizedBox(height: 16),
-                buildImagePicker(),
-                const SizedBox(height: 16),
-                buildObjectivesSection(),
-                buildInterestsSection(),
-                buildExperienceSection(),
-                buildEquipmentSection(),
-                buildDurationSection(),
-                buildSubmitButton(),
-              ],
+        body: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    buildNameField(),
+                    const SizedBox(height: 16),
+                    buildDescriptionField(),
+                    const SizedBox(height: 16),
+                    buildImagePicker(),
+                    const SizedBox(height: 16),
+                    buildObjectivesSection(),
+                    buildInterestsSection(),
+                    buildExperienceSection(),
+                    buildEquipmentSection(),
+                    buildDurationSection(),
+                    buildSubmitButton(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

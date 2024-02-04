@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/exercise_list_item_seletable.dart';
@@ -28,8 +27,12 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
 
   List<Ejercicios> exercises = [];
   Map<int, int> selectedExercisesOrder = {};
+
   List<GrupoMuscular> muscleGroups = [];
+  int? selectedMuscleGroupId;
+
   List<Equipment> equipment = [];
+  int? selectedEquipmentId;
 
   String filtroBusqueda = '';
   Timer? _debounce;
@@ -59,6 +62,15 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     }
   }
 
+  void _resetAndLoadExercises() {
+    setState(() {
+      exercises.clear(); // Limpia la lista de ejercicios
+      _currentPage = 1; // Restablece la paginación a la primera página
+      _hasMore = true; // Asegura que la paginación pueda continuar
+    });
+    _loadExercises(); // Carga los ejercicios con los filtros actualizados
+  }
+
   void _loadExercises() async {
     // Si no hay más posts o ya está cargando, retorna.
     if (!_hasMore || _isLoading) return;
@@ -75,6 +87,8 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
         name: filtroBusqueda.isNotEmpty
             ? filtroBusqueda
             : null, // Añadido filtro por nombre
+        idGrupoMuscular: selectedMuscleGroupId,
+        idMaterial: selectedEquipmentId,
       );
       if (exercises.isEmpty) {
         setState(() {
@@ -102,9 +116,20 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     });
   }
 
-  void _initMuscleGroups() async {}
+  void _initMuscleGroups() async {
+    List<GrupoMuscular> groups =
+        await EjerciciosMethods().getGruposMusculares();
+    setState(() {
+      muscleGroups = groups;
+    });
+  }
 
-  void _initEquipment() async {}
+  void _initEquipment() async {
+    List<Equipment> mats = await EjerciciosMethods().getMaterial();
+    setState(() {
+      equipment = mats;
+    });
+  }
 
   void _showDialog(String description) async {
     CustomDialog.show(
@@ -169,7 +194,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
             child: Card(
               child: Text(
                 'Crear ejercicio',
-                style: const TextStyle(fontSize: 12, color: primaryColor),
+                style: const TextStyle(fontSize: 12),
                 textScaler: width < webScreenSize
                     ? const TextScaler.linear(1)
                     : const TextScaler.linear(1.5),
@@ -180,6 +205,18 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
       ),
       body: Column(
         children: [
+          //filtros
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                _buildMuscleGroupDropdown(),
+                const SizedBox(height: 10),
+                _buildMaterialDropdown(),
+              ],
+            ),
+          ),
+          //ejercicios lista
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -217,10 +254,6 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     );
   }
 
-  Widget _buildFiltros() {
-    return Container();
-  }
-
   Widget _buildPersistentFooterButtons(num width) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -231,7 +264,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
             onPressed: () {},
             child: Text(
               'Añadir individualmente',
-              style: const TextStyle(fontSize: 12, color: primaryColor),
+              style: const TextStyle(fontSize: 12),
               textScaler: width < webScreenSize
                   ? const TextScaler.linear(1)
                   : const TextScaler.linear(1.2),
@@ -244,7 +277,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
                   },
                   child: Text(
                     'Añadir como super set',
-                    style: const TextStyle(fontSize: 12, color: primaryColor),
+                    style: const TextStyle(fontSize: 12),
                     textScaler: width < webScreenSize
                         ? const TextScaler.linear(1)
                         : const TextScaler.linear(1.2),
@@ -256,93 +289,87 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     );
   }
 
-  Widget _buildAddButton() {
-    return Container();
+  Widget _buildMuscleGroupDropdown() {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: "Selecciona un grupo muscular",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int?>(
+          dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+          menuMaxHeight: 300,
+          value: selectedMuscleGroupId,
+          icon: const Icon(
+            Icons.arrow_drop_down,
+          ),
+          onChanged: (newValue) {
+            setState(() {
+              selectedMuscleGroupId = newValue;
+            });
+            exercises
+                .clear(); // Limpia los ejercicios actuales para cargar los nuevos filtrados
+            _currentPage = 1; // Restablece la paginación
+            _loadExercises(); // Carga los ejercicios con los nuevos filtros
+          },
+          items: [
+            const DropdownMenuItem<int?>(
+              value: null,
+              child: Text(
+                "Todos",
+              ),
+            ),
+            ...muscleGroups.map((group) {
+              return DropdownMenuItem<int>(
+                value: group.muscleGroupId,
+                child: Text(
+                  group.name ?? "Sin nombre",
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialDropdown() {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: "Selecciona un material",
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int?>(
+          dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+          menuMaxHeight: 300,
+          value: selectedEquipmentId,
+          icon: const Icon(Icons.arrow_drop_down),
+          onChanged: (newValue) {
+            setState(() {
+              selectedEquipmentId = newValue;
+            });
+            exercises
+                .clear(); // Limpia los ejercicios actuales para cargar los nuevos filtrados
+            _currentPage = 1; // Restablece la paginación
+            _resetAndLoadExercises();
+          },
+          items: [
+            const DropdownMenuItem<int?>(
+              value: null,
+              child: Text("Todos"),
+            ),
+            ...equipment.map((mat) {
+              return DropdownMenuItem<int>(
+                value: mat.materialId,
+                child: Text(mat.name),
+              );
+            }).toList(),
+          ],
+        ),
+      ),
+    );
   }
 }
-
- 
-
-/*
- return Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: const InputDecoration(
-                labelText: 'Buscar por nombre de ejercicio',
-                suffixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                // Actualiza la lista de ejercicios según la búsqueda
-              },
-            ),
-          ),
-          DropdownButton<String>(
-            value: muscleGroupFilter,
-            onChanged: (String? newValue) {
-              setState(() {
-                muscleGroupFilter = newValue!;
-                // Actualiza la lista de ejercicios según el filtro de grupo muscular
-              });
-            },
-            items: <String>[
-              'Todos los grupos musculares',
-              'Pecho',
-              'Espalda',
-              // Añade más grupos musculares aquí
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          DropdownButton<String>(
-            value: equipmentFilter,
-            onChanged: (String? newValue) {
-              setState(() {
-                equipmentFilter = newValue!;
-                // Actualiza la lista de ejercicios según el filtro de equipamiento
-              });
-            },
-            items: <String>[
-              'Todo el equipamiento',
-              'Pesas',
-              'Máquina',
-              // Añade más opciones de equipamiento aquí
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: exercises.length,
-              itemBuilder: (context, index) {
-                final exercise = exercises[index];
-                return ListTile(
-                  title: Text(exercise.name),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.check_circle,
-                      color: blueColor,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        //isSelected
-                      });
-                    },
-                  ),
-                  onTap: () {
-                    // Muestra información sobre el ejercicio o realiza alguna acción
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      */

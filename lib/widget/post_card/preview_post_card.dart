@@ -17,8 +17,7 @@ Widget buildPostItem(PlantillaPost post, double width,
     child: GestureDetector(
       onTap: showPost,
       child: Card(
-        color:
-            width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
+        //width > webScreenSize ? webBackgroundColor : mobileBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),

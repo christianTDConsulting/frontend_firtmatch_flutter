@@ -180,6 +180,8 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   }
 
   Widget _buildReviewButton(BuildContext context, double width) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Center(
@@ -188,8 +190,8 @@ class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
           label: const Text('Escribir una Reseña'),
           onPressed: () => _showReviewInput(context, width),
           style: ElevatedButton.styleFrom(
-            backgroundColor: blueColor,
-            foregroundColor: primaryColor,
+            backgroundColor: primaryColor,
+            foregroundColor: onPrimaryColor,
           ),
         ),
       ),
