@@ -101,11 +101,11 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text('Plantillas de entrenamiento'),
           bottom: TabBar(
             controller: _tabController,

@@ -152,8 +152,21 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     });
   }
 
-  void _navigateBack() {
-    Navigator.pop(context);
+  void _addComoSuperSet() {}
+
+  void _addIndivualmente() {
+    //   List<EjerciciosDetalladosAgrupados> ejerciciosAgrpuados = [];
+    //   for (int i = 0; i < selectedExercisesOrder.length; i++) {
+    //     ejerciciosAgrpuados.add(EjerciciosDetalladosAgrupados(
+    //      order: i,
+    //      ejerciciosDetallados: [
+    //        EjercicioDetallados(
+    //          exerciseId: selectedExercisesOrder.keys.toList()[i],
+
+    //        )
+    //      ]
+    //     ));
+    //   }
   }
 
   void _setLoadingState(bool loading) {
@@ -189,15 +202,21 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
               onChanged: (text) => _onSearchChanged(text),
             )),
         actions: [
-          GestureDetector(
-            onTap: () {},
-            child: Card(
-              child: Text(
-                'Crear ejercicio',
-                style: const TextStyle(fontSize: 12),
-                textScaler: width < webScreenSize
-                    ? const TextScaler.linear(1)
-                    : const TextScaler.linear(1.5),
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {},
+              child: Card(
+                color: Theme.of(context).colorScheme.primary,
+                child: Text(
+                  'Crear ejercicio',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                  textScaler: width < webScreenSize
+                      ? const TextScaler.linear(1)
+                      : const TextScaler.linear(1.5),
+                ),
               ),
             ),
           ),
@@ -261,7 +280,9 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              _addIndivualmente();
+            },
             child: Text(
               'Añadir individualmente',
               style: const TextStyle(fontSize: 12),
@@ -273,7 +294,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
           selectedExercisesOrder.length > 1
               ? ElevatedButton(
                   onPressed: () {
-                    // Agrega como super set
+                    _addComoSuperSet();
                   },
                   child: Text(
                     'Añadir como super set',

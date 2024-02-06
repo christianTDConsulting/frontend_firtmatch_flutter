@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
@@ -10,6 +11,7 @@ import 'package:fit_match/widget/custom_button.dart';
 import 'package:collection/collection.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/widget/preferences_section.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -49,34 +51,39 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   @override
   void initState() {
     super.initState();
+    initEditData();
+  }
 
+  Future<void> initEditData() async {
     if (widget.editingTemplate != null) {
       // Inicializar los controladores de texto
       _programNameController.text = widget.editingTemplate!.templateName;
       _descriptionController.text = widget.editingTemplate!.description ?? '';
 
       // Cargar imagen desde Cloudinary
-      _loadImage(widget.editingTemplate!.picture);
+      Uint8List? loadedImage =
+          await _loadImageFromUrl(widget.editingTemplate!.picture!);
+      setState(() {
+        _thumbnailImage = loadedImage;
+      });
 
       // Inicializar preferencias
       _initializePreferences(widget.editingTemplate!);
     }
   }
 
-  Future<void> _loadImage(String? imageUrl) async {
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      try {
-        final response = await http.get(Uri.parse(imageUrl));
-        if (response.statusCode == 200) {
-          setState(() {
-            _thumbnailImage = response.bodyBytes;
-          });
-        } else {
-          // Manejar el caso en que la imagen no se pudo cargar (p.ej. mostrar un error)
-        }
-      } catch (e) {
-        // Manejar excepciones
+  Future<Uint8List?> _loadImageFromUrl(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        return response.bodyBytes;
+      } else {
+        // Manejo de errores, por ejemplo, si la imagen no se puede cargar
+        return null;
       }
+    } catch (e) {
+      // Manejo de excepciones, como problemas de red
+      return null;
     }
   }
 
@@ -242,7 +249,8 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     List<Etiqueta> etiquetas = _createEtiquetas();
 
     if (widget.editingTemplate != null) {
-      if (_hasChanges()) {
+      bool hasChanges = await _hasChanges();
+      if (hasChanges) {
         await _updateTemplate(
             programName, description, thumbnailImage, etiquetas);
       }
@@ -252,14 +260,34 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     }
   }
 
-  bool _hasChanges() {
-    bool hasChanges = _programNameController.text !=
-            widget.editingTemplate?.templateName ||
-        _descriptionController.text != widget.editingTemplate?.description ||
-        _thumbnailImage != null;
+  // bool _hasChanges() {
+  //   bool hasChanges = _programNameController.text !=
+  //           widget.editingTemplate?.templateName ||
+  //       _descriptionController.text != widget.editingTemplate?.description ||
+  //       _thumbnailImage != widget.editingTemplate?.picture;
+
+  //   // Comprobar si las etiquetas han cambiado
+  //   hasChanges = hasChanges || _hasEtiquetasChanged();
+
+  //   return hasChanges;
+  // }
+
+  Future<bool> _hasChanges() async {
+    bool hasChanges =
+        _programNameController.text != widget.editingTemplate?.templateName ||
+            _descriptionController.text != widget.editingTemplate?.description;
 
     // Comprobar si las etiquetas han cambiado
     hasChanges = hasChanges || _hasEtiquetasChanged();
+
+    // Cargar la imagen desde la URL y convertirla a Uint8List para la comparación
+    if (widget.editingTemplate?.picture != null) {
+      final Uint8List? remoteImage =
+          await _loadImageFromUrl(widget.editingTemplate!.picture!);
+      // Comparar la imagen remota con la imagen actual (ambas en formato Uint8List)
+      hasChanges = hasChanges ||
+          (remoteImage != null && !listEquals(_thumbnailImage, remoteImage));
+    }
 
     return hasChanges;
   }
@@ -289,7 +317,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
           currentEtiquetasMap[key]!.map((e) => e.toString()).toList();
 
       // Si hay una diferencia en los valores de la lista, hay cambios.
-      if (!ListEquality().equals(initialValues, currentValues)) {
+      if (!const ListEquality().equals(initialValues, currentValues)) {
         return true;
       }
     }

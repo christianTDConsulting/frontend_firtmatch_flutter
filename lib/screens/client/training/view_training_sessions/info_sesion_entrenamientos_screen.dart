@@ -41,7 +41,9 @@ class _InfoSesionEntrenamientoScreen
     super.initState();
   }
 
-  void initSesionEntrenamients() async {}
+  void initSesionEntrenamients() async {
+    if (_formKey.currentState?.validate() == true) {}
+  }
 
   void _addExercise() {
     Navigator.of(context).push(
@@ -53,7 +55,7 @@ class _InfoSesionEntrenamientoScreen
 
   void _saveEntrenamiento() {}
 
-  void _navigateBack() {
+  void _navigateBack(BuildContext context) {
     Navigator.of(context).pop();
   }
 
@@ -61,11 +63,12 @@ class _InfoSesionEntrenamientoScreen
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Sesiones de Entrenamiento'),
+          title: const Text('Sesión de Entrenamiento'),
+          automaticallyImplyLeading: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
-              _navigateBack();
+              _navigateBack(context);
             },
           ),
         ),
@@ -129,12 +132,6 @@ class _InfoSesionEntrenamientoScreen
         labelText: 'Instrucciones de la sesión de entrenamiento',
         border: OutlineInputBorder(),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Por favor, escribe el nombre de tu programa';
-        }
-        return null;
-      },
     );
   }
 
@@ -143,6 +140,7 @@ class _InfoSesionEntrenamientoScreen
   }
 
   Widget _buildSaveButton(BuildContext context) {
-    return CustomButton(onTap: _saveEntrenamiento, text: 'OK');
+    return CustomButton(
+        onTap: _saveEntrenamiento, text: 'Guardar sesión de entrenamiento');
   }
 }

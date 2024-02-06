@@ -12,9 +12,9 @@ class _MiWidgetState extends State<MiWidgetStateful> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mi Widget Stateful'),
+        title: const Text('Mi Widget Stateful'),
       ),
-      body: Center(
+      body: const Center(
         // Aquí va el contenido de tu widget
         child: Text('Hola, este es mi widget stateful'),
       ),

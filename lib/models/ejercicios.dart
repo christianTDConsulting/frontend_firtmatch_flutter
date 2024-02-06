@@ -1,3 +1,39 @@
+class EjerciciosDetalladosAgrupados {
+  final int? groupedDetailedExercisedId;
+  final int? sessionId;
+  final int? order;
+  List<EjercicioDetallados> ejerciciosDetallados;
+
+  EjerciciosDetalladosAgrupados({
+    this.groupedDetailedExercisedId,
+    this.sessionId,
+    this.order,
+    this.ejerciciosDetallados = const [],
+  });
+
+  factory EjerciciosDetalladosAgrupados.fromJson(Map<String, dynamic> json) {
+    return EjerciciosDetalladosAgrupados(
+      groupedDetailedExercisedId: json['grouped_detailed_exercised_id'],
+      sessionId: json['session_id'],
+      order: json['order'],
+      ejerciciosDetallados: (json['ejercicios_detallados'] as List<dynamic>)
+          .map((e) => EjercicioDetallados.fromJson(e))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'grouped_detailed_exercised_id': groupedDetailedExercisedId,
+      'session_id': sessionId,
+      'order': order,
+      'ejercicios_detallados': ejerciciosDetallados
+          .map((ejerciciosDetallados) => ejerciciosDetallados.toJson())
+          .toList()
+    };
+  }
+}
+
 class EjercicioDetallados {
   final int detailedExerciseId;
   final int sessionId;

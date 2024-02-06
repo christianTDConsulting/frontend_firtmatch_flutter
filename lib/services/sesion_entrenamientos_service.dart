@@ -5,21 +5,26 @@ import 'package:http/http.dart' as http;
 import 'package:fit_match/utils/backend_urls.dart';
 
 class SesionEntrenamientoMethods {
-  Future<void> createSesionEntrenamiento({
-    required int templateId,
-    required List<Map<String, dynamic>> ejercicios,
-  }) async {
+  Future<SesionEntrenamiento> createSesionEntrenamiento(
+      {required int templateId,
+      required num order,
+      sessionName = 'Sesión de Entrenamiento',
+      num? notes}) async {
     final response = await http.post(
       Uri.parse(sesionEntrenamientoUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'template_id': templateId,
-        'ejercicios': ejercicios,
+        'order': order,
+        'session_name': sessionName,
+        'notes': notes
       }),
     );
     if (response.statusCode != 201) {
       throw Exception(
           'Error al crear la sesión de entrenamiento. Código de estado: ${response.statusCode}');
+    } else {
+      return SesionEntrenamiento.fromJson(jsonDecode(response.body));
     }
   }
 
@@ -48,7 +53,7 @@ class SesionEntrenamientoMethods {
   Future<List<SesionEntrenamiento>> getSesionesEntrenamientoByTemplateId(
       templateId) async {
     final response = await http.get(
-      Uri.parse('$sesionEntrenamientoUrl?template_id=$templateId'),
+      Uri.parse('$sesionEntrenamientoUrl/$templateId'),
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;

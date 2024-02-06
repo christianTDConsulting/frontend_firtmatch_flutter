@@ -2,6 +2,7 @@ import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -42,19 +43,45 @@ class _ViewSesionEntrenamientoScreen
 
       // Actualizar la lista de posts y el estado si el componente sigue montado.
       if (mounted) {
-        this.sesiones = sesiones;
+        setState(() {
+          this.sesiones = sesiones;
+        });
       }
     } catch (e) {
       print(e);
     }
   }
 
-  void _navigateNewSesion() {
+  void _deleteSesion(SesionEntrenamiento sesion) async {
+    await SesionEntrenamientoMethods()
+        .deleteSesionEntrenamiento(sesion.sessionId);
+    showToast(context, 'Sesion eliminada', exitoso: true);
+    initSesionEntrenamientos();
+  }
+
+  void _navigateNewSesion(
+    SesionEntrenamiento sesionEntrenamiento,
+  ) {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => InfoSesionEntrenamientoScreen(
               user: widget.user,
               templateId: widget.templateId,
+              editingSesion: sesionEntrenamiento,
             )));
+  }
+
+  void _createSession() async {
+    try {
+      SesionEntrenamiento sesionEntrenamiento =
+          await SesionEntrenamientoMethods().createSesionEntrenamiento(
+              templateId: widget.templateId,
+              order: sesiones.length + 1,
+              sessionName: 'Día ${sesiones.length + 1}');
+
+      _navigateNewSesion(sesionEntrenamiento);
+    } catch (e) {
+      showToast(context, e.toString(), exitoso: false);
+    }
   }
 
   void _saveEntrenamientos() {}
@@ -66,26 +93,34 @@ class _ViewSesionEntrenamientoScreen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sesiones de Entrenamiento'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              _navigateBack();
-            },
+      appBar: AppBar(
+        title: const Text('Sesiones de Entrenamiento'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            _navigateBack();
+          },
+        ),
+      ),
+      body: Center(
+        child: Container(
+          alignment: Alignment.topCenter,
+          constraints: const BoxConstraints(maxWidth: 1000),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildEntrenamientosList(context),
+                  const SizedBox(height: 16),
+                  _buildNewSesionButton(context),
+                  const SizedBox(height: 16),
+                  _buildSaveButton(context),
+                ]),
           ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            _buildEntrenamientosList(context),
-            const SizedBox(height: 16),
-            _buildNewSesionButton(context),
-            const SizedBox(height: 16),
-            _buildSaveButton(context),
-          ]),
-        ));
+      ),
+    );
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
@@ -96,18 +131,68 @@ class _ViewSesionEntrenamientoScreen
       );
     }
     return ListView.builder(
+      shrinkWrap: true,
       itemCount: sesiones.length,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(sesiones[index].sessionName),
+        return Dismissible(
+          key: Key(sesiones[index].toString()),
+          background: Container(
+            color: Colors.red,
+            child: const Align(
+                alignment: Alignment.centerLeft,
+                child: Row(children: [Icon(Icons.delete), Text('Eliminar')])),
+          ),
+          onDismissed: (direction) {
+            if (direction == DismissDirection.endToStart) {
+              _deleteSesion(sesiones[index]);
+            }
+          },
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _navigateNewSesion(sesiones[index]),
+              child: Card(
+                child: ListTile(
+                  title: Text(sesiones[index].sessionName),
+                  trailing: _buildPopupMenuButton(context, sesiones[index]),
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
   }
 
+  _buildPopupMenuButton(BuildContext context, SesionEntrenamiento sesion) {
+    return PopupMenuButton(
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'Editar',
+          child: Text('editar'),
+        ),
+        const PopupMenuItem(
+          value: 'Eliminar',
+          child: Text('eliminar'),
+        ),
+      ],
+      onSelected: (value) => _handleMenuItemSelected(value, sesion),
+    );
+  }
+
+  void _handleMenuItemSelected(String value, SesionEntrenamiento sesion) {
+    switch (value) {
+      case 'Editar':
+        _navigateNewSesion(sesion);
+        break;
+      case 'Eliminar':
+        _deleteSesion(sesion);
+    }
+  }
+
   Widget _buildNewSesionButton(BuildContext context) {
     return CustomButton(
-        onTap: _navigateNewSesion, text: 'Crear sesión de entrenamiento');
+        onTap: _createSession, text: 'Crear sesión de entrenamiento');
   }
 
   Widget _buildSaveButton(BuildContext context) {
