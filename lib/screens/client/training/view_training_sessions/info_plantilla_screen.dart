@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
@@ -188,7 +186,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () => navigateBack(),
+                onPressed: () => _navigateBack(),
                 child: const Text('Sí'),
               ),
             ],
@@ -397,7 +395,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     setState(() => _isLoading = loading);
   }
 
-  void navigateBack() {
+  void _navigateBack() {
     //Navigator.of(context).pop();
 
     Navigator.of(context).push(MaterialPageRoute(
@@ -428,7 +426,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
               if (await _onWillPop()) {
-                navigateBack();
+                _navigateBack();
               }
             },
           ),

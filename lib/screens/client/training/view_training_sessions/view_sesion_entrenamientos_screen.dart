@@ -62,7 +62,7 @@ class _ViewSesionEntrenamientoScreen
   void _navigateNewSesion(
     SesionEntrenamiento sesionEntrenamiento,
   ) {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
+    Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => InfoSesionEntrenamientoScreen(
               user: widget.user,
               templateId: widget.templateId,
