@@ -279,29 +279,35 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton(
-            onPressed: () {
-              _addIndivualmente();
-            },
-            child: Text(
-              'Añadir individualmente',
-              style: const TextStyle(fontSize: 12),
-              textScaler: width < webScreenSize
-                  ? const TextScaler.linear(1)
-                  : const TextScaler.linear(1.2),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {
+                _addIndivualmente();
+              },
+              child: Text(
+                'Añadir individualmente',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+                textScaler: width < webScreenSize
+                    ? const TextScaler.linear(1)
+                    : const TextScaler.linear(1.2),
+              ),
             ),
           ),
           selectedExercisesOrder.length > 1
-              ? ElevatedButton(
-                  onPressed: () {
-                    _addComoSuperSet();
-                  },
-                  child: Text(
-                    'Añadir como super set',
-                    style: const TextStyle(fontSize: 12),
-                    textScaler: width < webScreenSize
-                        ? const TextScaler.linear(1)
-                        : const TextScaler.linear(1.2),
+              ? Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _addComoSuperSet();
+                    },
+                    child: Text(
+                      'Añadir como super set',
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                      textScaler: width < webScreenSize
+                          ? const TextScaler.linear(1)
+                          : const TextScaler.linear(1.2),
+                    ),
                   ),
                 )
               : Container(),
@@ -319,7 +325,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int?>(
-          dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+          //dropdownColor: Theme.of(context).colorScheme.primaryContainer,
           menuMaxHeight: 300,
           value: selectedMuscleGroupId,
           icon: const Icon(
@@ -364,7 +370,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int?>(
-          dropdownColor: Theme.of(context).colorScheme.primaryContainer,
+          //dropdownColor: Theme.of(context).colorScheme.primaryContainer,
           menuMaxHeight: 300,
           value: selectedEquipmentId,
           icon: const Icon(Icons.arrow_drop_down),

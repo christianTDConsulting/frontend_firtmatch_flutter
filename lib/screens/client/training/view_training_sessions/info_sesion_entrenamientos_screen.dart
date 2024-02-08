@@ -31,7 +31,8 @@ class _InfoSesionEntrenamientoScreen
     sessionName: '',
     sessionDate: DateTime.now(),
   );
-  List<EjercicioDetallados> ejercicios = [];
+
+  List<EjerciciosDetalladosAgrupados> _exercises = [];
   bool isLoading = true;
   final TextEditingController _tituloContoller = TextEditingController();
   final TextEditingController _instruccionesContoller = TextEditingController();
@@ -62,6 +63,7 @@ class _InfoSesionEntrenamientoScreen
       setState(() {
         this.editingSesion = editingSesion;
       });
+
       _tituloContoller.text = editingSesion.sessionName;
       _instruccionesContoller.text = editingSesion.notes ?? '';
     } catch (e) {
@@ -82,8 +84,16 @@ class _InfoSesionEntrenamientoScreen
   void _saveEntrenamiento() async {
     if (_formKey.currentState!.validate()) {
       try {
-        int response = await SesionEntrenamientoMethods()
-            .editSesionEntrenamiento(editingSesion);
+        SesionEntrenamiento sesion = SesionEntrenamiento(
+          sessionId: editingSesion.sessionId,
+          templateId: editingSesion.templateId,
+          sessionName: _tituloContoller.text,
+          notes: _instruccionesContoller.text,
+          sessionDate: editingSesion.sessionDate,
+        );
+
+        int response =
+            await SesionEntrenamientoMethods().editSesionEntrenamiento(sesion);
 
         if (response == 200) {
           showToast(
@@ -136,17 +146,17 @@ class _InfoSesionEntrenamientoScreen
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
-    if (ejercicios.isEmpty) {
+    if (_exercises.isEmpty) {
       return const Text(
         'No hay ejercicios todavía',
         style: TextStyle(fontSize: 18),
       );
     }
     return ListView.builder(
-      itemCount: ejercicios.length,
+      itemCount: _exercises.length,
       itemBuilder: (context, index) {
         return ListTile(
-          title: Text(ejercicios[index].exerciseId.toString()),
+          title: Text(_exercises[index].ejerciciosDetallados.toString()),
         );
       },
     );

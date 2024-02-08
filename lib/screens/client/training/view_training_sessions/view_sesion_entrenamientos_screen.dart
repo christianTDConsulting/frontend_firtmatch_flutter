@@ -2,6 +2,7 @@ import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -124,43 +125,55 @@ class _ViewSesionEntrenamientoScreen
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
     if (sesiones.isEmpty) {
       return const Text(
         'No hay sesiones de entrenamiento todavía',
         style: TextStyle(fontSize: 18),
       );
     }
+
     return ListView.builder(
       shrinkWrap: true,
       itemCount: sesiones.length,
       itemBuilder: (context, index) {
-        return Dismissible(
-          key: Key(sesiones[index].toString()),
-          background: Container(
-            color: Colors.red,
-            child: const Align(
+        if (width < webScreenSize) {
+          return Dismissible(
+            key: Key(sesiones[index].toString()),
+            background: Container(
+              color: Colors.red,
+              child: const Align(
                 alignment: Alignment.centerLeft,
-                child: Row(children: [Icon(Icons.delete), Text('Eliminar')])),
-          ),
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              _deleteSesion(sesiones[index]);
-            }
-          },
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => _navigateNewSesion(sesiones[index]),
-              child: Card(
-                child: ListTile(
-                  title: Text(sesiones[index].sessionName),
-                  trailing: _buildPopupMenuButton(context, sesiones[index]),
-                ),
+                child: Row(children: [Icon(Icons.delete), Text('Eliminar')]),
               ),
             ),
-          ),
-        );
+            onDismissed: (direction) {
+              if (direction == DismissDirection.endToStart) {
+                _deleteSesion(sesiones[index]);
+              }
+            },
+            child: _buildListItem(context, index),
+          );
+        } else {
+          return _buildListItem(context, index);
+        }
       },
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, int index) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _navigateNewSesion(sesiones[index]),
+        child: Card(
+          child: ListTile(
+            title: Text(sesiones[index].sessionName),
+            trailing: _buildPopupMenuButton(context, sesiones[index]),
+          ),
+        ),
+      ),
     );
   }
 
