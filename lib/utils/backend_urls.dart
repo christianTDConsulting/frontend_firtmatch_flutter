@@ -13,6 +13,9 @@ const plantillaPostsUrl = '${url}plantillaPosts';
 // Sesión de Entrenamiento (Training Session)
 const sesionEntrenamientoUrl = '${url}sesionEntrenamiento';
 
+// Sesión de Entrenamiento (Training Session) Para obtener las sesiones de una plantilla de entrenamiento (training template)
+const sesionEntrenamientoTemplateUrl = '${url}sesionEntrenamientoTemplate';
+
 // Ejercicios (Exercises)
 const ejerciciosUrl = '${url}ejercicios';
 

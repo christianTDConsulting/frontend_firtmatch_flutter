@@ -1,8 +1,10 @@
 import 'package:fit_match/models/post.dart';
+import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/view_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
+
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 
@@ -16,19 +18,19 @@ import 'package:http/http.dart' as http;
 
 class CreateProgramScreen extends StatefulWidget {
   final User user;
-  final PlantillaPost? editingTemplate; //editar
-  const CreateProgramScreen(
-      {super.key, required this.user, this.editingTemplate});
+  final int? templateId; //editar
+  const CreateProgramScreen({super.key, required this.user, this.templateId});
 
   @override
   _CreateProgramScreenState createState() => _CreateProgramScreenState();
 }
 
 class _CreateProgramScreenState extends State<CreateProgramScreen> {
+  PlantillaPost? editingTemplate;
   final _formKey = GlobalKey<FormState>();
   final _programNameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  bool _isLoading = false;
+  bool _isLoading = true;
 
   // Etiquetas
   Map<String, bool> selectedObjectives = {};
@@ -52,21 +54,37 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     initEditData();
   }
 
+  void _setLoadingState(bool loading) {
+    setState(() => _isLoading = loading);
+  }
+
   Future<void> initEditData() async {
-    if (widget.editingTemplate != null) {
-      // Inicializar los controladores de texto
-      _programNameController.text = widget.editingTemplate!.templateName;
-      _descriptionController.text = widget.editingTemplate!.description ?? '';
+    try {
+      _setLoadingState(true);
+      if (widget.templateId != null) {
+        PlantillaPost sesionEntrenamiento =
+            await PlantillaPostsMethods().getPlantillaById(widget.templateId!);
+        setState(() {
+          editingTemplate = sesionEntrenamiento;
+        });
+        // Inicializar los controladores de texto
+        _programNameController.text = editingTemplate!.templateName;
+        _descriptionController.text = editingTemplate!.description ?? '';
 
-      // Cargar imagen desde Cloudinary
-      Uint8List? loadedImage =
-          await _loadImageFromUrl(widget.editingTemplate!.picture!);
-      setState(() {
-        _thumbnailImage = loadedImage;
-      });
+        // Cargar imagen desde Cloudinary
+        Uint8List? loadedImage =
+            await _loadImageFromUrl(editingTemplate!.picture!);
+        setState(() {
+          _thumbnailImage = loadedImage;
+        });
 
-      // Inicializar preferencias
-      _initializePreferences(widget.editingTemplate!);
+        // Inicializar preferencias
+        _initializePreferences(editingTemplate!);
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      _setLoadingState(false);
     }
   }
 
@@ -85,8 +103,20 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     }
   }
 
-  void _initializePreferences(PlantillaPost template) {
-    var sectionsMap = template.getSectionsMap();
+  void _initializePreferences(PlantillaPost editingTemplate) async {
+    var sectionsMap = editingTemplate.getSectionsMap();
+
+    selectedExperience = sectionsMap['Experiencia']?.isNotEmpty ?? false
+        ? sectionsMap['Experiencia'].first
+        : experienciaOptions.first.value;
+
+    selectedEquipment = sectionsMap['Equipamiento']?.isNotEmpty ?? false
+        ? sectionsMap['Equipamiento'].first
+        : equipmentOptions.first.value;
+
+    selectedDuration = sectionsMap['Duracion']?.isNotEmpty ?? false
+        ? sectionsMap['Duracion'].first
+        : durationOptions.first.value;
 
     // Reconstruir CheckboxPreference para Objetivos
     objetivosOptions = objetivosOptions.map((option) {
@@ -104,75 +134,108 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
       );
     }).toList();
 
-    // Reconstruir RadioPreference para Experiencia
-    experienciaOptions = experienciaOptions.map((option) {
-      return RadioPreference(
-        title: option.title,
-        value: option.value,
-      );
-    }).toList();
-
-    // Reconstruir RadioPreference para Equipamiento
-    equipmentOptions = equipmentOptions.map((option) {
-      return RadioPreference(
-        title: option.title,
-        value: option.value,
-      ); // Igual que con experiencia
-    }).toList();
-
-    // Reconstruir RadioPreference para Duración
-    durationOptions = durationOptions.map((option) {
-      return RadioPreference(
-        title: option.title,
-        value: option.value,
-      ); // Igual que con experiencia
-    }).toList();
-
-    // Actualizar el valor inicial para los grupos de RadioPreference
-    selectedExperience = sectionsMap['Experiencia'].isNotEmpty
-        ? sectionsMap['Experiencia'][0]
-        : experienciaOptions[0].value;
-    selectedEquipment = sectionsMap['Equipamiento'].isNotEmpty
-        ? sectionsMap['Equipamiento'][0]
-        : equipmentOptions[0].value;
-    selectedDuration = sectionsMap['Duración'].isNotEmpty
-        ? sectionsMap['Duración'][0]
-        : durationOptions[0].value;
-
-    // Para Objetivos
-    selectedObjectives = {
-      for (var option in objetivosOptions)
-        option.title: sectionsMap['Objetivos'].contains(option.title)
-    };
-
-    // Para Intereses
-    selectedInterests = {
-      for (var option in interesesOptions)
-        option.title: sectionsMap['Disciplinas'].contains(option.title)
-    };
-
-    // Para Experiencia
-    if (sectionsMap['Experiencia'].isNotEmpty) {
-      selectedExperience = sectionsMap['Experiencia'][0];
-    } else {
-      selectedExperience =
-          experienciaOptions[0].value; // O un valor por defecto
+    //Inicializar las preferencias de objetivos
+    selectedObjectives.clear();
+    for (var option in objetivosOptions) {
+      selectedObjectives[option.title] =
+          sectionsMap['Objetivos']?.contains(option.title) ?? false;
     }
-
-    // Para Equipamiento
-    if (sectionsMap['Equipamiento'].isNotEmpty) {
-      selectedEquipment = sectionsMap['Equipamiento'][0];
-    } else {
-      selectedEquipment = equipmentOptions[0].value; // O un valor por defecto
-    }
-
-    // Para Duración
-    if (sectionsMap['Duración'].isNotEmpty) {
-      selectedDuration = sectionsMap['Duración'][0];
-    } else {
-      selectedDuration = durationOptions[0].value; // O un valor por defecto
+    // Inicializar las preferencias de disciplinas
+    selectedInterests.clear();
+    for (var option in interesesOptions) {
+      selectedInterests[option.title] =
+          sectionsMap['Disciplinas']?.contains(option.title) ?? false;
     }
   }
+
+  // void _initializePreferences(PlantillaPost template) {
+  //   var sectionsMap = template.getSectionsMap();
+
+  //   // Reconstruir CheckboxPreference para Objetivos
+  //   objetivosOptions = objetivosOptions.map((option) {
+  //     return CheckboxPreference(
+  //       title: option.title,
+  //       value: sectionsMap['Objetivos'].contains(option.title),
+  //     );
+  //   }).toList();
+
+  //   // Reconstruir CheckboxPreference para Intereses
+  //   interesesOptions = interesesOptions.map((option) {
+  //     return CheckboxPreference(
+  //       title: option.title,
+  //       value: sectionsMap['Disciplinas'].contains(option.title),
+  //     );
+  //   }).toList();
+
+  //   // Reconstruir RadioPreference para Experiencia
+  //   experienciaOptions = experienciaOptions.map((option) {
+  //     return RadioPreference(
+  //       title: option.title,
+  //       value: option.value,
+  //     );
+  //   }).toList();
+
+  //   // Reconstruir RadioPreference para Equipamiento
+  //   equipmentOptions = equipmentOptions.map((option) {
+  //     return RadioPreference(
+  //       title: option.title,
+  //       value: option.value,
+  //     ); // Igual que con experiencia
+  //   }).toList();
+
+  //   // Reconstruir RadioPreference para Duración
+  //   durationOptions = durationOptions.map((option) {
+  //     return RadioPreference(
+  //       title: option.title,
+  //       value: option.value,
+  //     ); // Igual que con experiencia
+  //   }).toList();
+
+  //   // Actualizar el valor inicial para los grupos de RadioPreference
+  //   selectedExperience = sectionsMap['Experiencia'].isNotEmpty
+  //       ? sectionsMap['Experiencia'][0]
+  //       : experienciaOptions[0].value;
+  //   selectedEquipment = sectionsMap['Equipamiento'].isNotEmpty
+  //       ? sectionsMap['Equipamiento'][0]
+  //       : equipmentOptions[0].value;
+  //   selectedDuration = sectionsMap['Duración'].isNotEmpty
+  //       ? sectionsMap['Duración'][0]
+  //       : durationOptions[0].value;
+
+  //   // Para Objetivos
+  //   selectedObjectives = {
+  //     for (var option in objetivosOptions)
+  //       option.title: sectionsMap['Objetivos'].contains(option.title)
+  //   };
+
+  //   // Para Intereses
+  //   selectedInterests = {
+  //     for (var option in interesesOptions)
+  //       option.title: sectionsMap['Disciplinas'].contains(option.title)
+  //   };
+
+  //   // Para Experiencia
+  //   if (sectionsMap['Experiencia'].isNotEmpty) {
+  //     selectedExperience = sectionsMap['Experiencia'][0];
+  //   } else {
+  //     selectedExperience =
+  //         experienciaOptions[0].value; // O un valor por defecto
+  //   }
+
+  //   // Para Equipamiento
+  //   if (sectionsMap['Equipamiento'].isNotEmpty) {
+  //     selectedEquipment = sectionsMap['Equipamiento'][0];
+  //   } else {
+  //     selectedEquipment = equipmentOptions[0].value; // O un valor por defecto
+  //   }
+
+  //   // Para Duración
+  //   if (sectionsMap['Duración'].isNotEmpty) {
+  //     selectedDuration = sectionsMap['Duración'][0];
+  //   } else {
+  //     selectedDuration = durationOptions[0].value; // O un valor por defecto
+  //   }
+  //}
 
   Future<bool> _onWillPop() async {
     return (await showDialog(
@@ -246,11 +309,13 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
 
     List<Etiqueta> etiquetas = _createEtiquetas();
 
-    if (widget.editingTemplate != null) {
+    if (editingTemplate != null) {
       bool hasChanges = await _hasChanges();
       if (hasChanges) {
         await _updateTemplate(
             programName, description, thumbnailImage, etiquetas);
+      } else {
+        navigateNext(editingTemplate!.templateId);
       }
     } else {
       await _createTemplate(
@@ -258,82 +323,95 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
     }
   }
 
-  // bool _hasChanges() {
-  //   bool hasChanges = _programNameController.text !=
-  //           widget.editingTemplate?.templateName ||
-  //       _descriptionController.text != widget.editingTemplate?.description ||
-  //       _thumbnailImage != widget.editingTemplate?.picture;
-
-  //   // Comprobar si las etiquetas han cambiado
-  //   hasChanges = hasChanges || _hasEtiquetasChanged();
-
-  //   return hasChanges;
-  // }
-
   Future<bool> _hasChanges() async {
+    // Comprobación inicial rápida para cambios simples y URL de imagen.
     bool hasChanges =
-        _programNameController.text != widget.editingTemplate?.templateName ||
-            _descriptionController.text != widget.editingTemplate?.description;
+        _programNameController.text != editingTemplate?.templateName ||
+            _descriptionController.text != editingTemplate?.description ||
+            (_thumbnailImage != null && editingTemplate?.picture == null) ||
+            (_thumbnailImage == null && editingTemplate?.picture != null);
 
-    // Comprobar si las etiquetas han cambiado
+    // Si ya detectamos cambios, no es necesario seguir.
+    if (hasChanges) return true;
+
+    // Comprobación de cambios en las etiquetas.
     hasChanges = hasChanges || _hasEtiquetasChanged();
 
-    // Cargar la imagen desde la URL y convertirla a Uint8List para la comparación
-    if (widget.editingTemplate?.picture != null) {
+    // Si aún no hemos encontrado cambios y tenemos una imagen nueva,
+    // comparamos la imagen solo si la URL no ha cambiado.
+    if (!hasChanges &&
+        editingTemplate?.picture != null &&
+        _thumbnailImage != null) {
       final Uint8List? remoteImage =
-          await _loadImageFromUrl(widget.editingTemplate!.picture!);
-      // Comparar la imagen remota con la imagen actual (ambas en formato Uint8List)
-      hasChanges = hasChanges ||
-          (remoteImage != null && !listEquals(_thumbnailImage, remoteImage));
+          await _loadImageFromUrl(editingTemplate!.picture!);
+      // Comparar la imagen remota con la imagen actual (ambas en formato Uint8List).
+      hasChanges = !listEquals(_thumbnailImage, remoteImage);
     }
 
     return hasChanges;
   }
 
   bool _hasEtiquetasChanged() {
-    if (widget.editingTemplate == null) {
+    if (editingTemplate == null) {
       return false; // No hay plantilla previa con la cual comparar.
     }
 
     Map<String, List<String>> currentEtiquetasMap = _getCurrentEtiquetasMap();
     Map<String, dynamic> initialEtiquetasMap =
-        widget.editingTemplate!.getSectionsMap();
+        editingTemplate!.getSectionsMap();
 
-    // Comprobar si hay la misma cantidad de etiquetas para cada tipo.
-    for (var key in initialEtiquetasMap.keys) {
-      if (initialEtiquetasMap[key]!.length !=
-          currentEtiquetasMap[key]!.length) {
-        return true; // Diferente cantidad de etiquetas.
-      }
-    }
-
-    // Comprobar si todos los valores de las etiquetas son iguales.
     for (var key in initialEtiquetasMap.keys) {
       List<String> initialValues =
-          initialEtiquetasMap[key]!.map((e) => e.toString()).toList();
-      List<String> currentValues =
-          currentEtiquetasMap[key]!.map((e) => e.toString()).toList();
+          List<String>.from(initialEtiquetasMap[key]!.map((e) => e.toString()));
 
-      // Si hay una diferencia en los valores de la lista, hay cambios.
-      if (!const ListEquality().equals(initialValues, currentValues)) {
-        return true;
+      List<String> currentValues = currentEtiquetasMap[key] ?? [];
+
+      // Para categorías que pueden tener múltiples valores
+      if (key == 'Disciplinas' || key == 'Objetivos') {
+        // Comprobar si las listas son iguales, independientemente del orden
+        if (!const SetEquality()
+            .equals(initialValues.toSet(), currentValues.toSet())) {
+          return true;
+        }
+      } else {
+        // Para valores únicos, verificar primero si ambas listas están vacías o tienen elementos
+        if (initialValues.isEmpty && currentValues.isEmpty) {
+          print('Las listas son iguales');
+
+          continue; // Ambas listas están vacías, considerar como iguales
+        } else if (initialValues.isEmpty || currentValues.isEmpty) {
+          print('Una lista está vacía y la otra no ' + key);
+          print(initialValues.isEmpty ? 'initialValues' : 'currentValues');
+
+          print('currentEtiquetasMap: $currentEtiquetasMap');
+          print('initialEtiquetasMap: $initialEtiquetasMap');
+          return true; // Una lista está vacía y la otra no, son diferentes
+        } else if (initialValues.first != currentValues.first) {
+          print('Los valores únicos no coinciden' + key);
+
+          return true; // Los valores únicos no coinciden
+        }
       }
     }
 
     // Si llegamos aquí, no hay cambios en las etiquetas.
+
     return false;
   }
 
   Map<String, List<String>> _getCurrentEtiquetasMap() {
     Map<String, List<String>> etiquetasMap = {
       'Experiencia': [selectedExperience],
-      'Disciplinas':
-          selectedInterests.keys.where((k) => selectedInterests[k]!).toList(),
-      'Objetivos':
-          selectedObjectives.keys.where((k) => selectedObjectives[k]!).toList(),
+      'Disciplinas': selectedInterests.keys
+          .where((k) => selectedInterests[k] == true)
+          .toList(),
+      'Objetivos': selectedObjectives.keys
+          .where((k) => selectedObjectives[k] == true)
+          .toList(),
       'Equipamiento': [selectedEquipment],
-      'Duración': [selectedDuration],
+      'Duracion': [selectedDuration],
     };
+
     return etiquetasMap;
   }
 
@@ -345,6 +423,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
 
     etiquetas.add(Etiqueta(experience: selectedExperience));
     etiquetas.add(Etiqueta(equipment: selectedEquipment));
+    etiquetas.add(Etiqueta(duration: selectedDuration));
 
     return etiquetas;
   }
@@ -352,16 +431,16 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
   Future<void> _updateTemplate(String programName, String description,
       dynamic thumbnailImage, List<Etiqueta> etiquetas) async {
     PlantillaPost plantillaActualizada = PlantillaPost(
-        templateId: widget.editingTemplate!.templateId,
-        userId: widget.editingTemplate!.userId,
+        templateId: editingTemplate!.templateId,
+        userId: editingTemplate!.userId,
         templateName: programName,
         description: description,
         public: false,
         hidden: false,
         etiquetas: etiquetas);
 
-    int templateId = widget.editingTemplate!.templateId;
-    if (plantillaActualizada != widget.editingTemplate) {
+    int templateId = editingTemplate!.templateId;
+    if (plantillaActualizada != editingTemplate) {
       templateId = await PlantillaPostsMethods()
           .updatePlantilla(plantillaActualizada, thumbnailImage);
     }
@@ -388,11 +467,6 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             ? Etiqueta(objectives: e.key)
             : Etiqueta(interests: e.key))
         .toList();
-  }
-
-  void _setLoadingState(bool loading) {
-    //print("loading: " + loading.toString());
-    setState(() => _isLoading = loading);
   }
 
   void _navigateBack() {
@@ -431,34 +505,36 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
             },
           ),
         ),
-        body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 1000),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    buildNameField(),
-                    const SizedBox(height: 16),
-                    buildDescriptionField(),
-                    const SizedBox(height: 16),
-                    buildImagePicker(),
-                    const SizedBox(height: 16),
-                    buildObjectivesSection(),
-                    buildInterestsSection(),
-                    buildExperienceSection(),
-                    buildEquipmentSection(),
-                    buildDurationSection(),
-                    buildSubmitButton(),
-                  ],
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          buildNameField(),
+                          const SizedBox(height: 16),
+                          buildDescriptionField(),
+                          const SizedBox(height: 16),
+                          buildImagePicker(),
+                          const SizedBox(height: 16),
+                          buildObjectivesSection(),
+                          buildInterestsSection(),
+                          buildExperienceSection(),
+                          buildEquipmentSection(),
+                          buildDurationSection(),
+                          buildSubmitButton(),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }

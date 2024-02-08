@@ -37,29 +37,42 @@ class SesionEntrenamientoMethods {
     }
   }
 
-  Future<void> editSesionEntrenamiento(
-      int sessionId, Map<String, dynamic> sessionData) async {
+  Future<int> editSesionEntrenamiento(SesionEntrenamiento sessionData) async {
     final response = await http.put(
-      Uri.parse('$sesionEntrenamientoUrl/$sessionId'),
+      Uri.parse(sesionEntrenamientoUrl),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(sessionData),
+      body: jsonEncode(sessionData.toJson()),
     );
     if (response.statusCode != 200) {
       throw Exception(
           'Error al editar la sesión de entrenamiento. Código de estado: ${response.statusCode}');
+    } else {
+      return response.statusCode;
     }
   }
 
   Future<List<SesionEntrenamiento>> getSesionesEntrenamientoByTemplateId(
       templateId) async {
     final response = await http.get(
-      Uri.parse('$sesionEntrenamientoUrl/$templateId'),
+      Uri.parse('$sesionEntrenamientoTemplateUrl/$templateId'),
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;
       return jsonData
           .map((jsonItem) => SesionEntrenamiento.fromJson(jsonItem))
           .toList();
+    } else {
+      throw Exception(
+          'Error al obtener los posts. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<SesionEntrenamiento> getSesionesEntrenamientoBySessionId(
+      int sessionId) async {
+    final response =
+        await http.get(Uri.parse('$sesionEntrenamientoUrl/$sessionId'));
+    if (response.statusCode == 200) {
+      return SesionEntrenamiento.fromJson(jsonDecode(response.body));
     } else {
       throw Exception(
           'Error al obtener los posts. Código de estado: ${response.statusCode}');

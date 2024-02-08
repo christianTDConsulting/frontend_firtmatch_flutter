@@ -66,7 +66,7 @@ class PlantillaPost {
       'Disciplinas': [],
       'Objetivos': [],
       'Equipamiento': [],
-      'Duración': [],
+      'Duracion': [],
     };
 
     for (var etiqueta in etiquetas) {
@@ -83,7 +83,7 @@ class PlantillaPost {
         sections['Equipamiento'].add(etiqueta.equipment);
       }
       if (etiqueta.duration != null && etiqueta.duration!.isNotEmpty) {
-        sections['Duración'].add(etiqueta.duration);
+        sections['Duracion'].add(etiqueta.duration);
       }
     }
 

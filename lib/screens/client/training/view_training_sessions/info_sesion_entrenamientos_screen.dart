@@ -2,17 +2,19 @@ import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/exercise/exercise_selection_screen.dart';
+import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
 
 class InfoSesionEntrenamientoScreen extends StatefulWidget {
   final int templateId;
   final User user;
-  final SesionEntrenamiento? editingSesion;
+  final int sessionId;
 
   const InfoSesionEntrenamientoScreen({
     super.key,
-    this.editingSesion,
+    required this.sessionId,
     required this.templateId,
     required this.user,
   });
@@ -23,8 +25,14 @@ class InfoSesionEntrenamientoScreen extends StatefulWidget {
 
 class _InfoSesionEntrenamientoScreen
     extends State<InfoSesionEntrenamientoScreen> {
+  SesionEntrenamiento editingSesion = SesionEntrenamiento(
+    sessionId: 0,
+    templateId: 0,
+    sessionName: '',
+    sessionDate: DateTime.now(),
+  );
   List<EjercicioDetallados> ejercicios = [];
-
+  bool isLoading = true;
   final TextEditingController _tituloContoller = TextEditingController();
   final TextEditingController _instruccionesContoller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -39,10 +47,28 @@ class _InfoSesionEntrenamientoScreen
   @override
   void initState() {
     super.initState();
+    initData();
   }
 
-  void initSesionEntrenamients() async {
-    if (_formKey.currentState?.validate() == true) {}
+  void _setLoadingState(bool loading) {
+    setState(() => isLoading = loading);
+  }
+
+  Future<void> initData() async {
+    try {
+      _setLoadingState(true);
+      SesionEntrenamiento editingSesion = await SesionEntrenamientoMethods()
+          .getSesionesEntrenamientoBySessionId(widget.sessionId);
+      setState(() {
+        this.editingSesion = editingSesion;
+      });
+      _tituloContoller.text = editingSesion.sessionName;
+      _instruccionesContoller.text = editingSesion.notes ?? '';
+    } catch (e) {
+      print(e);
+    } finally {
+      _setLoadingState(false);
+    }
   }
 
   void _addExercise() {
@@ -53,7 +79,22 @@ class _InfoSesionEntrenamientoScreen
     );
   }
 
-  void _saveEntrenamiento() {}
+  void _saveEntrenamiento() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        int response = await SesionEntrenamientoMethods()
+            .editSesionEntrenamiento(editingSesion);
+
+        if (response == 200) {
+          showToast(
+              context, 'Sesión de Entrenamiento actualizada correctamente');
+          _navigateBack(context);
+        }
+      } catch (e) {
+        showToast(context, e.toString(), exitoso: false);
+      }
+    }
+  }
 
   void _navigateBack(BuildContext context) {
     Navigator.of(context).pop();
@@ -72,24 +113,26 @@ class _InfoSesionEntrenamientoScreen
             },
           ),
         ),
-        body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildTitle(context),
-                    const SizedBox(height: 16),
-                    _buildInstructions(context),
-                    const SizedBox(height: 16),
-                    _buildEntrenamientosList(context),
-                    const SizedBox(height: 16),
-                    _buildNewExerciseButton(context),
-                    const SizedBox(height: 16),
-                    _buildSaveButton(context),
-                  ]),
-            )));
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildTitle(context),
+                        const SizedBox(height: 16),
+                        _buildInstructions(context),
+                        const SizedBox(height: 16),
+                        _buildEntrenamientosList(context),
+                        const SizedBox(height: 16),
+                        _buildNewExerciseButton(context),
+                        const SizedBox(height: 16),
+                        _buildSaveButton(context),
+                      ]),
+                )));
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {

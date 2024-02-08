@@ -60,7 +60,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
           builder: (context) => CreateProgramScreen(
-              user: widget.user, editingTemplate: template)),
+              user: widget.user, templateId: template.templateId)),
     );
   }
 

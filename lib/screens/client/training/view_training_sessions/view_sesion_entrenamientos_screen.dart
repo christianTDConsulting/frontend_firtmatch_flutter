@@ -66,7 +66,7 @@ class _ViewSesionEntrenamientoScreen
         builder: (context) => InfoSesionEntrenamientoScreen(
               user: widget.user,
               templateId: widget.templateId,
-              editingSesion: sesionEntrenamiento,
+              sessionId: sesionEntrenamiento.sessionId,
             )));
   }
 

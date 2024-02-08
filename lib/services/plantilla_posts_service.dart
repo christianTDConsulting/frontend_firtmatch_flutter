@@ -5,6 +5,17 @@ import 'package:fit_match/models/post.dart';
 import 'package:fit_match/utils/backend_urls.dart';
 
 class PlantillaPostsMethods {
+  Future<PlantillaPost> getPlantillaById(int templateId) async {
+    final response =
+        await http.get(Uri.parse('$plantillaPostsUrl/$templateId'));
+    if (response.statusCode == 200) {
+      return PlantillaPost.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception(
+          'Error al obtener los posts. Código de estado: ${response.statusCode}');
+    }
+  }
+
   Future<List<PlantillaPost>> getAllPosts(
       {num? userId,
       int? page = 1,
@@ -77,6 +88,7 @@ class PlantillaPostsMethods {
           etiquetas[i].experience ?? '';
       request.fields['etiquetas[$i][interests]'] = etiquetas[i].interests ?? '';
       request.fields['etiquetas[$i][equipment]'] = etiquetas[i].equipment ?? '';
+      request.fields['etiquetas[$i][duration]'] = etiquetas[i].duration ?? '';
     }
   }
 
