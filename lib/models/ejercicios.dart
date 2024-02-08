@@ -1,14 +1,14 @@
 class EjerciciosDetalladosAgrupados {
-  final int? groupedDetailedExercisedId;
-  final int? sessionId;
-  final int? order;
-  List<EjercicioDetallados> ejerciciosDetallados;
+  final int groupedDetailedExercisedId;
+  final int sessionId;
+  final int order;
+  final List<EjercicioDetallado> ejerciciosDetallados;
 
   EjerciciosDetalladosAgrupados({
-    this.groupedDetailedExercisedId,
-    this.sessionId,
-    this.order,
-    this.ejerciciosDetallados = const [],
+    required this.groupedDetailedExercisedId,
+    required this.sessionId,
+    required this.order,
+    required this.ejerciciosDetallados,
   });
 
   factory EjerciciosDetalladosAgrupados.fromJson(Map<String, dynamic> json) {
@@ -17,7 +17,7 @@ class EjerciciosDetalladosAgrupados {
       sessionId: json['session_id'],
       order: json['order'],
       ejerciciosDetallados: (json['ejercicios_detallados'] as List<dynamic>)
-          .map((e) => EjercicioDetallados.fromJson(e))
+          .map((e) => EjercicioDetallado.fromJson(e))
           .toList(),
     );
   }
@@ -27,63 +27,56 @@ class EjerciciosDetalladosAgrupados {
       'grouped_detailed_exercised_id': groupedDetailedExercisedId,
       'session_id': sessionId,
       'order': order,
-      'ejercicios_detallados': ejerciciosDetallados
-          .map((ejerciciosDetallados) => ejerciciosDetallados.toJson())
-          .toList()
+      'ejercicios_detallados':
+          ejerciciosDetallados.map((e) => e.toJson()).toList(),
     };
   }
 }
 
-class EjercicioDetallados {
+class EjercicioDetallado {
   final int detailedExerciseId;
-  final int sessionId;
-  final int exerciseId;
+  final int? exerciseId;
   final int registerTypeId;
-  final String notes;
+  final String? notes;
   final int order;
-  List<SetsEjerciciosEntrada>? setsEjerciciosEntrada;
+  final Ejercicios? ejercicios;
 
-  EjercicioDetallados({
+  EjercicioDetallado({
     required this.detailedExerciseId,
-    required this.sessionId,
-    required this.exerciseId,
+    this.exerciseId,
     required this.registerTypeId,
-    required this.notes,
+    this.notes,
     required this.order,
-    this.setsEjerciciosEntrada,
+    this.ejercicios,
   });
 
-  factory EjercicioDetallados.fromJson(Map<String, dynamic> json) {
-    return EjercicioDetallados(
+  factory EjercicioDetallado.fromJson(Map<String, dynamic> json) {
+    return EjercicioDetallado(
       detailedExerciseId: json['detailed_exercise_id'],
-      sessionId: json['session_id'],
       exerciseId: json['exercise_id'],
       registerTypeId: json['register_type_id'],
       notes: json['notes'],
       order: json['order'],
-      setsEjerciciosEntrada: (json['sets_ejercicios_entrada'] as List)
-          .map((set) => SetsEjerciciosEntrada.fromJson(set))
-          .toList(),
+      ejercicios: json['ejercicios'] != null
+          ? Ejercicios.fromJson(json['ejercicios'])
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'detailed_exercise_id': detailedExerciseId,
-      'session_id': sessionId,
       'exercise_id': exerciseId,
       'register_type_id': registerTypeId,
       'notes': notes,
       'order': order,
-      'sets_ejercicios_entrada':
-          setsEjerciciosEntrada?.map((set) => set.toJson()).toList(),
+      'ejercicios': ejercicios?.toJson(),
     };
   }
 }
 
 class Ejercicios {
   final int exerciseId;
-  final int? user_id;
   final String name;
   final String? description;
   final int muscleGroupId;
@@ -91,7 +84,6 @@ class Ejercicios {
 
   Ejercicios({
     required this.exerciseId,
-    this.user_id,
     required this.name,
     this.description,
     required this.muscleGroupId,
@@ -101,7 +93,6 @@ class Ejercicios {
   factory Ejercicios.fromJson(Map<String, dynamic> json) {
     return Ejercicios(
       exerciseId: json['exercise_id'],
-      user_id: json['user_id'],
       name: json['name'],
       description: json['description'],
       muscleGroupId: json['muscle_group_id'],
@@ -112,7 +103,6 @@ class Ejercicios {
   Map<String, dynamic> toJson() {
     return {
       'exercise_id': exerciseId,
-      'user_id': user_id,
       'name': name,
       'description': description,
       'muscle_group_id': muscleGroupId,

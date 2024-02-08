@@ -187,16 +187,40 @@ class _InfoSesionEntrenamientoScreen
         'No hay ejercicios todavía',
         style: TextStyle(fontSize: 18),
       );
+    } else {
+      return Container();
     }
-    return ListView.builder(
-      itemCount: _exercises.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(_exercises[index].ejerciciosDetallados.toString()),
-        );
-      },
-    );
   }
+
+  // Widget _buildGroupedExercisesList(BuildContext context) {
+  //   return Column(
+  //     children: _exercises.map((groupedDetailedExercise) {
+  //       return Card(
+  //         margin: const EdgeInsets.symmetric(vertical: 8.0),
+  //         child: Column(
+  //           children: [
+  //             ListTile(
+  //               leading: Text('${groupedDetailedExercise.order}'),
+  //               title: Text(
+  //                   'Grupo de Ejercicios ${groupedDetailedExercise.order}'),
+  //               subtitle: Text(
+  //                   'Número de ejercicios: ${groupedDetailedExercise.ejerciciosDetallados.length}'),
+  //             ),
+  //             ...groupedDetailedExercise.ejerciciosDetallados
+  //                 .map((detailedExercise) {
+  //               return ListTile(
+  //                 leading: const Icon(Icons.fitness_center),
+  //                 title: Text(detailedExercise.exerciseId.toString()),
+  //                 subtitle: Text(
+  //                     'Sets: ${detailedExercise.setsEjerciciosEntrada?.length ?? 0}'),
+  //               );
+  //             }).toList(),
+  //           ],
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   Widget _buildTitle(BuildContext context) {
     return TextFormField(
