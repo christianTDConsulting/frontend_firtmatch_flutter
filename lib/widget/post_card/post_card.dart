@@ -217,6 +217,8 @@ class _PostCardState extends State<PostCard> {
         if (sectionsMap['Equipamiento']!.isNotEmpty)
           buildChipsSection(
               'Equipamiento Necesario', sectionsMap['Equipamiento']!),
+        if (sectionsMap['Duracion']!.isNotEmpty)
+          buildChipsSection('Duración', sectionsMap['Duracion']!),
         buildSectionTitle('Descripción'),
         _buildSectionContent(widget.post.description ?? ''),
       ],

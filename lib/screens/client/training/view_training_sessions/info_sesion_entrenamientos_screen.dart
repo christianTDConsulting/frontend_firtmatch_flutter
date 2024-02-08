@@ -29,6 +29,7 @@ class _InfoSesionEntrenamientoScreen
     sessionId: 0,
     templateId: 0,
     sessionName: '',
+    order: 0,
     sessionDate: DateTime.now(),
   );
 
@@ -64,6 +65,8 @@ class _InfoSesionEntrenamientoScreen
         this.editingSesion = editingSesion;
       });
 
+      _initExercises();
+
       _tituloContoller.text = editingSesion.sessionName;
       _instruccionesContoller.text = editingSesion.notes ?? '';
     } catch (e) {
@@ -73,12 +76,44 @@ class _InfoSesionEntrenamientoScreen
     }
   }
 
-  void _addExercise() {
-    Navigator.of(context).push(
+  void _initExercises() async {
+    try {
+      List<EjerciciosDetalladosAgrupados> exercises =
+          await EjercicioDetalladosAgrupadoMethods()
+              .getEjerciciosDetalladosAgrupadosBySesionId(widget.sessionId);
+
+      if (exercises.isNotEmpty) {
+        setState(() {
+          _exercises = exercises;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> _addExercise() async {
+    Navigator.of(context)
+        .push(
       MaterialPageRoute(
-        builder: (context) => ExecriseSelectionScreen(user: widget.user),
+        builder: (context) => ExecriseSelectionScreen(
+            user: widget.user,
+            sessionId: widget.sessionId,
+            GroupedDetailedExerciseOrder: _exercises.length),
       ),
-    );
+    )
+        .then((result) {
+      if (result == true) {
+        try {
+          _setLoadingState(true);
+          _initExercises();
+        } catch (e) {
+          print(e);
+        } finally {
+          _setLoadingState(false);
+        }
+      }
+    });
   }
 
   void _saveEntrenamiento() async {
@@ -90,6 +125,7 @@ class _InfoSesionEntrenamientoScreen
           sessionName: _tituloContoller.text,
           notes: _instruccionesContoller.text,
           sessionDate: editingSesion.sessionDate,
+          order: editingSesion.order,
         );
 
         int response =
@@ -107,7 +143,7 @@ class _InfoSesionEntrenamientoScreen
   }
 
   void _navigateBack(BuildContext context) {
-    Navigator.of(context).pop();
+    Navigator.pop(context, true);
   }
 
   @override

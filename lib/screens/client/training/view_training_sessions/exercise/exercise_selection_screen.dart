@@ -11,8 +11,13 @@ import 'package:flutter/material.dart';
 
 class ExecriseSelectionScreen extends StatefulWidget {
   final User user;
-
-  const ExecriseSelectionScreen({super.key, required this.user});
+  final int sessionId;
+  final int GroupedDetailedExerciseOrder;
+  const ExecriseSelectionScreen(
+      {super.key,
+      required this.user,
+      required this.sessionId,
+      required this.GroupedDetailedExerciseOrder});
   @override
   _ExecriseSelectionScreen createState() => _ExecriseSelectionScreen();
 }
@@ -21,7 +26,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
   bool _isLoading = false;
   int _currentPage = 1;
   bool _hasMore = true;
-  int _pageSize = 20;
+  final int _pageSize = 20;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -152,21 +157,66 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
     });
   }
 
-  void _addComoSuperSet() {}
+  void _addComoSuperSet() async {
+    _setLoadingState(true);
+    try {
+      List<Map<String, dynamic>> exercises = selectedExercisesOrder.entries
+          .map((entry) => {
+                'exerciseId': entry.key,
+                'order': entry.value,
+                'typeId': 1, // Tipo de registro por defecto
+                'notes':
+                    'Nota por defecto', // Notas por defecto para cada ejercicio
+              })
+          .toList();
 
-  void _addIndivualmente() {
-    //   List<EjerciciosDetalladosAgrupados> ejerciciosAgrpuados = [];
-    //   for (int i = 0; i < selectedExercisesOrder.length; i++) {
-    //     ejerciciosAgrpuados.add(EjerciciosDetalladosAgrupados(
-    //      order: i,
-    //      ejerciciosDetallados: [
-    //        EjercicioDetallados(
-    //          exerciseId: selectedExercisesOrder.keys.toList()[i],
+      await EjercicioDetalladosAgrupadoMethods().createGroupedDetailedExercises(
+        sessionId: widget.sessionId,
+        order: widget
+            .GroupedDetailedExerciseOrder, // Orden del grupo de ejercicios dentro de la sesión
+        exercises: exercises,
+      );
 
-    //        )
-    //      ]
-    //     ));
-    //   }
+      _navigateBack();
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      _setLoadingState(false);
+    }
+  }
+
+  void _addindividualmente() async {
+    _setLoadingState(true);
+    try {
+      int currentOrder = widget.GroupedDetailedExerciseOrder;
+      for (var entry in selectedExercisesOrder.entries) {
+        final int exerciseId = entry.key;
+        final int order = entry.value;
+        await EjercicioDetalladosAgrupadoMethods()
+            .createGroupedDetailedExercises(
+          sessionId: widget.sessionId,
+          order: currentOrder,
+          exercises: [
+            {
+              'exerciseId': exerciseId,
+              'order': order,
+              'typeId': 1, // Tipo de registro por defecto
+              'notes': '', // Notas por defecto
+            },
+          ],
+        );
+        currentOrder++;
+      }
+      _navigateBack();
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      _setLoadingState(false);
+    }
+  }
+
+  void _navigateBack() {
+    Navigator.pop(context, true);
   }
 
   void _setLoadingState(bool loading) {
@@ -282,7 +332,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
           Expanded(
             child: ElevatedButton(
               onPressed: () {
-                _addIndivualmente();
+                _addindividualmente();
               },
               child: Text(
                 'Añadir individualmente',

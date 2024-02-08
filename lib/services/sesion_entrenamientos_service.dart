@@ -39,7 +39,7 @@ class SesionEntrenamientoMethods {
 
   Future<int> editSesionEntrenamiento(SesionEntrenamiento sessionData) async {
     final response = await http.put(
-      Uri.parse(sesionEntrenamientoUrl),
+      Uri.parse('$sesionEntrenamientoUrl/${sessionData.sessionId}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(sessionData.toJson()),
     );
@@ -109,9 +109,10 @@ class EjerciciosMethods {
 
     // Añade los parámetros adicionales si están presentes.
     if (userId != null) url += "&userId=$userId";
-    if (name != null)
+    if (name != null) {
       url +=
           "&name=${Uri.encodeComponent(name)}"; // Codifica el nombre para URL.
+    }
     if (idGrupoMuscular != null) url += "&idGrupoMuscular=$idGrupoMuscular";
     if (idMaterial != null) url += "&idMaterial=$idMaterial";
 
@@ -167,6 +168,46 @@ class EjerciciosMethods {
     } else {
       throw Exception(
           'Error al obtener los posts. Código de estado: ${response.statusCode}');
+    }
+  }
+}
+
+class EjercicioDetalladosAgrupadoMethods {
+  Future<List<EjerciciosDetalladosAgrupados>>
+      getEjerciciosDetalladosAgrupadosBySesionId(
+    int sessionId,
+  ) async {
+    final response =
+        await http.get(Uri.parse('$groupedExercisesUrl/$sessionId'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body) as List;
+      return jsonData
+          .map((jsonItem) => EjerciciosDetalladosAgrupados.fromJson(jsonItem))
+          .toList();
+    } else {
+      throw Exception(
+          'Error al obtener los posts. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<void> createGroupedDetailedExercises({
+    required int sessionId,
+    required int order,
+    required List<Map<String, dynamic>> exercises,
+  }) async {
+    final response = await http.post(
+      Uri.parse(groupedExercisesUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'sessionId': sessionId,
+        'order': order,
+        'exercises': exercises,
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw Exception(
+          'Error al crear ejercicios detallados agrupados. Código de estado: ${response.statusCode}');
     }
   }
 }

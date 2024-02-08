@@ -41,7 +41,7 @@ class EjercicioDetallados {
   final int registerTypeId;
   final String notes;
   final int order;
-  final List<SetsEjerciciosEntrada> setsEjerciciosEntrada;
+  List<SetsEjerciciosEntrada>? setsEjerciciosEntrada;
 
   EjercicioDetallados({
     required this.detailedExerciseId,
@@ -50,7 +50,7 @@ class EjercicioDetallados {
     required this.registerTypeId,
     required this.notes,
     required this.order,
-    required this.setsEjerciciosEntrada,
+    this.setsEjerciciosEntrada,
   });
 
   factory EjercicioDetallados.fromJson(Map<String, dynamic> json) {
@@ -76,7 +76,7 @@ class EjercicioDetallados {
       'notes': notes,
       'order': order,
       'sets_ejercicios_entrada':
-          setsEjerciciosEntrada.map((set) => set.toJson()).toList(),
+          setsEjerciciosEntrada?.map((set) => set.toJson()).toList(),
     };
   }
 }

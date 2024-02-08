@@ -60,15 +60,21 @@ class _ViewSesionEntrenamientoScreen
     initSesionEntrenamientos();
   }
 
-  void _navigateNewSesion(
-    SesionEntrenamiento sesionEntrenamiento,
-  ) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => InfoSesionEntrenamientoScreen(
-              user: widget.user,
-              templateId: widget.templateId,
-              sessionId: sesionEntrenamiento.sessionId,
-            )));
+  Future<void> _navigateNewSesion(
+      SesionEntrenamiento sesionEntrenamiento) async {
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+      builder: (context) => InfoSesionEntrenamientoScreen(
+        user: widget.user,
+        templateId: widget.templateId,
+        sessionId: sesionEntrenamiento.sessionId,
+      ),
+    ))
+        .then((result) {
+      if (result == true) {
+        initSesionEntrenamientos();
+      }
+    });
   }
 
   void _createSession() async {

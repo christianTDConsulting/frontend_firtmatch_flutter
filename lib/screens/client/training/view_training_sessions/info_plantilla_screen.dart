@@ -287,19 +287,10 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
       } else {
         // Para valores únicos, verificar primero si ambas listas están vacías o tienen elementos
         if (initialValues.isEmpty && currentValues.isEmpty) {
-          print('Las listas son iguales');
-
           continue; // Ambas listas están vacías, considerar como iguales
         } else if (initialValues.isEmpty || currentValues.isEmpty) {
-          print('Una lista está vacía y la otra no ' + key);
-          print(initialValues.isEmpty ? 'initialValues' : 'currentValues');
-
-          print('currentEtiquetasMap: $currentEtiquetasMap');
-          print('initialEtiquetasMap: $initialEtiquetasMap');
           return true; // Una lista está vacía y la otra no, son diferentes
         } else if (initialValues.first != currentValues.first) {
-          print('Los valores únicos no coinciden' + key);
-
           return true; // Los valores únicos no coinciden
         }
       }

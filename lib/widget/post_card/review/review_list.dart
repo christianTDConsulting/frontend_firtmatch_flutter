@@ -389,9 +389,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                   review.username.isNotEmpty
                       ? Text(review.username,
                           style: const TextStyle(
-                              fontSize: 14,
-                              color: primaryColor,
-                              fontWeight: FontWeight.bold),
+                              fontSize: 14, fontWeight: FontWeight.bold),
                           textScaler: width < webScreenSize
                               ? const TextScaler.linear(0.8)
                               : const TextScaler.linear(1.2))
@@ -510,9 +508,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                   children: [
                     Text(comentario.username,
                         style: const TextStyle(
-                            fontSize: 16,
-                            color: primaryColor,
-                            fontWeight: FontWeight.bold),
+                            fontSize: 16, fontWeight: FontWeight.bold),
                         textScaler: width < webScreenSize
                             ? const TextScaler.linear(0.8)
                             : const TextScaler.linear(1.2)),

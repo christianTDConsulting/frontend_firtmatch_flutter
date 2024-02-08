@@ -29,8 +29,10 @@ const tipoRegistroUrl = '${url}tipoRegistro';
 const rutinasGuardadasUrl = '${url}rutinasGuardadas';
 
 //Rutinas Archivadas
-
 const rutinasArchivadasUrl = '${url}rutinasArchivadas';
+
+// Ejercicios detallados agrupados
+const groupedExercisesUrl = '${url}ejerciciosDetalladosAgrupados';
 
 // Sesión de Entrenamiento de Entrada (Training Session Entry)
 const sesionEntrenamientoEntradaUrl = '${url}sesionEntrenamientoEntrada';

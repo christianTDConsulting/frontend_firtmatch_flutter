@@ -6,6 +6,7 @@ class SesionEntrenamiento {
   final String sessionName;
   final DateTime sessionDate;
   final String? notes;
+  int order;
   final List<EjerciciosDetalladosAgrupados>? ejerciciosDetalladosAgrupados;
 
   SesionEntrenamiento({
@@ -14,6 +15,7 @@ class SesionEntrenamiento {
     required this.sessionDate,
     required this.sessionName,
     this.notes,
+    required this.order,
     this.ejerciciosDetalladosAgrupados,
   });
 
@@ -24,6 +26,7 @@ class SesionEntrenamiento {
       sessionDate: DateTime.parse(json['session_date']),
       sessionName: json['session_name'],
       notes: json['notes'],
+      order: json['order'],
       ejerciciosDetalladosAgrupados:
           (json['ejercicios_detallados_agrupados'] as List<dynamic>?)
               ?.map((e) => EjerciciosDetalladosAgrupados.fromJson(e))
@@ -38,6 +41,7 @@ class SesionEntrenamiento {
       'session_date': sessionDate.toIso8601String(),
       'session_name': sessionName,
       'notes': notes,
+      'order': order,
       'ejercicios_detallados_agrupados': ejerciciosDetalladosAgrupados
           ?.map((ejerciciosDetalladosAgrupados) =>
               ejerciciosDetalladosAgrupados.toJson())
