@@ -5,6 +5,7 @@ import 'package:fit_match/screens/client/training/view_training_sessions/exercis
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
+import 'package:fit_match/widget/exercise_card/exercise_card.dart';
 import 'package:flutter/material.dart';
 
 class InfoSesionEntrenamientoScreen extends StatefulWidget {
@@ -34,9 +35,12 @@ class _InfoSesionEntrenamientoScreen
   );
 
   List<EjerciciosDetalladosAgrupados> _exercises = [];
+  List<TipoDeRegistro> _registerTypes = [];
+
   bool isLoading = true;
   final TextEditingController _tituloContoller = TextEditingController();
   final TextEditingController _instruccionesContoller = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -50,10 +54,19 @@ class _InfoSesionEntrenamientoScreen
   void initState() {
     super.initState();
     initData();
+    _initRegisterType();
   }
 
   void _setLoadingState(bool loading) {
     setState(() => isLoading = loading);
+  }
+
+  void _initRegisterType() async {
+    List<TipoDeRegistro> groups =
+        await EjerciciosMethods().getTiposDeRegistro();
+    setState(() {
+      _registerTypes = groups;
+    });
   }
 
   Future<void> initData() async {
@@ -146,6 +159,25 @@ class _InfoSesionEntrenamientoScreen
     Navigator.pop(context, true);
   }
 
+  _onAddSet(int index) {
+    print("add set " + index.toString());
+  }
+
+  _onDeleteEjercicioDetalladoAgrupado(int groupIndex, int exerciseIndex) {
+    int? deleteId =
+        _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].exerciseId;
+    if (deleteId != null) {
+      try {
+        EjercicioDetalladoMethods().deleteEjercicioDetallado(deleteId);
+      } catch (e) {
+        print(e);
+        showToast(context, e.toString(), exitoso: false);
+      } finally {
+        _initExercises();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,24 +193,30 @@ class _InfoSesionEntrenamientoScreen
         ),
         body: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildTitle(context),
-                        const SizedBox(height: 16),
-                        _buildInstructions(context),
-                        const SizedBox(height: 16),
-                        _buildEntrenamientosList(context),
-                        const SizedBox(height: 16),
-                        _buildNewExerciseButton(context),
-                        const SizedBox(height: 16),
-                        _buildSaveButton(context),
-                      ]),
-                )));
+            : Center(
+                child: Container(
+                  alignment: Alignment.topCenter,
+                  constraints: const BoxConstraints(maxWidth: 1000),
+                  child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildTitle(context),
+                              const SizedBox(height: 16),
+                              _buildInstructions(context),
+                              const SizedBox(height: 16),
+                              _buildEntrenamientosList(context),
+                              const SizedBox(height: 16),
+                              _buildNewExerciseButton(context),
+                              const SizedBox(height: 16),
+                              _buildSaveButton(context),
+                            ]),
+                      )),
+                ),
+              ));
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
@@ -188,39 +226,24 @@ class _InfoSesionEntrenamientoScreen
         style: TextStyle(fontSize: 18),
       );
     } else {
-      return Container();
+      return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _exercises.length,
+          itemBuilder: (context, index) {
+            return ExerciseCard(
+              ejercicioDetalladoAgrupado: _exercises[index],
+              registerTypes: _registerTypes,
+              index: index,
+              onAddSet: ((index) => _onAddSet(index)),
+              onDeleteEjercicioDetalladoAgrupado:
+                  ((groupIndex, exerciseIndex) =>
+                      _onDeleteEjercicioDetalladoAgrupado(
+                          groupIndex, exerciseIndex)),
+            );
+          });
     }
   }
-
-  // Widget _buildGroupedExercisesList(BuildContext context) {
-  //   return Column(
-  //     children: _exercises.map((groupedDetailedExercise) {
-  //       return Card(
-  //         margin: const EdgeInsets.symmetric(vertical: 8.0),
-  //         child: Column(
-  //           children: [
-  //             ListTile(
-  //               leading: Text('${groupedDetailedExercise.order}'),
-  //               title: Text(
-  //                   'Grupo de Ejercicios ${groupedDetailedExercise.order}'),
-  //               subtitle: Text(
-  //                   'Número de ejercicios: ${groupedDetailedExercise.ejerciciosDetallados.length}'),
-  //             ),
-  //             ...groupedDetailedExercise.ejerciciosDetallados
-  //                 .map((detailedExercise) {
-  //               return ListTile(
-  //                 leading: const Icon(Icons.fitness_center),
-  //                 title: Text(detailedExercise.exerciseId.toString()),
-  //                 subtitle: Text(
-  //                     'Sets: ${detailedExercise.setsEjerciciosEntrada?.length ?? 0}'),
-  //               );
-  //             }).toList(),
-  //           ],
-  //         ),
-  //       );
-  //     }).toList(),
-  //   );
-  // }
 
   Widget _buildTitle(BuildContext context) {
     return TextFormField(

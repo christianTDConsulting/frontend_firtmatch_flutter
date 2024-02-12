@@ -34,6 +34,9 @@ const rutinasArchivadasUrl = '${url}rutinasArchivadas';
 // Ejercicios detallados agrupados
 const groupedExercisesUrl = '${url}ejerciciosDetalladosAgrupados';
 
+//Ejercicios detallados
+const exercisesDetailsUrl = '${url}ejerciciosDetallados';
+
 // Sesión de Entrenamiento de Entrada (Training Session Entry)
 const sesionEntrenamientoEntradaUrl = '${url}sesionEntrenamientoEntrada';
 

@@ -170,6 +170,18 @@ class EjerciciosMethods {
           'Error al obtener los posts. Código de estado: ${response.statusCode}');
     }
   }
+
+  Future<List<TipoDeRegistro>> getTiposDeRegistro() async {
+    final response = await http.get(Uri.parse(tipoRegistroUrl));
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body) as List;
+      return jsonData
+          .map((jsonItem) => TipoDeRegistro.fromJson(jsonItem))
+          .toList();
+    } else {
+      throw Exception('Error al obtener los tipos de registro');
+    }
+  }
 }
 
 class EjercicioDetalladosAgrupadoMethods {
@@ -208,6 +220,17 @@ class EjercicioDetalladosAgrupadoMethods {
     if (response.statusCode != 201) {
       throw Exception(
           'Error al crear ejercicios detallados agrupados. Código de estado: ${response.statusCode}');
+    }
+  }
+}
+
+class EjercicioDetalladoMethods {
+  Future<void> deleteEjercicioDetallado(int detailedExercisedId) async {
+    final response = await http
+        .delete(Uri.parse('$exercisesDetailsUrl/$detailedExercisedId'));
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Error al eliminar la sesión de entrenamiento. Código de estado: ${response.statusCode}');
     }
   }
 }

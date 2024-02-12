@@ -1,5 +1,6 @@
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -91,7 +92,14 @@ class _ViewSesionEntrenamientoScreen
     }
   }
 
-  void _saveEntrenamientos() {}
+  void _saveEntrenamientos() {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ResponsiveLayout(
+        user: widget.user,
+        initialPage: 3,
+      ),
+    ));
+  }
 
   void _navigateBack() {
     Navigator.pop(context);
