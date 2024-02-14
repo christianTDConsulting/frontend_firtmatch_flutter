@@ -3,7 +3,6 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_sesion_entrenamientos_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
-import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:flutter/material.dart';
@@ -152,26 +151,22 @@ class _ViewSesionEntrenamientoScreen
       shrinkWrap: true,
       itemCount: sesiones.length,
       itemBuilder: (context, index) {
-        if (width < webScreenSize) {
-          return Dismissible(
-            key: Key(sesiones[index].toString()),
-            background: Container(
-              color: Colors.red,
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: Row(children: [Icon(Icons.delete), Text('Eliminar')]),
-              ),
+        return Dismissible(
+          key: Key(sesiones[index].toString()),
+          background: Container(
+            color: Colors.red,
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: Row(children: [Icon(Icons.delete), Text('Eliminar')]),
             ),
-            onDismissed: (direction) {
-              if (direction == DismissDirection.endToStart) {
-                _deleteSesion(sesiones[index]);
-              }
-            },
-            child: _buildListItem(context, index),
-          );
-        } else {
-          return _buildListItem(context, index);
-        }
+          ),
+          onDismissed: (direction) {
+            if (direction == DismissDirection.endToStart) {
+              _deleteSesion(sesiones[index]);
+            }
+          },
+          child: _buildListItem(context, index),
+        );
       },
     );
   }

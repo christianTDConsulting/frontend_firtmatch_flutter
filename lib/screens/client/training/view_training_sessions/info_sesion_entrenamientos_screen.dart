@@ -214,8 +214,31 @@ class _InfoSesionEntrenamientoScreen
     Navigator.pop(context, reload);
   }
 
-  _onAddSet(int index) {
-    print("add set " + index.toString());
+  _onAddSet(int groupIndex, int exerciseIndex) {
+    List<SetsEjerciciosEntrada>? setsEjerciciosEntrada =
+        _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].setsEntrada;
+    setsEjerciciosEntrada ??= [];
+    int setOrder = setsEjerciciosEntrada.length + 1;
+    setsEjerciciosEntrada.add(SetsEjerciciosEntrada(setOrder: setOrder));
+
+    setState(() {
+      _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].setsEntrada =
+          setsEjerciciosEntrada;
+    });
+  }
+
+  _onDeleteSet(int groupIndex, int exerciseIndex) {
+    setState(() {
+      List<SetsEjerciciosEntrada>? setsEjerciciosEntrada =
+          _exercises[groupIndex]
+              .ejerciciosDetallados[exerciseIndex]
+              .setsEntrada;
+
+      // Verificar si la lista de sets existe y tiene elementos
+      if (setsEjerciciosEntrada != null && setsEjerciciosEntrada.isNotEmpty) {
+        setsEjerciciosEntrada.removeLast(); // Eliminar el último set
+      }
+    });
   }
 
   _onDeleteEjercicioDetalladoAgrupado(int groupIndex, int exerciseIndex) {
@@ -303,7 +326,10 @@ class _InfoSesionEntrenamientoScreen
               ejercicioDetalladoAgrupado: _exercises[index],
               registerTypes: _registerTypes,
               index: index,
-              onAddSet: ((index) => _onAddSet(index)),
+              onDeleteSet: ((groupIndex, exerciseIndex) =>
+                  _onDeleteSet(groupIndex, exerciseIndex)),
+              onAddSet: ((groupIndex, exerciseIndex) =>
+                  _onAddSet(groupIndex, exerciseIndex)),
               onDeleteEjercicioDetalladoAgrupado:
                   ((groupIndex, exerciseIndex) =>
                       _onDeleteEjercicioDetalladoAgrupado(
