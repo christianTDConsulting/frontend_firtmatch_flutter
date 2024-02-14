@@ -1,11 +1,11 @@
 class EjerciciosDetalladosAgrupados {
-  final int groupedDetailedExercisedId;
+  final int? groupedDetailedExercisedId; //se omite si es para creación
   final int sessionId;
-  final int order;
+  int order;
   final List<EjercicioDetallado> ejerciciosDetallados;
 
   EjerciciosDetalladosAgrupados({
-    required this.groupedDetailedExercisedId,
+    this.groupedDetailedExercisedId,
     required this.sessionId,
     required this.order,
     required this.ejerciciosDetallados,
@@ -34,21 +34,22 @@ class EjerciciosDetalladosAgrupados {
 }
 
 class EjercicioDetallado {
-  final int detailedExerciseId;
+  final int? detailedExerciseId; //se omite si es para creación
   final int? exerciseId;
   final int registerTypeId;
   final String? notes;
-  final int order;
+  int order;
   final Ejercicios? ejercicio;
+  List<SetsEjerciciosEntrada>? setsEntrada;
 
-  EjercicioDetallado({
-    required this.detailedExerciseId,
-    this.exerciseId,
-    required this.registerTypeId,
-    this.notes,
-    required this.order,
-    this.ejercicio,
-  });
+  EjercicioDetallado(
+      {this.detailedExerciseId,
+      this.exerciseId,
+      required this.registerTypeId,
+      this.notes,
+      required this.order,
+      this.ejercicio,
+      this.setsEntrada});
 
   factory EjercicioDetallado.fromJson(Map<String, dynamic> json) {
     return EjercicioDetallado(
@@ -59,6 +60,11 @@ class EjercicioDetallado {
       order: json['order'],
       ejercicio: json['ejercicios'] != null
           ? Ejercicios.fromJson(json['ejercicios'])
+          : null,
+      setsEntrada: json['sets_ejercicios_entrada'] != null
+          ? (json['sets_ejercicios_entrada'] as List)
+              .map((e) => SetsEjerciciosEntrada.fromJson(e))
+              .toList()
           : null,
     );
   }
@@ -71,6 +77,7 @@ class EjercicioDetallado {
       'notes': notes,
       'order': order,
       'ejercicios': ejercicio?.toJson(),
+      'sets_ejercicios_entrada': setsEntrada?.map((e) => e.toJson()).toList(),
     };
   }
 }
@@ -112,7 +119,7 @@ class Ejercicios {
 }
 
 class SetsEjerciciosEntrada {
-  final int setId;
+  final int? setId; //null para crear
   final int? detailedExerciseId;
   final int? setOrder;
   final int? reps;
@@ -121,7 +128,7 @@ class SetsEjerciciosEntrada {
   final String? video;
 
   SetsEjerciciosEntrada({
-    required this.setId,
+    this.setId,
     this.detailedExerciseId,
     this.setOrder,
     this.reps,

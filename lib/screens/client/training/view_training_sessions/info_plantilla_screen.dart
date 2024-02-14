@@ -393,8 +393,7 @@ class _CreateProgramScreenState extends State<CreateProgramScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Nuevo Programa'),

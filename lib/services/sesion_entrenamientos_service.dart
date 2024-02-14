@@ -223,14 +223,3 @@ class EjercicioDetalladosAgrupadoMethods {
     }
   }
 }
-
-class EjercicioDetalladoMethods {
-  Future<void> deleteEjercicioDetallado(int detailedExercisedId) async {
-    final response = await http
-        .delete(Uri.parse('$exercisesDetailsUrl/$detailedExercisedId'));
-    if (response.statusCode != 200) {
-      throw Exception(
-          'Error al eliminar la sesión de entrenamiento. Código de estado: ${response.statusCode}');
-    }
-  }
-}

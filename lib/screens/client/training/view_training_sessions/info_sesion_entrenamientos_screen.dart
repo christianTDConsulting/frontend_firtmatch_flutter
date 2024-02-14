@@ -89,6 +89,38 @@ class _InfoSesionEntrenamientoScreen
     }
   }
 
+  Future<bool> _onWillPop() async {
+    final shouldPop = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Estás seguro?'),
+        content: const Text('Perderás todo el progreso.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(
+                false), // Esto cierra el cuadro de diálogo devolviendo 'false'.
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(
+                  true); // Esto cierra el cuadro de diálogo devolviendo 'true'.
+            },
+            child: const Text('Sí'),
+          ),
+        ],
+      ),
+    );
+
+    // Si shouldPop es true, entonces navega hacia atrás.
+    if (shouldPop ?? false) {
+      _navigateBack(context);
+    }
+
+    return Future.value(
+        false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
+  }
+
   void _initExercises() async {
     try {
       List<EjerciciosDetalladosAgrupados> exercises =
@@ -106,28 +138,50 @@ class _InfoSesionEntrenamientoScreen
   }
 
   Future<void> _addExercise() async {
-    Navigator.of(context)
-        .push(
+    // Ajusta el tipo esperado de result para que coincida con lo que se devuelve desde ExerciseSelectionScreen
+    final List<EjerciciosDetalladosAgrupados>? result =
+        await Navigator.of(context).push<List<EjerciciosDetalladosAgrupados>>(
       MaterialPageRoute(
         builder: (context) => ExecriseSelectionScreen(
-            user: widget.user,
-            sessionId: widget.sessionId,
-            GroupedDetailedExerciseOrder: _exercises.length),
+          user: widget.user,
+          sessionId: widget.sessionId,
+          GroupedDetailedExerciseOrder: _exercises.length,
+        ),
       ),
-    )
-        .then((result) {
-      if (result == true) {
-        try {
-          _setLoadingState(true);
-          _initExercises();
-        } catch (e) {
-          print(e);
-        } finally {
-          _setLoadingState(false);
-        }
-      }
-    });
+    );
+
+    // Comprobar si el resultado no es nulo y tiene elementos
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        // Añade todos los EjerciciosDetalladosAgrupados obtenidos al estado actual de _exercises
+        _exercises.addAll(result);
+      });
+    }
   }
+
+  // Future<void> _addExercise() async {
+  //   Navigator.of(context)
+  //       .push(
+  //     MaterialPageRoute(
+  //       builder: (context) => ExecriseSelectionScreen(
+  //           user: widget.user,
+  //           sessionId: widget.sessionId,
+  //           GroupedDetailedExerciseOrder: _exercises.length),
+  //     ),
+  //   )
+  //       .then((result) {
+  //     if (result == true) {
+  //       try {
+  //         _setLoadingState(true);
+  //         _initExercises();
+  //       } catch (e) {
+  //         print(e);
+  //       } finally {
+  //         _setLoadingState(false);
+  //       }
+  //     }
+  //   });
+  // }
 
   void _saveEntrenamiento() async {
     if (_formKey.currentState!.validate()) {
@@ -139,6 +193,7 @@ class _InfoSesionEntrenamientoScreen
           notes: _instruccionesContoller.text,
           sessionDate: editingSesion.sessionDate,
           order: editingSesion.order,
+          ejerciciosDetalladosAgrupados: _exercises,
         );
 
         int response =
@@ -147,7 +202,7 @@ class _InfoSesionEntrenamientoScreen
         if (response == 200) {
           showToast(
               context, 'Sesión de Entrenamiento actualizada correctamente');
-          _navigateBack(context);
+          _navigateBack(context, reload: true);
         }
       } catch (e) {
         showToast(context, e.toString(), exitoso: false);
@@ -155,8 +210,8 @@ class _InfoSesionEntrenamientoScreen
     }
   }
 
-  void _navigateBack(BuildContext context) {
-    Navigator.pop(context, true);
+  void _navigateBack(BuildContext context, {bool reload = false}) {
+    Navigator.pop(context, reload);
   }
 
   _onAddSet(int index) {
@@ -167,56 +222,69 @@ class _InfoSesionEntrenamientoScreen
     int? deleteId =
         _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].exerciseId;
     if (deleteId != null) {
-      try {
-        EjercicioDetalladoMethods().deleteEjercicioDetallado(deleteId);
-      } catch (e) {
-        print(e);
-        showToast(context, e.toString(), exitoso: false);
-      } finally {
-        _initExercises();
-      }
+      setState(() {
+        // Eliminar el ejercicio detallado del grupo
+        _exercises[groupIndex].ejerciciosDetallados.removeAt(exerciseIndex);
+
+        // Corregir el orden de los ejercicios
+        for (int i = 0;
+            i < _exercises[groupIndex].ejerciciosDetallados.length;
+            i++) {
+          _exercises[groupIndex].ejerciciosDetallados[i].order = i + 1;
+        }
+        // Eliminar el grupo si no hay ejercicios
+        if (_exercises[groupIndex].ejerciciosDetallados.isEmpty) {
+          _exercises.removeAt(groupIndex);
+          // Corregir el orden de los grupos
+          for (int i = 0; i < _exercises.length; i++) {
+            _exercises[i].order = i + 1;
+          }
+        }
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Sesión de Entrenamiento'),
-          automaticallyImplyLeading: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              _navigateBack(context);
-            },
+    return PopScope(
+      child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Sesión de Entrenamiento'),
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () async {
+                await _onWillPop();
+              },
+            ),
           ),
-        ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Center(
-                child: Container(
-                  alignment: Alignment.topCenter,
-                  constraints: const BoxConstraints(maxWidth: 1000),
-                  child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildTitle(context),
-                              const SizedBox(height: 16),
-                              _buildInstructions(context),
-                              const SizedBox(height: 16),
-                              _buildEntrenamientosList(context),
-                              const SizedBox(height: 16),
-                              _buildNewExerciseButton(context),
-                              const SizedBox(height: 16),
-                              _buildSaveButton(context),
-                            ]),
-                      )),
-                ),
-              ));
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: Container(
+                    alignment: Alignment.topCenter,
+                    constraints: const BoxConstraints(maxWidth: 1000),
+                    child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildTitle(context),
+                                const SizedBox(height: 16),
+                                _buildInstructions(context),
+                                const SizedBox(height: 16),
+                                _buildEntrenamientosList(context),
+                                const SizedBox(height: 16),
+                                _buildNewExerciseButton(context),
+                                const SizedBox(height: 16),
+                                _buildSaveButton(context),
+                              ]),
+                        )),
+                  ),
+                )),
+    );
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {

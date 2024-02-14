@@ -1,5 +1,5 @@
 import 'package:fit_match/models/ejercicios.dart';
-import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/widget/dialog.dart';
 
 // import 'package:fit_match/widget/exercise_card/sets_list.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +35,16 @@ class ExerciseCard extends StatelessWidget {
 
   String _getExerciseLetter(int index) {
     return String.fromCharCode('A'.codeUnitAt(0) + index);
+  }
+
+  void _showDialog(String description, BuildContext context) async {
+    CustomDialog.show(
+      context,
+      Text(description),
+      () {
+        print('Diálogo cerrado');
+      },
+    );
   }
 
   @override
@@ -77,7 +87,7 @@ class ExerciseCard extends StatelessWidget {
       String? ordenDentroDeSet) {
     return Dismissible(
       key: Key(
-          'group_${ejercicioDetalladoAgrupado.groupedDetailedExercisedId}/exercise_$exerciseIndex'),
+          'group_${ejercicioDetalladoAgrupado.groupedDetailedExercisedId}_exercise_${ejercicioAgrupado.detailedExerciseId}'),
       onDismissed: (_) {
         onDeleteEjercicioDetalladoAgrupado(groupIndex, exerciseIndex);
       },
@@ -93,32 +103,51 @@ class ExerciseCard extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              leading: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${groupIndex + 1} ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    if (ordenDentroDeSet != null)
+                leading: RichText(
+                  text: TextSpan(
+                    children: [
                       TextSpan(
-                        text: '$ordenDentroDeSet ',
+                        text: '${groupIndex + 1} ',
                         style: Theme.of(context)
                             .textTheme
                             .headlineSmall
                             ?.copyWith(fontWeight: FontWeight.bold),
-                      )
-                  ],
+                      ),
+                      if (ordenDentroDeSet != null)
+                        TextSpan(
+                          text: '$ordenDentroDeSet ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        )
+                    ],
+                  ),
                 ),
-              ),
-              trailing:
-                  _buildPopupMenuButton(context, groupIndex, exerciseIndex),
-              title: Text(ejercicioAgrupado.ejercicio?.name ??
-                  'Ejercicio no especificado'),
-            ),
+                trailing:
+                    _buildPopupMenuButton(context, groupIndex, exerciseIndex),
+                title: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                          ejercicioAgrupado.ejercicio?.name ??
+                              'Ejercicio no especificado',
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                    Flexible(
+                      child: IconButton(
+                        icon: const Icon(Icons.info_outline),
+                        onPressed: () {
+                          _showDialog(
+                              ejercicioAgrupado.ejercicio!.description != null
+                                  ? ejercicioAgrupado.ejercicio!.description!
+                                  : 'Sin descripción',
+                              context);
+                        },
+                      ),
+                    ),
+                  ],
+                )),
             OutlinedButton(
               onPressed: () => onAddSet(index),
               child: const Text("+ añadir set"),
