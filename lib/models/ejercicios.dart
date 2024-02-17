@@ -37,7 +37,7 @@ class EjercicioDetallado {
   final int? detailedExerciseId; //se omite si es para creación
   final int? exerciseId;
   final int registerTypeId;
-  final String? notes;
+  String? notes;
   int order;
   final Ejercicios? ejercicio;
   List<SetsEjerciciosEntrada>? setsEntrada;
@@ -121,20 +121,24 @@ class Ejercicios {
 class SetsEjerciciosEntrada {
   final int? setId; //null para crear
   final int? detailedExerciseId;
-  final int? setOrder;
-  final int? reps;
-  final DateTime? time;
-  final double? weight;
-  final String? video;
+  int setOrder;
+  int? reps;
+  double? time;
+  int? minReps;
+  int? maxReps;
+  double? minTime;
+  double? maxTime;
 
   SetsEjerciciosEntrada({
     this.setId,
     this.detailedExerciseId,
-    this.setOrder,
+    required this.setOrder,
     this.reps,
     this.time,
-    this.weight,
-    this.video,
+    this.minReps,
+    this.maxReps,
+    this.minTime,
+    this.maxTime,
   });
 
   factory SetsEjerciciosEntrada.fromJson(Map<String, dynamic> json) {
@@ -143,9 +147,11 @@ class SetsEjerciciosEntrada {
       detailedExerciseId: json['detailed_exercise_id'],
       setOrder: json['set_order'],
       reps: json['reps'],
-      time: DateTime.tryParse(json['time']),
-      weight: json['weight'],
-      video: json['video'],
+      time: json['time'],
+      minReps: json['min_reps'],
+      maxReps: json['max_reps'],
+      minTime: json['min_time'],
+      maxTime: json['max_time'],
     );
   }
 
@@ -155,9 +161,11 @@ class SetsEjerciciosEntrada {
       'detailed_exercise_id': detailedExerciseId,
       'set_order': setOrder,
       'reps': reps,
-      'time': time?.toIso8601String(),
-      'weight': weight,
-      'video': video,
+      'time': time,
+      'min_reps': minReps,
+      'max_reps': maxReps,
+      'min_time': minTime,
+      'max_time': maxTime,
     };
   }
 }

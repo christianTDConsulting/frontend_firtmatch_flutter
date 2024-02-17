@@ -53,11 +53,13 @@ class _ViewSesionEntrenamientoScreen
     }
   }
 
-  void _deleteSesion(SesionEntrenamiento sesion) async {
+  Future<void> _deleteSesion(index) async {
     await SesionEntrenamientoMethods()
-        .deleteSesionEntrenamiento(sesion.sessionId);
+        .deleteSesionEntrenamiento(sesiones[index].sessionId);
+    setState(() {
+      sesiones.removeAt(index);
+    });
     showToast(context, 'Sesion eliminada', exitoso: true);
-    initSesionEntrenamientos();
   }
 
   Future<void> _navigateNewSesion(
@@ -160,10 +162,9 @@ class _ViewSesionEntrenamientoScreen
               child: Row(children: [Icon(Icons.delete), Text('Eliminar')]),
             ),
           ),
-          onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
-              _deleteSesion(sesiones[index]);
-            }
+          direction: DismissDirection.endToStart,
+          onDismissed: (direction) async {
+            await _deleteSesion(index);
           },
           child: _buildListItem(context, index),
         );

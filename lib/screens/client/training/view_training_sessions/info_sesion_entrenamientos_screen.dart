@@ -6,6 +6,7 @@ import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:fit_match/widget/exercise_card/exercise_card.dart';
+import 'package:fit_match/widget/exercise_card/reorder_exercise_card.dart';
 import 'package:flutter/material.dart';
 
 class InfoSesionEntrenamientoScreen extends StatefulWidget {
@@ -38,23 +39,23 @@ class _InfoSesionEntrenamientoScreen
   List<TipoDeRegistro> _registerTypes = [];
 
   bool isLoading = true;
-  final TextEditingController _tituloContoller = TextEditingController();
-  final TextEditingController _instruccionesContoller = TextEditingController();
+  final TextEditingController _tituloController = TextEditingController();
+  final TextEditingController _instruccionesController =
+      TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    _tituloContoller.dispose();
-    _instruccionesContoller.dispose();
+    _tituloController.dispose();
+    _instruccionesController.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-    initData();
-    _initRegisterType();
+    _initData();
   }
 
   void _setLoadingState(bool loading) {
@@ -69,23 +70,39 @@ class _InfoSesionEntrenamientoScreen
     });
   }
 
-  Future<void> initData() async {
+  Future<void> _initData() async {
+    setState(() => isLoading = true);
     try {
-      _setLoadingState(true);
-      SesionEntrenamiento editingSesion = await SesionEntrenamientoMethods()
+      var session = await SesionEntrenamientoMethods()
           .getSesionesEntrenamientoBySessionId(widget.sessionId);
+      var registerTypes = await EjerciciosMethods().getTiposDeRegistro();
       setState(() {
-        this.editingSesion = editingSesion;
+        editingSesion = session;
+        _registerTypes = registerTypes;
+        _tituloController.text = session.sessionName;
+        _instruccionesController.text = session.notes ?? '';
+        isLoading = false;
       });
-
       _initExercises();
-
-      _tituloContoller.text = editingSesion.sessionName;
-      _instruccionesContoller.text = editingSesion.notes ?? '';
     } catch (e) {
-      print(e);
-    } finally {
-      _setLoadingState(false);
+      setState(() => isLoading = false);
+      print(e); // Consider using a more user-friendly error handling
+    }
+  }
+
+  Future<void> _showReordenar() async {
+    final List<EjerciciosDetalladosAgrupados>? result =
+        await Navigator.of(context).push<List<EjerciciosDetalladosAgrupados>>(
+      MaterialPageRoute(
+        builder: (context) =>
+            ReorderExercises(ejerciciosDetalladosAgrupados: _exercises),
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      setState(() {
+        _exercises = result;
+      });
     }
   }
 
@@ -121,24 +138,17 @@ class _InfoSesionEntrenamientoScreen
         false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
   }
 
-  void _initExercises() async {
+  Future<void> _initExercises() async {
     try {
-      List<EjerciciosDetalladosAgrupados> exercises =
-          await EjercicioDetalladosAgrupadoMethods()
-              .getEjerciciosDetalladosAgrupadosBySesionId(widget.sessionId);
-
-      if (exercises.isNotEmpty) {
-        setState(() {
-          _exercises = exercises;
-        });
-      }
+      var exercises = await EjercicioDetalladosAgrupadoMethods()
+          .getEjerciciosDetalladosAgrupadosBySesionId(widget.sessionId);
+      setState(() => _exercises = exercises);
     } catch (e) {
       print(e);
     }
   }
 
   Future<void> _addExercise() async {
-    // Ajusta el tipo esperado de result para que coincida con lo que se devuelve desde ExerciseSelectionScreen
     final List<EjerciciosDetalladosAgrupados>? result =
         await Navigator.of(context).push<List<EjerciciosDetalladosAgrupados>>(
       MaterialPageRoute(
@@ -150,47 +160,21 @@ class _InfoSesionEntrenamientoScreen
       ),
     );
 
-    // Comprobar si el resultado no es nulo y tiene elementos
     if (result != null && result.isNotEmpty) {
       setState(() {
-        // Añade todos los EjerciciosDetalladosAgrupados obtenidos al estado actual de _exercises
         _exercises.addAll(result);
       });
     }
   }
 
-  // Future<void> _addExercise() async {
-  //   Navigator.of(context)
-  //       .push(
-  //     MaterialPageRoute(
-  //       builder: (context) => ExecriseSelectionScreen(
-  //           user: widget.user,
-  //           sessionId: widget.sessionId,
-  //           GroupedDetailedExerciseOrder: _exercises.length),
-  //     ),
-  //   )
-  //       .then((result) {
-  //     if (result == true) {
-  //       try {
-  //         _setLoadingState(true);
-  //         _initExercises();
-  //       } catch (e) {
-  //         print(e);
-  //       } finally {
-  //         _setLoadingState(false);
-  //       }
-  //     }
-  //   });
-  // }
-
-  void _saveEntrenamiento() async {
+  Future<void> _saveEntrenamiento() async {
     if (_formKey.currentState!.validate()) {
       try {
         SesionEntrenamiento sesion = SesionEntrenamiento(
           sessionId: editingSesion.sessionId,
           templateId: editingSesion.templateId,
-          sessionName: _tituloContoller.text,
-          notes: _instruccionesContoller.text,
+          sessionName: _tituloController.text,
+          notes: _instruccionesController.text,
           sessionDate: editingSesion.sessionDate,
           order: editingSesion.order,
           ejerciciosDetalladosAgrupados: _exercises,
@@ -214,11 +198,16 @@ class _InfoSesionEntrenamientoScreen
     Navigator.pop(context, reload);
   }
 
-  _onAddSet(int groupIndex, int exerciseIndex) {
-    List<SetsEjerciciosEntrada>? setsEjerciciosEntrada =
-        _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].setsEntrada;
-    setsEjerciciosEntrada ??= [];
-    int setOrder = setsEjerciciosEntrada.length + 1;
+  void _onAddSet(int groupIndex, int exerciseIndex) {
+    List<SetsEjerciciosEntrada> setsEjerciciosEntrada = _exercises[groupIndex]
+            .ejerciciosDetallados[exerciseIndex]
+            .setsEntrada ??
+        [];
+
+    int setOrder = setsEjerciciosEntrada.isNotEmpty
+        ? setsEjerciciosEntrada.last.setOrder + 1
+        : 1;
+
     setsEjerciciosEntrada.add(SetsEjerciciosEntrada(setOrder: setOrder));
 
     setState(() {
@@ -227,21 +216,44 @@ class _InfoSesionEntrenamientoScreen
     });
   }
 
-  _onDeleteSet(int groupIndex, int exerciseIndex) {
+  void _onDeleteSet(int groupIndex, int exerciseIndex, int setIndex) {
     setState(() {
       List<SetsEjerciciosEntrada>? setsEjerciciosEntrada =
           _exercises[groupIndex]
               .ejerciciosDetallados[exerciseIndex]
               .setsEntrada;
 
-      // Verificar si la lista de sets existe y tiene elementos
-      if (setsEjerciciosEntrada != null && setsEjerciciosEntrada.isNotEmpty) {
-        setsEjerciciosEntrada.removeLast(); // Eliminar el último set
+      if (setsEjerciciosEntrada != null &&
+          setsEjerciciosEntrada.isNotEmpty &&
+          setIndex < setsEjerciciosEntrada.length) {
+        setsEjerciciosEntrada.removeAt(setIndex);
+
+        // Corregir el orden de los sets restantes
+        for (int i = 0; i < setsEjerciciosEntrada.length; i++) {
+          setsEjerciciosEntrada[i].setOrder = i + 1;
+        }
       }
     });
   }
 
-  _onDeleteEjercicioDetalladoAgrupado(int groupIndex, int exerciseIndex) {
+  void _updateSet(int groupIndex, int exerciseIndex, int setIndex,
+      SetsEjerciciosEntrada set) {
+    setState(() {
+      List<SetsEjerciciosEntrada>? setsEjerciciosEntrada =
+          _exercises[groupIndex]
+              .ejerciciosDetallados[exerciseIndex]
+              .setsEntrada;
+      setsEjerciciosEntrada?[setIndex] = set;
+    });
+  }
+
+  void _onEditNote(int groupIndex, int exerciseIndex, String note) {
+    setState(() {
+      _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].notes = note;
+    });
+  }
+
+  void _onDeleteEjercicioDetalladoAgrupado(int groupIndex, int exerciseIndex) {
     int? deleteId =
         _exercises[groupIndex].ejerciciosDetallados[exerciseIndex].exerciseId;
     if (deleteId != null) {
@@ -294,9 +306,9 @@ class _InfoSesionEntrenamientoScreen
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                _buildTitle(context),
+                                _buildTitleField(context),
                                 const SizedBox(height: 16),
-                                _buildInstructions(context),
+                                _buildInstructionsField(context),
                                 const SizedBox(height: 16),
                                 _buildEntrenamientosList(context),
                                 const SizedBox(height: 16),
@@ -326,22 +338,26 @@ class _InfoSesionEntrenamientoScreen
               ejercicioDetalladoAgrupado: _exercises[index],
               registerTypes: _registerTypes,
               index: index,
-              onDeleteSet: ((groupIndex, exerciseIndex) =>
-                  _onDeleteSet(groupIndex, exerciseIndex)),
-              onAddSet: ((groupIndex, exerciseIndex) =>
-                  _onAddSet(groupIndex, exerciseIndex)),
-              onDeleteEjercicioDetalladoAgrupado:
-                  ((groupIndex, exerciseIndex) =>
-                      _onDeleteEjercicioDetalladoAgrupado(
-                          groupIndex, exerciseIndex)),
+              onDeleteEjercicioDetalladoAgrupado: (groupIndex, exerciseIndex) =>
+                  _onDeleteEjercicioDetalladoAgrupado(
+                      groupIndex, exerciseIndex),
+              onAddSet: (groupIndex, exerciseIndex) =>
+                  _onAddSet(groupIndex, exerciseIndex),
+              onDeleteSet: (groupIndex, exerciseIndex, setIndex) =>
+                  _onDeleteSet(groupIndex, exerciseIndex, setIndex),
+              onUpdateSet: (groupIndex, exerciseIndex, setIndex, set) =>
+                  _updateSet(groupIndex, exerciseIndex, setIndex, set),
+              onEditNote: (groupIndex, exerciseIndex, note) =>
+                  _onEditNote(groupIndex, exerciseIndex, note),
+              showReordenar: () => _showReordenar(),
             );
           });
     }
   }
 
-  Widget _buildTitle(BuildContext context) {
+  Widget _buildTitleField(BuildContext context) {
     return TextFormField(
-      controller: _tituloContoller,
+      controller: _tituloController,
       decoration: const InputDecoration(
         labelText: 'Nombre de la sesión de entrenamiento',
         border: OutlineInputBorder(),
@@ -355,9 +371,11 @@ class _InfoSesionEntrenamientoScreen
     );
   }
 
-  Widget _buildInstructions(BuildContext context) {
+  Widget _buildInstructionsField(BuildContext context) {
     return TextFormField(
-      controller: _instruccionesContoller,
+      controller: _instruccionesController,
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
       decoration: const InputDecoration(
         labelText: 'Instrucciones de la sesión de entrenamiento',
         border: OutlineInputBorder(),

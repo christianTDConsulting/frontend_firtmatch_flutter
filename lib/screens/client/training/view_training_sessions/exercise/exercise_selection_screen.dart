@@ -171,7 +171,7 @@ class _ExecriseSelectionScreen extends State<ExecriseSelectionScreen> {
             exerciseId: entry.key,
             order: entry.value,
             registerTypeId: 1,
-            notes: 'Nota por defecto', // Notas por defecto para cada ejercicio
+            notes: '',
             setsEntrada: [SetsEjerciciosEntrada(setOrder: 1)],
             ejercicio: ejercicios);
       }).toList();
