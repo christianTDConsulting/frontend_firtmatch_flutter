@@ -1,3 +1,4 @@
+import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
@@ -5,6 +6,7 @@ import 'package:fit_match/screens/client/training/view_training_sessions/info_se
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
+import 'package:fit_match/widget/exercise_card/info_exercise_card.dart';
 import 'package:flutter/material.dart';
 
 class ViewSesionEntrenamientoScreen extends StatefulWidget {
@@ -172,17 +174,31 @@ class _ViewSesionEntrenamientoScreen
     );
   }
 
+  // child: GestureDetector(
+  //   onTap: () => _navigateNewSesion(sesiones[index]),
+  //   child: Card(
+  //     child: ListTile(
+  //       title: Text(sesiones[index].sessionName),
+  //       trailing: _buildPopupMenuButton(context, sesiones[index]),
+  //     ),
+  //   ),
+  // ),
   Widget _buildListItem(BuildContext context, int index) {
+    List<EjerciciosDetalladosAgrupados>? ejerciciosDetalladosAgrupados =
+        sesiones[index].ejerciciosDetalladosAgrupados;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _navigateNewSesion(sesiones[index]),
-        child: Card(
-          child: ListTile(
-            title: Text(sesiones[index].sessionName),
-            trailing: _buildPopupMenuButton(context, sesiones[index]),
-          ),
-        ),
+      child: ExpansionTile(
+        title: Text(sesiones[index].sessionName),
+        controlAffinity: ListTileControlAffinity.leading,
+        trailing: _buildPopupMenuButton(context, sesiones[index]),
+        children: ejerciciosDetalladosAgrupados != null
+            ? ejerciciosDetalladosAgrupados.asMap().entries.map((entry) {
+                var groupIndex = entry.key;
+                var grupo = entry.value;
+                return buildInfoGroupCard(context, grupo, groupIndex);
+              }).toList()
+            : [Container()],
       ),
     );
   }
@@ -192,11 +208,11 @@ class _ViewSesionEntrenamientoScreen
       itemBuilder: (context) => [
         const PopupMenuItem(
           value: 'Editar',
-          child: Text('editar'),
+          child: Text('Editar'),
         ),
         const PopupMenuItem(
           value: 'Eliminar',
-          child: Text('eliminar'),
+          child: Text('Eliminar'),
         ),
       ],
       onSelected: (value) => _handleMenuItemSelected(value, sesion),
