@@ -113,8 +113,8 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
 
   void _delete(num templateId, String option) async {
     try {
-      final bool exito =
-          await PlantillaPostsMethods().toggleHidden(templateId, option);
+      final bool exito = await PlantillaPostsMethods()
+          .toggleHidden(templateId, option, userId: widget.user.user_id);
       if (!exito) {
         showToast(context, 'Error al borrar la plantilla');
         return;

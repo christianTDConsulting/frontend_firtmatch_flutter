@@ -1,4 +1,5 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/services/review_service.dart';
 import 'package:fit_match/widget/chip_section.dart';
 import 'package:fit_match/widget/exercise_card/overviewPlantilla.dart';
@@ -30,14 +31,21 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   String _selectedOption = 'General';
-  bool _isLoading = true; // Indicador de carga
+  bool _isLoading = true; // Indicador de carga general
+  bool _isLoadingActivePost = true; //Indicador de carga para el botón de activo
   num _averageRating = 0; // Calificación promedio
   List<Review> reviews = [];
+  PlantillaPost? postActivo;
 
   @override
   void initState() {
     super.initState();
     _loadReviewsAndCalculateRating();
+    _checkIfIsActive();
+  }
+
+  bool _isActive() {
+    return postActivo != null && postActivo?.hidden == false;
   }
 
   void _loadReviewsAndCalculateRating() async {
@@ -56,6 +64,25 @@ class _PostCardState extends State<PostCard> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  _checkIfIsActive() async {
+    try {
+      List<PlantillaPost> plantillas =
+          await RutinaGuardadaMethods().getPlantillas(widget.user.user_id);
+      setState(() {
+        postActivo = plantillas.firstWhere(
+          (element) => element.templateId == widget.post.templateId,
+        );
+      });
+      //print(postActivo?.hidden);
+    } catch (e) {
+      //postActivo es nulo
+    } finally {
+      setState(() {
+        _isLoadingActivePost = false;
+      });
     }
   }
 
@@ -80,6 +107,52 @@ class _PostCardState extends State<PostCard> {
             }),
       ),
     );
+  }
+
+  void _activarPlantilla() async {
+    try {
+      if (_isLoadingActivePost) return;
+      _isLoadingActivePost = true;
+      bool exito = false;
+
+      if (_isActive()) {
+        //ha de existir un postActivo y no estar oculto
+
+        // se esconde
+        exito = await PlantillaPostsMethods().toggleHidden(
+            widget.post.templateId, "guardadas",
+            userId: widget.user.user_id);
+
+        //No existe o está oculto
+      } else {
+        //si no existe lo guardo
+        if (postActivo == null) {
+          exito = await PlantillaPostsMethods()
+              .guardar(widget.post.templateId, widget.user.user_id);
+        } else {
+          // si ya existe significa que está oculto, debo mostrarlo
+
+          exito = await PlantillaPostsMethods().toggleHidden(
+              widget.post.templateId, "guardadas",
+              userId: widget.user.user_id);
+        }
+      }
+
+      if (exito) {
+        if (postActivo == null) {
+          await _checkIfIsActive();
+        } else {
+          setState(() {
+            postActivo?.hidden = postActivo!.hidden ? false : true;
+            _isLoadingActivePost = false;
+          });
+        }
+      } else {
+        showToast(context, "Ha ocurrido un error.", exitoso: false);
+      }
+    } catch (e) {
+      showToast(context, 'Ha ocurrido un error ', exitoso: false);
+    }
   }
 
   @override
@@ -163,8 +236,8 @@ class _PostCardState extends State<PostCard> {
   Widget _buildSelectButtons() {
     final primaryColor = Theme.of(context).colorScheme.primary;
     final onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
-    return Row(
-      children: ['General', 'Reseñas', 'Info'].map((option) {
+    return Row(children: [
+      ...['General', 'Reseñas', 'Info'].map((option) {
         return Expanded(
           child: Padding(
             padding: const EdgeInsets.all(4.0),
@@ -185,7 +258,16 @@ class _PostCardState extends State<PostCard> {
           ),
         );
       }).toList(),
-    );
+      if (!_isLoadingActivePost)
+        IconButton(
+            onPressed: () => _activarPlantilla(),
+            icon: _isActive()
+                ? Icon(
+                    Icons.bookmark_added_rounded,
+                    color: Theme.of(context).primaryColor,
+                  )
+                : const Icon(Icons.bookmark_border_rounded))
+    ]);
   }
 
   // Obtiene el mapa de secciones cada vez que se construye el widget
