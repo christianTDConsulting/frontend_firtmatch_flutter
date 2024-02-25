@@ -1,6 +1,5 @@
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/providers/pageState.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -79,7 +78,7 @@ class _WebLayoutState extends State<WebLayout> {
           if (widget.user.profile_picture.isEmpty)
             Icon(
               Icons.person,
-              color: (_page == 4) ? primaryContainer : secondaryColor,
+              color: (_page == 3) ? primaryContainer : secondaryColor,
               size: 30,
             ),
           if (widget.user.profile_picture.isNotEmpty)
@@ -93,7 +92,7 @@ class _WebLayoutState extends State<WebLayout> {
               widget.user.username,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                color: (_page == 4) ? primaryContainer : secondaryColor,
+                color: (_page == 3) ? primaryContainer : secondaryColor,
               ),
             ),
           ),
@@ -164,16 +163,10 @@ class _WebLayoutState extends State<WebLayout> {
                         (_page == 1) ? primaryContainer : onSecondaryColor,
                       ),
                       menuItem(
-                        Icons.bookmark,
-                        'Guardados',
-                        2,
-                        (_page == 2) ? primaryContainer : onSecondaryColor,
-                      ),
-                      menuItem(
                         Icons.fitness_center,
                         'Entrenamientos',
-                        3,
-                        (_page == 3) ? primaryContainer : onSecondaryColor,
+                        2,
+                        (_page == 2) ? primaryContainer : onSecondaryColor,
                       ),
                       profileMenuItem(),
                     ],

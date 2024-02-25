@@ -213,7 +213,7 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
 
     return LiquidPullToRefresh(
       onRefresh: _loadTrainingTemplates,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.primary,
       child: ListView(
         children: [
           ...lista

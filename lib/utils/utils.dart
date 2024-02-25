@@ -143,7 +143,6 @@ List<Widget> buildHomeScreenItems(User user) {
   return [
     ViewTrainersScreen(user: user),
     const Text('b'),
-    const Text('c'),
     ViewTrainingScreen(user: user),
     const Text('e'),
   ];
