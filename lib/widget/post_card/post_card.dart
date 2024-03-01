@@ -1,7 +1,11 @@
+import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/training/register_training/register_training.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
+import 'package:fit_match/services/registro_service.dart';
 import 'package:fit_match/services/review_service.dart';
 import 'package:fit_match/widget/chip_section.dart';
+import 'package:fit_match/widget/custom_button_session.dart';
 import 'package:fit_match/widget/exercise_card/overviewPlantilla.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
@@ -37,11 +41,15 @@ class _PostCardState extends State<PostCard> {
   List<Review> reviews = [];
   PlantillaPost? postActivo;
 
+  SesionEntrenamiento? _lastSessionRegistrada;
+  bool _lastSessionIsFinished = false;
+
   @override
   void initState() {
     super.initState();
     _loadReviewsAndCalculateRating();
     _checkIfIsActive();
+    _loadLastRegister();
   }
 
   bool _isActive() {
@@ -64,6 +72,20 @@ class _PostCardState extends State<PostCard> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  void _loadLastRegister() async {
+    try {
+      Map<String, dynamic> lastRegister = await RegistroMethods()
+          .getLastRegistersByUserIdAndTemplateId(
+              widget.user.user_id as int, widget.post.templateId);
+      setState(() {
+        _lastSessionRegistrada = lastRegister['sesion'];
+        _lastSessionIsFinished = lastRegister['finished'];
+      });
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -112,6 +134,7 @@ class _PostCardState extends State<PostCard> {
   void _activarPlantilla() async {
     try {
       if (_isLoadingActivePost) return;
+
       _isLoadingActivePost = true;
       bool exito = false;
 
@@ -131,7 +154,6 @@ class _PostCardState extends State<PostCard> {
               .guardar(widget.post.templateId, widget.user.user_id);
         } else {
           // si ya existe significa que está oculto, debo mostrarlo
-
           exito = await PlantillaPostsMethods().toggleHidden(
               widget.post.templateId, "guardadas",
               userId: widget.user.user_id);
@@ -155,9 +177,24 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
+  _navigateToRegisterSession() {
+    if (_lastSessionRegistrada != null) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => RegisterTrainingScreen(
+                user: widget.user,
+                sessionId: _lastSessionRegistrada!.sessionId,
+              )));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final String StateRegister =
+        _lastSessionIsFinished ? 'Empezar sesión ' : 'Continuar con sesión';
+    final String buttonTextName = _lastSessionRegistrada != null
+        ? _lastSessionRegistrada!.sessionName
+        : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -169,34 +206,48 @@ class _PostCardState extends State<PostCard> {
           },
         ),
       ),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Card(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Column(children: [
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Card(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Column(children: [
+                            const SizedBox(height: 12),
+                            _buildListTile(width),
+                            const SizedBox(height: 12),
+                            _buildPostImage(width),
+                            const SizedBox(height: 12),
+                            _buildSelectButtons(),
+                          ]),
+                        ),
                         const SizedBox(height: 12),
-                        _buildListTile(width),
-                        const SizedBox(height: 12),
-                        _buildPostImage(width),
-                        const SizedBox(height: 12),
-                        _buildSelectButtons(),
-                      ]),
+                        _buildContentBasedOnSelection(width),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildContentBasedOnSelection(width),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+          if (_lastSessionRegistrada != null)
+            Positioned(
+              bottom: 10, // Ajusta la distancia desde el fondo de la pantalla
+              left: 0,
+              right: 0,
+              child: CustomButtonSession(
+                  icon: Icons.sports_gymnastics_outlined,
+                  onTap: () => {_navigateToRegisterSession()},
+                  text: '$StateRegister $buttonTextName'),
+            ),
+        ],
       ),
     );
   }

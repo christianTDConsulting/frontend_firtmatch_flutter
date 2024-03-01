@@ -3,6 +3,7 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/info_plantilla_screen.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/utils/utils.dart';
+import 'package:fit_match/widget/post_card/post_card.dart';
 
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
 
@@ -37,9 +38,14 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
         RutinasArchivadaMethods().getPlantillas(widget.user.user_id),
       ]);
 
-      var newTemplates = resultados[0];
-      var newCreatedTemplates = resultados[1];
-      var newArchivedTemplates = resultados[2];
+      var newTemplates =
+          resultados[0].where((element) => element.hidden == false).toList();
+
+      var newCreatedTemplates =
+          resultados[1].where((element) => element.hidden == false).toList();
+
+      var newArchivedTemplates =
+          resultados[2].where((element) => element.hidden == false).toList();
 
       if (mounted) {
         setState(() {
@@ -55,6 +61,11 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
       });
       print('Error al cargar plantillas: $e');
     }
+  }
+
+  void _showPost(PlantillaPost post) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => PostCard(post: post, user: widget.user)));
   }
 
   void _editTemplate(PlantillaPost template) {
@@ -138,7 +149,10 @@ class _ViewTrainingScreen extends State<ViewTrainingScreen>
     }
   }
 
-  void _verMas(PlantillaPost template) {}
+  void _verMas(PlantillaPost template) {
+    _showPost(template);
+  }
+
   void _createNewTemplate() {
     Navigator.of(context).push(
       MaterialPageRoute(

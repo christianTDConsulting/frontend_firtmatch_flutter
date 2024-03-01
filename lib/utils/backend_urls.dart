@@ -62,3 +62,10 @@ const reviewsUrl = '${url}review';
 const commentUrl = '${url}comment';
 const commentReviewUrl = '${url}commentReview';
 const commentReviewCommentUrl = '${url}commentComment';
+
+//Registros
+const registrosUrl = '${url}registros';
+const registrosSessionUrl = '${url}registrosSession';
+const sessionRegistrosUrl = '${url}sesionRegistros';
+const registroSessionAnteriorUrl = '${url}registroSessionAnterior';
+const registrosSessionPlantillaUrl = '${url}registrosSessionPlantilla';

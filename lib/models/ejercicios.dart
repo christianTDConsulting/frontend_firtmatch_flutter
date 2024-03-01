@@ -1,3 +1,5 @@
+import 'package:fit_match/models/registros.dart';
+
 class EjerciciosDetalladosAgrupados {
   final int? groupedDetailedExercisedId; //se omite si es para creación
   final int sessionId;
@@ -121,6 +123,7 @@ class Ejercicios {
 class SetsEjerciciosEntrada {
   final int? setId; //null para crear
   final int? detailedExerciseId;
+  List<RegistroSet>? registroSet;
   int setOrder;
   int? reps;
   double? time;
@@ -132,6 +135,7 @@ class SetsEjerciciosEntrada {
   SetsEjerciciosEntrada({
     this.setId,
     this.detailedExerciseId,
+    this.registroSet,
     required this.setOrder,
     this.reps,
     this.time,
