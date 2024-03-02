@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/registros.dart';
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/expandable_text.dart';
@@ -10,10 +11,10 @@ import 'package:flutter/services.dart';
 class RegisterCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;
   final int index;
-  // final Function(SetsEjerciciosEntrada) initSet;
+  final Function(SetsEjerciciosEntrada) initSet;
   // final Function(int, int) onAddSet;
   // final Function(int, int, int) onDeleteSet;
-  // final Function(int, int, int, SetsEjerciciosEntrada) onUpdateSet;
+  final Function(int, int, int, SetsEjerciciosEntrada) onUpdateSet;
 
   const RegisterCard({
     Key? key,
@@ -21,8 +22,8 @@ class RegisterCard extends StatefulWidget {
     required this.index,
     // required this.onAddSet,
     // required this.onDeleteSet,
-    // required this.onUpdateSet,
-    // required this.initSet,
+    required this.onUpdateSet,
+    required this.initSet,
   }) : super(key: key);
 
   @override
@@ -49,25 +50,12 @@ class _RegisterCard extends State<RegisterCard> {
     super.dispose();
   }
 
-  void _handleMenuItemSelected(
-      String value, int groupIndex, int exerciseIndex) {
-    switch (value) {
-      case 'video':
-        print('Video');
-        break;
-    }
-  }
-
   void _showDialog(String description, BuildContext context) async {
     CustomDialog.show(
       context,
       Text(description),
       () {},
     );
-  }
-
-  _getSetWithRegistro(SetsEjerciciosEntrada setsEjerciciosEntrada) {
-    // return widget.initSet(setsEjerciciosEntrada);
   }
 
   @override
@@ -112,6 +100,7 @@ class _RegisterCard extends State<RegisterCard> {
       EjercicioDetallado ejercicioDetallado,
       int exerciseIndex,
       String? ordenDentroDeSet) {
+    double width = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
@@ -138,7 +127,6 @@ class _RegisterCard extends State<RegisterCard> {
                 ],
               ),
             ),
-            trailing: _buildPopupMenuButton(context, groupIndex, exerciseIndex),
             title: Row(
               children: [
                 Flexible(
@@ -165,30 +153,74 @@ class _RegisterCard extends State<RegisterCard> {
           //se muestra el textArea si hay texto o si se le ha dado a "nota"
           ...[
             if (ejercicioDetallado.notes != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 8.0),
-                  child: ExpandableText(
-                    text: ejercicioDetallado.notes!,
-                  ),
+              Container(
+                width: double.maxFinite,
+                padding: const EdgeInsets.all(10.0),
+                color: Theme.of(context).colorScheme.background,
+                child: Wrap(
+                  children: [
+                    const Text("notas: "),
+                    ExpandableText(
+                      text: ejercicioDetallado.notes!,
+                      maxLines: 2,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
               ),
           ],
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  flex: 2,
                   child: Text(
                     'Set',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: width < webScreenSize
+                        ? Theme.of(context).textTheme.titleSmall
+                        : Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Objetivo',
+                    style: width < webScreenSize
+                        ? Theme.of(context).textTheme.titleSmall
+                        : Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    'Anterior',
+                    style: width < webScreenSize
+                        ? Theme.of(context).textTheme.titleSmall
+                        : Theme.of(context).textTheme.titleMedium,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+                Expanded(
+                  flex: width < webScreenSize ? 5 : 3,
+                  child: Center(
+                    child: Text(
+                      'Entrada',
+                      style: width < webScreenSize
+                          ? Theme.of(context).textTheme.titleSmall
+                          : Theme.of(context).textTheme.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+
+                // Spacer(
+                //   flex: width < webScreenSize ? 5 : 3,
+                // ),
               ],
             ),
           ),
@@ -198,15 +230,15 @@ class _RegisterCard extends State<RegisterCard> {
             }
 
             return SetRow(
-                set: _getSetWithRegistro(ejercicioDetallado.setsEntrada![i]),
-                onDeleteSet: () => {},
-                // {widget.onDeleteSet(groupIndex, exerciseIndex, i)},
-                selectedRegisterType: ejercicioDetallado.registerTypeId,
-                onUpdateSet: (updatedSet) => {}
-                // (updatedSet) {
-                //   widget.onUpdateSet(groupIndex, exerciseIndex, i, updatedSet);
-                // },
-                );
+              set: ejercicioDetallado.setsEntrada![i],
+              onDeleteSet: () => {},
+              // {widget.onDeleteSet(groupIndex, exerciseIndex, i)},
+              selectedRegisterType: ejercicioDetallado.registerTypeId,
+
+              onUpdateSet: (updatedSet) {
+                widget.onUpdateSet(groupIndex, exerciseIndex, i, updatedSet);
+              },
+            );
           }),
           const SizedBox(height: 8),
           OutlinedButton(
@@ -217,25 +249,12 @@ class _RegisterCard extends State<RegisterCard> {
       ),
     );
   }
-
-  _buildPopupMenuButton(
-      BuildContext context, int groupIndex, int exerciseIndex) {
-    return PopupMenuButton(
-      itemBuilder: (context) => [
-        const PopupMenuItem(
-          value: 'eliminar',
-          child: Text('Eliminar'),
-        ),
-      ],
-      onSelected: (value) =>
-          _handleMenuItemSelected(value, groupIndex, exerciseIndex),
-    );
-  }
 }
 
 class NumberInputField extends StatelessWidget {
   final Function(String) onFieldSubmitted;
   final String? hintText;
+  final String? label;
   final TextEditingController? controller;
 
   const NumberInputField({
@@ -243,6 +262,7 @@ class NumberInputField extends StatelessWidget {
     required this.onFieldSubmitted,
     this.hintText,
     this.controller,
+    this.label,
   }) : super(key: key);
 
   @override
@@ -261,6 +281,7 @@ class NumberInputField extends StatelessWidget {
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
         border: borderStyle,
+        labelText: label,
         enabledBorder: borderStyle,
         focusedBorder: borderStyle.copyWith(
           borderSide: BorderSide(
@@ -313,7 +334,7 @@ class _SetRowState extends State<SetRow> {
   void initState() {
     repsController = TextEditingController();
     weightController = TextEditingController();
-    _initRegisterSet();
+
     super.initState();
   }
 
@@ -323,7 +344,14 @@ class _SetRowState extends State<SetRow> {
     super.dispose();
   }
 
-  _initRegisterSet() {}
+  RegistroSet? get previousTolastSet {
+    if (widget.set.registroSet!.isEmpty || widget.set.registroSet!.length < 2) {
+      return null;
+    } else {
+      return widget.set.registroSet!
+          .elementAt(widget.set.registroSet!.length - 2);
+    }
+  }
 
   Widget dash = const SizedBox(
     width: 12,
@@ -379,7 +407,11 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: NumberInputField(
+              hintText: previousTolastSet == null
+                  ? "reps"
+                  : previousTolastSet!.reps.toString(),
               controller: repsController,
+              label: "reps",
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
             ),
           ),
@@ -387,6 +419,10 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               controller: weightController,
+              hintText: previousTolastSet == null
+                  ? "kg"
+                  : previousTolastSet!.weight.toString(),
+              label: "kg",
               onFieldSubmitted: (value) => _updateSet(value, 'weight'),
             ),
           ),
@@ -402,6 +438,10 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               controller: weightController,
+              label: "min",
+              hintText: previousTolastSet == null
+                  ? "min"
+                  : previousTolastSet!.time.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'time'),
             ),
           ),
@@ -416,6 +456,10 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               controller: repsController,
+              label: "min",
+              hintText: previousTolastSet == null
+                  ? "min"
+                  : previousTolastSet!.time.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'minTime'),
             ),
           ),
@@ -423,6 +467,10 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               controller: weightController,
+              label: "min",
+              hintText: previousTolastSet == null
+                  ? "kg"
+                  : previousTolastSet!.weight.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'maxTime'),
             ),
           ),
@@ -437,6 +485,10 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: NumberInputField(
+              label: "reps",
+              hintText: previousTolastSet == null
+                  ? "reps"
+                  : previousTolastSet!.reps.toString(),
               controller: repsController,
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
             ),
@@ -444,6 +496,10 @@ class _SetRowState extends State<SetRow> {
           dash,
           Expanded(
               child: NumberInputField(
+            label: "kg",
+            hintText: previousTolastSet == null
+                ? "kg"
+                : previousTolastSet!.weight.toString(),
             controller: weightController,
             onFieldSubmitted: (value) => _updateSet(value, 'weight'),
           ))
@@ -451,8 +507,126 @@ class _SetRowState extends State<SetRow> {
     }
   }
 
+  List<Widget> _buildExpectedInputFields() {
+    switch (widget.selectedRegisterType) {
+      case 1: // Rango de repeticiones
+
+        return [
+          Expanded(
+            child: Text(
+              "${widget.set.minReps?.toString() ?? '_'}-${widget.set.maxReps?.toString() ?? '_'} reps",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      case 4: // AMRAP
+        return [
+          const Expanded(
+            child: Text('AMRAP',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 16)),
+          ),
+        ];
+      case 5: // Tiempo
+
+        return [
+          Expanded(
+            child: Text(
+              "${widget.set.time?.toString() ?? '_'} min",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          minText,
+        ];
+      case 6: // Rango de tiempo
+
+        return [
+          Expanded(
+            child: Text(
+              "${widget.set.maxTime?.toString() ?? '_'}-${widget.set.maxTime?.toString() ?? '_'} min",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      default: // Por defecto, solo repeticiones
+
+        return [
+          Expanded(
+            child: Text(
+              "${widget.set.reps?.toString() ?? '_'} reps",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+    }
+  }
+
+  List<Widget> _buildLastSessionInputFields() {
+    if (previousTolastSet == null) {
+      return [
+        const Expanded(
+          child: Text("  _", style: TextStyle(fontSize: 16)),
+        ),
+      ];
+    }
+
+    //  que previousToLastSet no es nulo
+    switch (widget.selectedRegisterType) {
+      case 1: // Rango de repeticiones
+        return [
+          Expanded(
+            child: Text(
+              "${previousTolastSet!.reps?.toString() ?? '_'} reps x ${previousTolastSet!.weight?.toString() ?? '_'} kg",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      case 4: // AMRAP
+        return [
+          const Expanded(
+            child: Text(
+              'AMRAP',
+              style: TextStyle(fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      case 5: // Tiempo
+        return [
+          Expanded(
+            child: Text(
+              "${previousTolastSet!.time?.toString() ?? '_'} min",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      case 6: // Rango de tiempo
+        return [
+          Expanded(
+            child: Text(
+              "${previousTolastSet!.time?.toString() ?? '_'} min x ${widget.set.maxTime?.toString() ?? '_'} kg",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+      default: // Por defecto, solo repeticiones
+        return [
+          Expanded(
+            child: Text(
+              "${previousTolastSet!.reps?.toString() ?? '_'} reps x ${previousTolastSet!.weight?.toString() ?? '_'} kg",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
+    }
+  }
+
   Widget _buildSetRowItem() {
+    double width = MediaQuery.of(context).size.width;
+
     List<Widget> inputFields = _buildInputFields();
+    List<Widget> expectedInputFields = _buildExpectedInputFields();
+    List<Widget> lastSessionInputFields = _buildLastSessionInputFields();
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -460,15 +634,35 @@ class _SetRowState extends State<SetRow> {
             child: Text('${widget.set.setOrder}',
                 style: const TextStyle(fontSize: 16))),
         Expanded(
+          flex: 2,
+          child: Row(children: expectedInputFields),
+        ),
+        Expanded(
+          flex: 2,
+          child: Center(child: Row(children: lastSessionInputFields)),
+        ),
+        Expanded(
+          flex: width < webScreenSize ? 4 : 2,
           child: Row(children: inputFields),
         ),
         Expanded(
-          child: IconButton(
-            onPressed:
-                widget.set.setOrder == 1 ? null : () => widget.onDeleteSet(),
-            icon: Icon(
-                widget.set.setOrder == 1 ? Icons.delete_outline : Icons.delete),
-            color: widget.set.setOrder == 1 ? Colors.grey : Colors.red,
+          child: Wrap(
+            children: [
+              IconButton(
+                onPressed: widget.set.setOrder == 1
+                    ? null
+                    : () => widget.onDeleteSet(),
+                icon: Icon(widget.set.setOrder == 1
+                    ? Icons.delete_outline
+                    : Icons.delete),
+                color: widget.set.setOrder == 1 ? Colors.grey : Colors.red,
+              ),
+              IconButton(
+                onPressed: null,
+                icon: Icon(Icons.video_camera_front_outlined,
+                    color: Theme.of(context).primaryColor),
+              )
+            ],
           ),
         ),
       ],

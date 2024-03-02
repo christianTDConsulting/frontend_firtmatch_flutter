@@ -114,7 +114,7 @@ class RegistroMethods {
     int? time,
   }) async {
     final response = await http.post(
-      Uri.parse('$registrosUrl/sets'),
+      Uri.parse('$registrosUrl'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user_id': userId,

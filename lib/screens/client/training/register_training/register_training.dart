@@ -1,8 +1,8 @@
 import 'package:fit_match/models/ejercicios.dart';
+import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/registro_service.dart';
-import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/widget/custom_button.dart';
 import 'package:fit_match/widget/exercise_card/register_card.dart';
 import 'package:fit_match/widget/expandable_text.dart';
@@ -68,7 +68,25 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     return session.registros!.any((element) => !element.finished);
   }
 
-  _initSet(SetsEjerciciosEntrada setsEjerciciosEntrada) {}
+  _initSet(SetsEjerciciosEntrada setsEjerciciosEntrada) async {
+    if (setsEjerciciosEntrada.registroSet == null) {
+      try {
+        RegistroDeSesion activeRegistroSession = existingSession.registros!
+            .firstWhere((element) => !element.finished);
+        RegistroSet registroSet = await RegistroMethods()
+            .addOrUpdateRegisterSet(
+                userId: widget.user.user_id as int,
+                setId: setsEjerciciosEntrada.setId!,
+                registerSessionId: activeRegistroSession.registerSessionId);
+        setState(() {
+          setsEjerciciosEntrada.registroSet ??= [];
+          setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
+        });
+      } catch (e) {
+        print("Error en _initSet: $e");
+      }
+    }
+  }
 
   Future<void> _initData() async {
     setState(() => isLoading = true);
@@ -94,22 +112,21 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
       setState(() => isLoading = false);
       return;
     }
-    _initExercises();
 
     setState(() {
       existingSession = session;
+      _exercises = session.ejerciciosDetalladosAgrupados!;
+    });
+
+    await Future.wait(
+        session.ejerciciosDetalladosAgrupados!.map((ejercicioAgrupado) async {
+      for (var setEntrada in ejercicioAgrupado.ejerciciosDetallados) {
+        await Future.wait(setEntrada.setsEntrada!.map((set) => _initSet(set)));
+      }
+    }));
+    setState(() {
       isLoading = false;
     });
-  }
-
-  Future<void> _initExercises() async {
-    try {
-      var exercises = await EjercicioDetalladosAgrupadoMethods()
-          .getEjerciciosDetalladosAgrupadosBySesionId(widget.sessionId);
-      setState(() => _exercises = exercises);
-    } catch (e) {
-      print(e);
-    }
   }
 
   Future<bool> _onWillPop() async {
@@ -216,10 +233,10 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
               //     _onAddSet(groupIndex, exerciseIndex),
               // onDeleteSet: (groupIndex, exerciseIndex, setIndex) =>
               //     _onDeleteSet(groupIndex, exerciseIndex, setIndex),
-              // onUpdateSet: (groupIndex, exerciseIndex, setIndex, set) =>
-              //     _updateSet(groupIndex, exerciseIndex, setIndex, set),
-              // initSet: (setsEjerciciosEntrada) =>
-              //     _initSet(setsEjerciciosEntrada),
+              onUpdateSet: (groupIndex, exerciseIndex, setIndex, set) =>
+                  _updateSet(groupIndex, exerciseIndex, setIndex, set),
+              initSet: (setsEjerciciosEntrada) =>
+                  _initSet(setsEjerciciosEntrada),
             );
           });
     }
