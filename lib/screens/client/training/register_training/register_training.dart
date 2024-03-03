@@ -73,15 +73,17 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
       try {
         RegistroDeSesion activeRegistroSession = existingSession.registros!
             .firstWhere((element) => !element.finished);
-        RegistroSet registroSet = await RegistroMethods()
-            .addOrUpdateRegisterSet(
-                userId: widget.user.user_id as int,
-                setId: setsEjerciciosEntrada.setId!,
-                registerSessionId: activeRegistroSession.registerSessionId);
-        setState(() {
-          setsEjerciciosEntrada.registroSet ??= [];
-          setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
-        });
+        if (setsEjerciciosEntrada.registroSet == null) {
+          RegistroSet registroSet = await RegistroMethods()
+              .addOrUpdateRegisterSet(
+                  userId: widget.user.user_id as int,
+                  setId: setsEjerciciosEntrada.setId!,
+                  registerSessionId: activeRegistroSession.registerSessionId);
+          setState(() {
+            setsEjerciciosEntrada.registroSet ??= [];
+            setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
+          });
+        }
       } catch (e) {
         print("Error en _initSet: $e");
       }
@@ -165,12 +167,49 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     Navigator.pop(context, reload);
   }
 
-  void _onAddSet(int groupIndex, int exerciseIndex) {}
+  void _onAddSet(SetsEjerciciosEntrada set) async {
+    RegistroDeSesion activeRegistroSession =
+        existingSession.registros!.firstWhere((element) => !element.finished);
+    try {
+      RegistroSet registroSet = await RegistroMethods().addOrUpdateRegisterSet(
+          userId: widget.user.user_id as int,
+          setId: set.setId!,
+          registerSessionId: activeRegistroSession.registerSessionId,
+          create: true);
+
+      setState(() {
+        set.registroSet ??= [];
+        set.registroSet!.insert(0, registroSet);
+      });
+    } catch (e) {
+      print("Error en _onAddSet: $e");
+      return;
+    }
+  }
 
   void _onDeleteSet(int groupIndex, int exerciseIndex, int setIndex) {}
 
   void _updateSet(int groupIndex, int exerciseIndex, int setIndex,
-      SetsEjerciciosEntrada set) {}
+      SetsEjerciciosEntrada set) async {
+    if (set.registroSet == null) {
+      return;
+    }
+    RegistroSet existingRegistroSet = set.registroSet!
+        .first; //me he asegurado de que no sea nulo, el mas reciente siempre será el primero
+    RegistroSet updatedSet = await RegistroMethods().addOrUpdateRegisterSet(
+        userId: widget.user.user_id as int,
+        setId: set.setId!,
+        registerSessionId: existingSession.registros!.first
+            .registerSessionId, // la mas reciente siempre va estar al principio, no puede ser nulo
+        registerSetId: existingRegistroSet.registerSetId,
+        reps: existingRegistroSet.reps,
+        weight: existingRegistroSet.weight,
+        time: existingRegistroSet.time);
+
+    setState(() {
+      existingRegistroSet = updatedSet;
+    });
+  }
 
   void _onEditNote(int groupIndex, int exerciseIndex, String note) {}
 
@@ -229,14 +268,13 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
             return RegisterCard(
               ejercicioDetalladoAgrupado: _exercises[index],
               index: index,
-              // onAddSet: (groupIndex, exerciseIndex) =>
-              //     _onAddSet(groupIndex, exerciseIndex),
+              registerSessionId:
+                  existingSession.registros!.first.registerSessionId,
+              onAddSet: (set) => _onAddSet(set),
               // onDeleteSet: (groupIndex, exerciseIndex, setIndex) =>
               //     _onDeleteSet(groupIndex, exerciseIndex, setIndex),
               onUpdateSet: (groupIndex, exerciseIndex, setIndex, set) =>
                   _updateSet(groupIndex, exerciseIndex, setIndex, set),
-              initSet: (setsEjerciciosEntrada) =>
-                  _initSet(setsEjerciciosEntrada),
             );
           });
     }

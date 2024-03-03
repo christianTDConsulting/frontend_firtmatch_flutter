@@ -156,6 +156,11 @@ class SetsEjerciciosEntrada {
       maxReps: json['max_reps'],
       minTime: json['min_time'],
       maxTime: json['max_time'],
+      registroSet: json['registro_set'] != null && json['registro_set'] != []
+          ? (json['registro_set'] as List)
+              .map((e) => RegistroSet.fromJson(e))
+              .toList()
+          : null,
     );
   }
 
@@ -170,6 +175,7 @@ class SetsEjerciciosEntrada {
       'max_reps': maxReps,
       'min_time': minTime,
       'max_time': maxTime,
+      'registro_set': registroSet?.map((e) => e.toJson()).toList(),
     };
   }
 }

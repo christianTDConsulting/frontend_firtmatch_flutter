@@ -11,19 +11,19 @@ import 'package:flutter/services.dart';
 class RegisterCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;
   final int index;
-  final Function(SetsEjerciciosEntrada) initSet;
-  // final Function(int, int) onAddSet;
-  // final Function(int, int, int) onDeleteSet;
+  final int registerSessionId;
+  final Function(SetsEjerciciosEntrada) onAddSet;
+  //final Function(int, int, int) onDeleteSet;
   final Function(int, int, int, SetsEjerciciosEntrada) onUpdateSet;
 
   const RegisterCard({
     Key? key,
     required this.ejercicioDetalladoAgrupado,
     required this.index,
-    // required this.onAddSet,
-    // required this.onDeleteSet,
+    required this.onAddSet,
+    //required this.onDeleteSet,
     required this.onUpdateSet,
-    required this.initSet,
+    required this.registerSessionId,
   }) : super(key: key);
 
   @override
@@ -56,6 +56,14 @@ class _RegisterCard extends State<RegisterCard> {
       Text(description),
       () {},
     );
+  }
+
+  List<RegistroSet> _getThisRegisterSessionSets(
+      SetsEjerciciosEntrada setsEjerciciosEntrada) {
+    return setsEjerciciosEntrada.registroSet!
+        .where(
+            (element) => element.registerSessionId == widget.registerSessionId)
+        .toList();
   }
 
   @override
@@ -101,6 +109,7 @@ class _RegisterCard extends State<RegisterCard> {
       int exerciseIndex,
       String? ordenDentroDeSet) {
     double width = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
@@ -228,13 +237,14 @@ class _RegisterCard extends State<RegisterCard> {
             if (i < 0 || i >= ejercicioDetallado.setsEntrada!.length) {
               return const SizedBox.shrink();
             }
+            List<RegistroSet> registrosPorSet =
+                _getThisRegisterSessionSets(ejercicioDetallado.setsEntrada![i]);
 
             return SetRow(
               set: ejercicioDetallado.setsEntrada![i],
+              registerSessionId: widget.registerSessionId,
               onDeleteSet: () => {},
-              // {widget.onDeleteSet(groupIndex, exerciseIndex, i)},
               selectedRegisterType: ejercicioDetallado.registerTypeId,
-
               onUpdateSet: (updatedSet) {
                 widget.onUpdateSet(groupIndex, exerciseIndex, i, updatedSet);
               },
@@ -242,7 +252,8 @@ class _RegisterCard extends State<RegisterCard> {
           }),
           const SizedBox(height: 8),
           OutlinedButton(
-            onPressed: () => {}, //widget.onAddSet(widget.index, exerciseIndex),
+            onPressed: () =>
+                {widget.onAddSet(ejercicioDetallado.setsEntrada!.last)},
             child: const Text("+ añadir set"),
           ),
         ],
@@ -309,6 +320,7 @@ class NumberInputField extends StatelessWidget {
 class SetRow extends StatefulWidget {
   final SetsEjerciciosEntrada set;
   final int selectedRegisterType;
+  final int registerSessionId;
 
   final Function(SetsEjerciciosEntrada) onUpdateSet;
   final Function() onDeleteSet;
@@ -319,6 +331,7 @@ class SetRow extends StatefulWidget {
     required this.selectedRegisterType,
     required this.onUpdateSet,
     required this.onDeleteSet,
+    required this.registerSessionId,
   }) : super(key: key);
 
   @override
@@ -344,12 +357,24 @@ class _SetRowState extends State<SetRow> {
     super.dispose();
   }
 
-  RegistroSet? get previousTolastSet {
+  RegistroSet? get previousToLastSet {
+    // Verificar si la lista está vacía o si solo tiene un elemento
     if (widget.set.registroSet!.isEmpty || widget.set.registroSet!.length < 2) {
       return null;
     } else {
-      return widget.set.registroSet!
-          .elementAt(widget.set.registroSet!.length - 2);
+      // Filtrar los registros que no pertenecen a la sesión actual
+      var filteredSets = widget.set.registroSet!
+          .where((element) =>
+              element.registerSessionId != widget.registerSessionId)
+          .toList();
+
+      if (filteredSets.isEmpty) {
+        return null;
+      } else {
+        RegistroSet previousToLast = filteredSets.reduce((curr, next) =>
+            curr.timestamp.isBefore(next.timestamp) ? curr : next);
+        return previousToLast;
+      }
     }
   }
 
@@ -407,9 +432,9 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: NumberInputField(
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "reps"
-                  : previousTolastSet!.reps.toString(),
+                  : previousToLastSet!.reps.toString(),
               controller: repsController,
               label: "reps",
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
@@ -419,9 +444,9 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               controller: weightController,
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "kg"
-                  : previousTolastSet!.weight.toString(),
+                  : previousToLastSet!.weight.toString(),
               label: "kg",
               onFieldSubmitted: (value) => _updateSet(value, 'weight'),
             ),
@@ -439,9 +464,9 @@ class _SetRowState extends State<SetRow> {
             child: NumberInputField(
               controller: weightController,
               label: "min",
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "min"
-                  : previousTolastSet!.time.toString(),
+                  : previousToLastSet!.time.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'time'),
             ),
           ),
@@ -457,9 +482,9 @@ class _SetRowState extends State<SetRow> {
             child: NumberInputField(
               controller: repsController,
               label: "min",
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "min"
-                  : previousTolastSet!.time.toString(),
+                  : previousToLastSet!.time.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'minTime'),
             ),
           ),
@@ -468,9 +493,9 @@ class _SetRowState extends State<SetRow> {
             child: NumberInputField(
               controller: weightController,
               label: "min",
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "kg"
-                  : previousTolastSet!.weight.toString(),
+                  : previousToLastSet!.weight.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'maxTime'),
             ),
           ),
@@ -486,9 +511,9 @@ class _SetRowState extends State<SetRow> {
           Expanded(
             child: NumberInputField(
               label: "reps",
-              hintText: previousTolastSet == null
+              hintText: previousToLastSet == null
                   ? "reps"
-                  : previousTolastSet!.reps.toString(),
+                  : previousToLastSet!.reps.toString(),
               controller: repsController,
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
             ),
@@ -497,9 +522,9 @@ class _SetRowState extends State<SetRow> {
           Expanded(
               child: NumberInputField(
             label: "kg",
-            hintText: previousTolastSet == null
+            hintText: previousToLastSet == null
                 ? "kg"
-                : previousTolastSet!.weight.toString(),
+                : previousToLastSet!.weight.toString(),
             controller: weightController,
             onFieldSubmitted: (value) => _updateSet(value, 'weight'),
           ))
@@ -562,7 +587,7 @@ class _SetRowState extends State<SetRow> {
   }
 
   List<Widget> _buildLastSessionInputFields() {
-    if (previousTolastSet == null) {
+    if (previousToLastSet == null) {
       return [
         const Expanded(
           child: Text("  _", style: TextStyle(fontSize: 16)),
@@ -576,8 +601,8 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousTolastSet!.reps?.toString() ?? '_'} reps x ${previousTolastSet!.weight?.toString() ?? '_'} kg",
-              overflow: TextOverflow.ellipsis,
+              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} kg",
+              overflow: TextOverflow.clip,
             ),
           ),
         ];
@@ -595,7 +620,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousTolastSet!.time?.toString() ?? '_'} min",
+              "${previousToLastSet!.time?.toString() ?? '_'} min",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -604,7 +629,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousTolastSet!.time?.toString() ?? '_'} min x ${widget.set.maxTime?.toString() ?? '_'} kg",
+              "${previousToLastSet!.time?.toString() ?? '_'} min x ${widget.set.maxTime?.toString() ?? '_'} kg",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -613,7 +638,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousTolastSet!.reps?.toString() ?? '_'} reps x ${previousTolastSet!.weight?.toString() ?? '_'} kg",
+              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} kg",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -627,6 +652,7 @@ class _SetRowState extends State<SetRow> {
     List<Widget> inputFields = _buildInputFields();
     List<Widget> expectedInputFields = _buildExpectedInputFields();
     List<Widget> lastSessionInputFields = _buildLastSessionInputFields();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -648,19 +674,16 @@ class _SetRowState extends State<SetRow> {
         Expanded(
           child: Wrap(
             children: [
-              IconButton(
-                onPressed: widget.set.setOrder == 1
-                    ? null
-                    : () => widget.onDeleteSet(),
-                icon: Icon(widget.set.setOrder == 1
-                    ? Icons.delete_outline
-                    : Icons.delete),
-                color: widget.set.setOrder == 1 ? Colors.grey : Colors.red,
-              ),
+              if (_lengthRegistroSession() > 1)
+                IconButton(
+                  onPressed: () => widget.onDeleteSet(),
+                  icon: const Icon(Icons.delete),
+                  color: Colors.red,
+                ),
               IconButton(
                 onPressed: null,
-                icon: Icon(Icons.video_camera_front_outlined,
-                    color: Theme.of(context).primaryColor),
+                icon:
+                    Icon(Icons.videocam, color: Theme.of(context).primaryColor),
               )
             ],
           ),
@@ -669,9 +692,16 @@ class _SetRowState extends State<SetRow> {
     );
   }
 
+  _lengthRegistroSession() {
+    return widget.set.registroSet!
+        .where(
+            (element) => element.registerSessionId == widget.registerSessionId)
+        .length;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.set.setOrder == 1) {
+    if (_lengthRegistroSession() <= 1) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
         child: _buildSetRowItem(),
@@ -689,6 +719,9 @@ class _SetRowState extends State<SetRow> {
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           direction: DismissDirection.endToStart,
+          confirmDismiss: (direction) async {
+            return widget.set.registroSet!.length > 1;
+          },
           child: _buildSetRowItem(),
         ),
       );
