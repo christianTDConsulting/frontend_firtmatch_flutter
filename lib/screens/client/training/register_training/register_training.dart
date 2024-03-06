@@ -30,7 +30,17 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     sessionDate: DateTime.now(),
   );
 
-  void _saveEntrenamiento() {}
+  void _saveEntrenamiento() async {
+    int activeSessionId = existingSession.registros!
+        .firstWhere((element) => !element.finished)
+        .registerSessionId;
+
+    bool exito = await RegistroMethods().terminarRegistro(activeSessionId);
+
+    if (exito) {
+      _navigateBack(context);
+    }
+  }
 
   List<EjerciciosDetalladosAgrupados> _exercises = [];
 
@@ -69,21 +79,21 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
   }
 
   _initSet(SetsEjerciciosEntrada setsEjerciciosEntrada) async {
-    if (setsEjerciciosEntrada.registroSet == null) {
+    if (setsEjerciciosEntrada.registroSet == null ||
+        setsEjerciciosEntrada.registroSet!.isEmpty) {
       try {
         RegistroDeSesion activeRegistroSession = existingSession.registros!
             .firstWhere((element) => !element.finished);
-        if (setsEjerciciosEntrada.registroSet == null) {
-          RegistroSet registroSet = await RegistroMethods()
-              .addOrUpdateRegisterSet(
-                  userId: widget.user.user_id as int,
-                  setId: setsEjerciciosEntrada.setId!,
-                  registerSessionId: activeRegistroSession.registerSessionId);
-          setState(() {
-            setsEjerciciosEntrada.registroSet ??= [];
-            setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
-          });
-        }
+
+        RegistroSet registroSet = await RegistroMethods()
+            .addOrUpdateRegisterSet(
+                userId: widget.user.user_id as int,
+                setId: setsEjerciciosEntrada.setId!,
+                registerSessionId: activeRegistroSession.registerSessionId);
+        setState(() {
+          setsEjerciciosEntrada.registroSet ??= [];
+          setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
+        });
       } catch (e) {
         print("Error en _initSet: $e");
       }
@@ -131,37 +141,37 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     });
   }
 
-  Future<bool> _onWillPop() async {
-    final shouldPop = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Estás seguro?'),
-        content: const Text('Perderás todo el progreso.'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(
-                false), // Esto cierra el cuadro de diálogo devolviendo 'false'.
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(
-                  true); // Esto cierra el cuadro de diálogo devolviendo 'true'.
-            },
-            child: const Text('Sí'),
-          ),
-        ],
-      ),
-    );
+  // Future<bool> _onWillPop() async {
+  //   final shouldPop = await showDialog<bool>(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text('Estás seguro?'),
+  //       content: const Text('Perderás todo el progreso.'),
+  //       actions: <Widget>[
+  //         TextButton(
+  //           onPressed: () => Navigator.of(context).pop(
+  //               false), // Esto cierra el cuadro de diálogo devolviendo 'false'.
+  //           child: const Text('Cancelar'),
+  //         ),
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.of(context).pop(
+  //                 true); // Esto cierra el cuadro de diálogo devolviendo 'true'.
+  //           },
+  //           child: const Text('Sí'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
 
-    // Si shouldPop es true, entonces navega hacia atrás.
-    if (shouldPop ?? false) {
-      _navigateBack(context);
-    }
+  //   // Si shouldPop es true, entonces navega hacia atrás.
+  //   if (shouldPop ?? false) {
+  //     _navigateBack(context);
+  //   }
 
-    return Future.value(
-        false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
-  }
+  //   return Future.value(
+  //       false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
+  // }
 
   void _navigateBack(BuildContext context, {bool reload = false}) {
     Navigator.pop(context, reload);
@@ -179,7 +189,7 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
 
       setState(() {
         set.registroSet ??= [];
-        set.registroSet!.insert(0, registroSet);
+        set.registroSet!.insert(set.registroSet!.length, registroSet);
       });
     } catch (e) {
       print("Error en _onAddSet: $e");
@@ -187,31 +197,45 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     }
   }
 
-  void _onDeleteSet(int groupIndex, int exerciseIndex, int setIndex) {}
+  void _onDeleteSet(SetsEjerciciosEntrada set, RegistroSet registroSet) async {
+    bool exito =
+        await RegistroMethods().eliminarRegistroSet(registroSet.registerSetId);
+    if (exito) {
+      setState(() {
+        set.registroSet!.remove(registroSet);
+      });
+    }
+  }
 
-  void _updateSet(int groupIndex, int exerciseIndex, int setIndex,
-      SetsEjerciciosEntrada set) async {
+  void _updateSet(SetsEjerciciosEntrada set, index_registro) async {
     if (set.registroSet == null) {
       return;
     }
-    RegistroSet existingRegistroSet = set.registroSet!
-        .first; //me he asegurado de que no sea nulo, el mas reciente siempre será el primero
+
+    RegistroSet existingRegistroSet =
+        set.registroSet!.elementAt(index_registro);
+
+    int activeSessionId = existingSession.registros!
+        .firstWhere((element) => !element.finished)
+        .registerSessionId;
+
     RegistroSet updatedSet = await RegistroMethods().addOrUpdateRegisterSet(
         userId: widget.user.user_id as int,
         setId: set.setId!,
-        registerSessionId: existingSession.registros!.first
-            .registerSessionId, // la mas reciente siempre va estar al principio, no puede ser nulo
+        registerSessionId: activeSessionId,
         registerSetId: existingRegistroSet.registerSetId,
         reps: existingRegistroSet.reps,
         weight: existingRegistroSet.weight,
         time: existingRegistroSet.time);
 
     setState(() {
-      existingRegistroSet = updatedSet;
+      int index = set.registroSet!.indexWhere(
+          (rs) => rs.registerSetId == existingRegistroSet.registerSetId);
+      if (index != -1) {
+        set.registroSet![index] = updatedSet;
+      }
     });
   }
-
-  void _onEditNote(int groupIndex, int exerciseIndex, String note) {}
 
   @override
   Widget build(BuildContext context) {
@@ -222,9 +246,7 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
             automaticallyImplyLeading: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () async {
-                await _onWillPop();
-              },
+              onPressed: () => _navigateBack(context),
             ),
           ),
           body: isLoading
@@ -271,10 +293,9 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
               registerSessionId:
                   existingSession.registros!.first.registerSessionId,
               onAddSet: (set) => _onAddSet(set),
-              // onDeleteSet: (groupIndex, exerciseIndex, setIndex) =>
-              //     _onDeleteSet(groupIndex, exerciseIndex, setIndex),
-              onUpdateSet: (groupIndex, exerciseIndex, setIndex, set) =>
-                  _updateSet(groupIndex, exerciseIndex, setIndex, set),
+              onDeleteSet: (set, registro) => _onDeleteSet(set, registro),
+              onUpdateSet: (set, index_registro) =>
+                  _updateSet(set, index_registro),
             );
           });
     }

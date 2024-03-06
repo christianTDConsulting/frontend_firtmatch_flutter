@@ -150,12 +150,19 @@ class RegistroMethods {
           'Error al obtener el último registro: ${response.statusCode}');
     }
   }
-}
 
-Future<bool> terminarRegistro(int registerSessionId) async {
-  final response = await http.put(
-    Uri.parse('$registrosSessionUrl/$registerSessionId'),
-    headers: {'Content-Type': 'application/json'},
-  );
-  return response.statusCode == 200;
+  Future<bool> eliminarRegistroSet(int registerSetId) async {
+    final response = await http.delete(
+      Uri.parse('$registrosUrl/$registerSetId'),
+    );
+    return response.statusCode == 200;
+  }
+
+  Future<bool> terminarRegistro(int registerSessionId) async {
+    final response = await http.put(
+      Uri.parse('$registrosSessionUrl/$registerSessionId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    return response.statusCode == 200;
+  }
 }

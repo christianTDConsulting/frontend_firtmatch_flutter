@@ -1,4 +1,6 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/providers/get_jwt_token.dart';
+import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
@@ -7,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 // for picking up image from gallery
 pickImage(ImageSource source) async {
@@ -144,7 +147,7 @@ List<Widget> buildHomeScreenItems(User user) {
     ViewTrainersScreen(user: user),
     const Text('b'),
     ViewTrainingScreen(user: user),
-    const Text('e'),
+    ViewProfileScreen(user: user),
   ];
 }
 
@@ -152,4 +155,19 @@ List<Widget> buildHomeScreenItems(User user) {
 
 String getExerciseLetter(int index) {
   return String.fromCharCode('A'.codeUnitAt(0) + index);
+}
+
+// for getting system preference (imperial or metrico)
+Future<String> getSystem() async {
+  String? token = await getToken();
+  try {
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
+    if (decodedToken.containsKey('user')) {
+      return decodedToken['user']['system'];
+    }
+    throw Exception('Error al decodificar el token');
+  } catch (e) {
+    print('Error al decodificar el token: $e');
+    return 'Metrico';
+  }
 }

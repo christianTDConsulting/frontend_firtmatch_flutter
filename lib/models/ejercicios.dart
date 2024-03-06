@@ -38,7 +38,7 @@ class EjerciciosDetalladosAgrupados {
 class EjercicioDetallado {
   final int? detailedExerciseId; //se omite si es para creación
   final int? exerciseId;
-  final int registerTypeId;
+  int registerTypeId;
   String? notes;
   int order;
   final Ejercicios? ejercicio;

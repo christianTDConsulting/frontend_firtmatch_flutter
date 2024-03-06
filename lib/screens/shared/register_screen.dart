@@ -1,5 +1,6 @@
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/responsive/responsive_layout_screen.dart';
+import 'package:fit_match/widget/edit_Icon.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -323,10 +324,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             backgroundColor: Colors.red,
           ),
           Positioned(
-            left: 80,
-            child: IconButton(
-                onPressed: _selectImage, icon: const Icon(Icons.add_a_photo)),
-          ),
+              left: 80,
+              child: EditIcon(
+                icon: Icons.add_a_photo,
+                color: Theme.of(context).colorScheme.primary,
+                onTap: _selectImage,
+              )
+              // child: IconButton(
+              //     onPressed: _selectImage, icon: const Icon(Icons.add_a_photo)),
+              ),
         ],
       );
 
