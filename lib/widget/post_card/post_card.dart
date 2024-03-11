@@ -317,7 +317,10 @@ class _PostCardState extends State<PostCard> {
                     Icons.bookmark_added_rounded,
                     color: Theme.of(context).primaryColor,
                   )
-                : const Icon(Icons.bookmark_border_rounded))
+                : Icon(
+                    Icons.bookmark_border_rounded,
+                    color: Theme.of(context).primaryColor,
+                  ))
     ]);
   }
 

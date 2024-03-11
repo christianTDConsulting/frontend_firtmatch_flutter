@@ -173,9 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         body: SafeArea(
           child: Theme(
             data: Theme.of(context).copyWith(
-              primaryColor: Theme.of(context)
-                  .colorScheme
-                  .primary, // Definir el color del Stepper
+              primaryColor: Theme.of(context).colorScheme.primary,
             ),
             child: Form(
               key: _formKey,

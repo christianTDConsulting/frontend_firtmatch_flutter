@@ -98,14 +98,18 @@ class _mobileLayout extends State<mobileLayout> {
                     color: page == 0 ? primaryContainer : secondaryColor),
                 0),
             buildTabBarItem(
-                Icon(Icons.favorite,
+                Icon(Icons.explore,
                     color: page == 1 ? primaryContainer : secondaryColor),
                 1),
             buildTabBarItem(
-                Icon(Icons.fitness_center,
+                Icon(Icons.favorite,
                     color: page == 2 ? primaryContainer : secondaryColor),
                 2),
-            buildTabBarItem(getProfileIcon(3), 3),
+            buildTabBarItem(
+                Icon(Icons.fitness_center,
+                    color: page == 3 ? primaryContainer : secondaryColor),
+                3),
+            buildTabBarItem(getProfileIcon(4), 4),
           ],
           onTap: navigationTapped,
           currentIndex: page,

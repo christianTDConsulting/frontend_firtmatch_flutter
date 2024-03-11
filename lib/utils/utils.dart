@@ -1,10 +1,11 @@
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/providers/get_jwt_token.dart';
+import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
-import 'package:fit_match/screens/client/home/view_plantillas_post_screen.dart';
+import 'package:fit_match/screens/client/discover/view_plantillas_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/colors.dart';
@@ -144,6 +145,7 @@ List<RadioPreference<String>> durationOptions = [
 // for displaying screens
 List<Widget> buildHomeScreenItems(User user) {
   return [
+    HomeScreen(user: user),
     ViewTrainersScreen(user: user),
     const Text('b'),
     ViewTrainingScreen(user: user),

@@ -6,6 +6,7 @@ const loginUrl = '${url}verificar';
 
 // User Management
 const usuariosUrl = '${url}usuarios';
+const usuarioTokenUrl = '${url}usuarioToken';
 
 // Plantilla (Template) Management
 const plantillaPostsUrl = '${url}plantillaPosts';

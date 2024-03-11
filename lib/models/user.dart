@@ -1,14 +1,14 @@
 class User {
   final num user_id;
-  final String username;
-  final String email;
-  final String password;
-  final String profile_picture;
-  final DateTime birth;
+  String username;
+  String email;
+  String password;
+  String profile_picture;
+  DateTime birth;
   final num profile_id;
   String system;
   String? bio;
-  final bool public;
+  bool public;
 
   User({
     required this.user_id,
