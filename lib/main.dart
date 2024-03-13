@@ -13,7 +13,7 @@ import 'package:intl/date_symbol_data_local.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   String? token = await getToken(); // Obtener el token JWT
-  await ThemeProvider.instance.changeTheme(ThemeEnum.Light);
+  await ThemeProvider.instance.changeTheme(ThemeEnum.Dark);
   initializeDateFormatting('es_ES', null);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => PageState()),

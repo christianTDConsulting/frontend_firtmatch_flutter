@@ -159,6 +159,10 @@ String getExerciseLetter(int index) {
   return String.fromCharCode('A'.codeUnitAt(0) + index);
 }
 
+double fromKgToLbs(double kg) {
+  return double.parse((kg * 2.20462).toStringAsFixed(2));
+}
+
 // for getting system preference (imperial or metrico)
 Future<String> getSystem() async {
   String? token = await getToken();
@@ -170,6 +174,6 @@ Future<String> getSystem() async {
     throw Exception('Error al decodificar el token');
   } catch (e) {
     print('Error al decodificar el token: $e');
-    return 'Metrico';
+    return 'metrico';
   }
 }

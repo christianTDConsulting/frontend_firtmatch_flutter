@@ -1,5 +1,5 @@
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/screens/client/home/historial.dart';
+import 'package:fit_match/screens/client/home/historial/historial.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/card_option_home.dart';
 import 'package:flutter/material.dart';

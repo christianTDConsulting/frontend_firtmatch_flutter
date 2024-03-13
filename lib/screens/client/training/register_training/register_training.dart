@@ -38,7 +38,7 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     bool exito = await RegistroMethods().terminarRegistro(activeSessionId);
 
     if (exito) {
-      _navigateBack(context);
+      _navigateBack(context, reload: true);
     }
   }
 
@@ -140,38 +140,6 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
       isLoading = false;
     });
   }
-
-  // Future<bool> _onWillPop() async {
-  //   final shouldPop = await showDialog<bool>(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text('Estás seguro?'),
-  //       content: const Text('Perderás todo el progreso.'),
-  //       actions: <Widget>[
-  //         TextButton(
-  //           onPressed: () => Navigator.of(context).pop(
-  //               false), // Esto cierra el cuadro de diálogo devolviendo 'false'.
-  //           child: const Text('Cancelar'),
-  //         ),
-  //         TextButton(
-  //           onPressed: () {
-  //             Navigator.of(context).pop(
-  //                 true); // Esto cierra el cuadro de diálogo devolviendo 'true'.
-  //           },
-  //           child: const Text('Sí'),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-
-  //   // Si shouldPop es true, entonces navega hacia atrás.
-  //   if (shouldPop ?? false) {
-  //     _navigateBack(context);
-  //   }
-
-  //   return Future.value(
-  //       false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
-  // }
 
   void _navigateBack(BuildContext context, {bool reload = false}) {
     Navigator.pop(context, reload);
@@ -292,6 +260,7 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
               index: index,
               registerSessionId:
                   existingSession.registros!.first.registerSessionId,
+              system: widget.user.system,
               onAddSet: (set) => _onAddSet(set),
               onDeleteSet: (set, registro) => _onDeleteSet(set, registro),
               onUpdateSet: (set, index_registro) =>

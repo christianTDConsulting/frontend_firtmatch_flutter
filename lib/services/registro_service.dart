@@ -165,4 +165,28 @@ class RegistroMethods {
     );
     return response.statusCode == 200;
   }
+
+  Future<List<SesionEntrenamiento>> getSesionesWithRegisterByUserId(int userId,
+      {DateTime? fecha}) async {
+    String? fechaString = fecha?.toIso8601String();
+    // Construir la URI. Si 'fecha' no es nulo, añade el query parameter.
+    var uri = Uri.parse('$registrosSessionPlantillaUrl/$userId')
+        .replace(queryParameters: fecha != null ? {'date': fechaString} : {});
+
+    final response = await http.get(
+      uri,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final List jsonResponse = jsonDecode(response.body);
+      return jsonResponse
+          .map((data) => SesionEntrenamiento.fromJson(data))
+          .toList();
+    } else if (response.statusCode == 204) {
+      return [];
+    } else {
+      throw Exception('Error al obtener las sesiones: ${response.statusCode}');
+    }
+  }
 }

@@ -177,13 +177,18 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  _navigateToRegisterSession() {
+  _navigateToRegisterSession() async {
     if (_lastSessionRegistrada != null) {
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => RegisterTrainingScreen(
-                user: widget.user,
-                sessionId: _lastSessionRegistrada!.sessionId,
-              )));
+      final reload = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => RegisterTrainingScreen(
+          user: widget.user,
+          sessionId: _lastSessionRegistrada!.sessionId,
+        ),
+      ));
+
+      if (reload == true) {
+        _loadLastRegister();
+      }
     }
   }
 

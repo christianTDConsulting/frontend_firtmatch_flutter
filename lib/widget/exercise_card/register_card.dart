@@ -12,6 +12,7 @@ class RegisterCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;
   final int index;
   final int registerSessionId;
+  final String system;
   final Function(SetsEjerciciosEntrada) onAddSet;
   final Function(SetsEjerciciosEntrada, RegistroSet) onDeleteSet;
   final Function(SetsEjerciciosEntrada, int) onUpdateSet;
@@ -24,6 +25,7 @@ class RegisterCard extends StatefulWidget {
     required this.onDeleteSet,
     required this.onUpdateSet,
     required this.registerSessionId,
+    this.system = "metrico",
   }) : super(key: key);
 
   @override
@@ -244,6 +246,7 @@ class _RegisterCard extends State<RegisterCard> {
               return SetRow(
                 set: setEntrada,
                 registerSessionId: widget.registerSessionId,
+                system: widget.system,
                 onDeleteSet: () => widget.onDeleteSet(setEntrada, registro),
                 selectedRegisterType: ejercicioDetallado.registerTypeId,
                 registroIndex: registroIndex,
@@ -326,6 +329,7 @@ class SetRow extends StatefulWidget {
   final int selectedRegisterType;
   final int registerSessionId;
   final int registroIndex;
+  final String system;
 
   final Function(SetsEjerciciosEntrada) onUpdateSet;
   final Function() onDeleteSet;
@@ -338,6 +342,7 @@ class SetRow extends StatefulWidget {
     required this.onDeleteSet,
     required this.registerSessionId,
     required this.registroIndex,
+    required this.system,
   }) : super(key: key);
 
   @override
@@ -348,14 +353,14 @@ class _SetRowState extends State<SetRow> {
   late TextEditingController repsController;
   late TextEditingController weightController;
   Timer? _debounce;
-  String weightUnit = 'kg';
+  String weightUnit = '';
 
   @override
   void initState() {
     repsController = TextEditingController();
     weightController = TextEditingController();
 
-    _initWeightUnit();
+    weightUnit = widget.system == "metrico" ? 'kg' : 'lbs';
 
     super.initState();
   }
@@ -364,13 +369,6 @@ class _SetRowState extends State<SetRow> {
   void dispose() {
     _debounce?.cancel();
     super.dispose();
-  }
-
-  _initWeightUnit() async {
-    final system = await getSystem();
-    setState(() {
-      weightUnit = system == 'metrico' ? 'kg' : 'lbs';
-    });
   }
 
   _lengthRegistroSession() {
@@ -413,6 +411,9 @@ class _SetRowState extends State<SetRow> {
       } else {
         RegistroSet previousToLast = filteredSets.reduce((curr, next) =>
             curr.timestamp.isBefore(next.timestamp) ? curr : next);
+        widget.system == "metrico"
+            ? previousToLast.weight = previousToLast.weight!
+            : previousToLast.weight = fromKgToLbs(previousToLast.weight!);
         return previousToLast;
       }
     }
@@ -520,18 +521,18 @@ class _SetRowState extends State<SetRow> {
               onFieldSubmitted: (value) => _updateSet(value, 'minTime'),
             ),
           ),
+          minText,
           dash,
           Expanded(
             child: NumberInputField(
               controller: weightController,
-              label: "min",
+              label: weightUnit,
               hintText: previousToLastSet == null
                   ? weightUnit
                   : previousToLastSet!.weight.toString(),
               onFieldSubmitted: (value) => _updateSet(value, 'maxTime'),
             ),
           ),
-          minText,
         ];
       default: // Por defecto, solo repeticiones
         repsController.text = actualSet.reps.toString();
@@ -569,7 +570,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${widget.set.minReps?.toString() ?? '_'}-${widget.set.maxReps?.toString() ?? '_'} reps",
+              "${widget.set.minReps?.toString() ?? '_'} reps-${widget.set.maxReps?.toString() ?? '_'} reps",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -598,7 +599,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${widget.set.maxTime?.toString() ?? '_'}-${widget.set.maxTime?.toString() ?? '_'} min",
+              "${widget.set.maxTime?.toString() ?? '_'} min-${widget.set.maxTime?.toString() ?? '_'} min",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -627,15 +628,6 @@ class _SetRowState extends State<SetRow> {
 
     //  que previousToLastSet no es nulo
     switch (widget.selectedRegisterType) {
-      case 1: // Rango de repeticiones
-        return [
-          Expanded(
-            child: Text(
-              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} weightUnit",
-              overflow: TextOverflow.clip,
-            ),
-          ),
-        ];
       case 4: // AMRAP
         return [
           const Expanded(
@@ -659,7 +651,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousToLastSet!.time?.toString() ?? '_'} min x ${widget.set.maxTime?.toString() ?? '_'} weightUnit",
+              "${previousToLastSet!.time?.toString() ?? '_'} min x ${previousToLastSet!.weight?.toString() ?? '_'} $weightUnit",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -668,7 +660,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} weightUnit",
+              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} $weightUnit",
               overflow: TextOverflow.ellipsis,
             ),
           ),
