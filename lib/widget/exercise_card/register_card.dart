@@ -296,7 +296,9 @@ class NumberInputField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.number,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+      ],
       decoration: InputDecoration(
         border: borderStyle,
         labelText: label,
@@ -518,7 +520,7 @@ class _SetRowState extends State<SetRow> {
               hintText: previousToLastSet == null
                   ? "min"
                   : previousToLastSet!.time.toString(),
-              onFieldSubmitted: (value) => _updateSet(value, 'minTime'),
+              onFieldSubmitted: (value) => _updateSet(value, 'time'),
             ),
           ),
           minText,
@@ -530,7 +532,7 @@ class _SetRowState extends State<SetRow> {
               hintText: previousToLastSet == null
                   ? weightUnit
                   : previousToLastSet!.weight.toString(),
-              onFieldSubmitted: (value) => _updateSet(value, 'maxTime'),
+              onFieldSubmitted: (value) => _updateSet(value, 'weight'),
             ),
           ),
         ];

@@ -2,6 +2,7 @@ import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/home/historial/estadisticas_registro.dart';
 import 'package:fit_match/screens/client/training/register_training/register_training.dart';
 import 'package:fit_match/services/registro_service.dart';
 import 'package:fit_match/utils/utils.dart';
@@ -30,7 +31,7 @@ class RegistroHistorialCard extends StatelessWidget {
               ListTile(
                 trailing: Wrap(spacing: 12, children: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () => _verEstadisticas(context),
                     icon: const Icon(Icons.insert_chart_outlined_rounded),
                   ),
                   PopupMenuButton<String>(
@@ -218,7 +219,7 @@ class RegistroHistorialCard extends StatelessWidget {
   void _handleMenuItemSelected(String value, BuildContext context) {
     switch (value) {
       case 'stats':
-        _verEstadisticas();
+        _verEstadisticas(context);
         break;
       case 'delete':
         _onWillPop(context);
@@ -269,15 +270,23 @@ class RegistroHistorialCard extends StatelessWidget {
       case 4: // AMRAP
         return "Set $setNumber: AMRAP";
       case 5: // tiempo
-        return "Set $setNumber: ${registroSet.time ?? 0} min";
+        return "Set $setNumber: ${registroSet.time?.toStringAsFixed(2) ?? 0} min";
       case 6: // rango de tiempo
-        return "Set $setNumber: ${registroSet.time ?? 0} min x ${registroSet.weight ?? 0} $unit";
+        return "Set $setNumber: ${registroSet.time?.toStringAsFixed(2) ?? '0'} min x ${registroSet.weight ?? '0'} $unit";
       default:
         return "Set $setNumber: ${registroSet.reps ?? 0} reps x ${registroSet.weight ?? 0} $unit";
     }
   }
 
-  void _verEstadisticas() {}
+  void _verEstadisticas(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => EstadisticasRegistroScreen(
+                  session: session,
+                  user: user,
+                )));
+  }
 
   void _eliminarRegistro() async {
     print("Eliminando registro");

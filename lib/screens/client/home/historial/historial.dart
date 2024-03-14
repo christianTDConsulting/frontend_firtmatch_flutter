@@ -54,7 +54,7 @@ class _ViewHistorialScreen extends State<ViewHistorialScreen> {
     });
     List<SesionEntrenamiento> sesiones = await RegistroMethods()
         .getSesionesWithRegisterByUserId(widget.user.user_id as int,
-            fecha: this.selectedDay);
+            fecha: selectedDay);
 
     setState(() {
       this.selectedDay = selectedDay;
@@ -209,17 +209,18 @@ class _ViewHistorialScreen extends State<ViewHistorialScreen> {
                   children: [
                     Text(
                       day.day.toString(),
-                      style: const TextStyle(
-                          color: Colors
-                              .yellow), // Cambia el color del número del día
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.orange
+                            : Colors.yellow,
+                      ),
                     ),
-                    const Text(
+                    Text(
                       'Hoy',
                       style: TextStyle(
-                        color: Colors.yellow, // Color de la etiqueta "Hoy"
-
-                        fontSize:
-                            10, // Ajusta el tamaño del texto según necesites
+                        color: Theme.of(context).brightness == Brightness.light
+                            ? Colors.orange
+                            : Colors.yellow,
                       ),
                     ),
                   ],
