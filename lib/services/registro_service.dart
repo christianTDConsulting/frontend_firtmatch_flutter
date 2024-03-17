@@ -5,17 +5,15 @@ import 'package:http/http.dart' as http;
 import 'package:fit_match/utils/backend_urls.dart';
 
 class RegistroMethods {
-  Future<List<RegistroDeSesion>> getAllRegistersByUserIdAndExerciseId(
-      int userId, int exerciseId) async {
+  Future<List<RegistroSet>> getAllRegistersByUserIdAndDetailedExerciseId(
+      int userId, int detailedExerciseId) async {
     final response = await http.get(
-      Uri.parse('$registrosUrl/$userId/$exerciseId'),
+      Uri.parse('$registrosUrl/$userId/$detailedExerciseId'),
       headers: {'Content-Type': 'application/json'},
     );
     if (response.statusCode == 200) {
       final List<dynamic> jsonResponse = jsonDecode(response.body);
-      return jsonResponse
-          .map((data) => RegistroDeSesion.fromJson(data))
-          .toList();
+      return jsonResponse.map((data) => RegistroSet.fromJson(data)).toList();
     } else {
       throw Exception(
           'Error al obtener los registros. Código de estado: ${response.statusCode}');
