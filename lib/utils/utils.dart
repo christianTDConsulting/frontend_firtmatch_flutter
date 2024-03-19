@@ -8,7 +8,6 @@ import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/discover/view_plantillas_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -69,8 +68,9 @@ String formatTimeAgo(DateTime timestamp) {
 void showToast(BuildContext context, String message, {bool exitoso = true}) {
   final snackBar = SnackBar(
     content: Text(message,
-        style:
-            const TextStyle(color: primaryColor, fontWeight: FontWeight.bold)),
+        style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold)),
     backgroundColor: exitoso ? Colors.green : Colors.red,
     behavior: SnackBarBehavior.floating,
     duration: const Duration(seconds: 2),

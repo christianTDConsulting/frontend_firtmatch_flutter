@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/services/auth_service.dart';
 
 import 'package:fit_match/utils/utils.dart';
@@ -294,22 +293,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTitle() => const Text(
+  Widget _buildTitle() => Text(
         'Bienvenido a Fit-Match',
         style: TextStyle(
-            fontSize: 24, fontWeight: FontWeight.bold, color: primaryColor),
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary),
       );
 
   Widget _buildLogo() => Image.asset(
         'assets/images/logo.png',
-        color: primaryColor,
+        color: Theme.of(context).colorScheme.primary,
         height: 32,
       );
 
-  Widget _buildDescription() => const Text(
+  Widget _buildDescription() => Text(
         'Para empezar a usar Fit-Match, rellena los siguientes datos ',
         style: TextStyle(
-            fontSize: 12, fontWeight: FontWeight.bold, color: primaryColor),
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary),
       );
 
   Widget _buildImageSelector() => Stack(

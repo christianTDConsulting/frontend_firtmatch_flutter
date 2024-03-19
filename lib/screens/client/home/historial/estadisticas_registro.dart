@@ -4,8 +4,10 @@ import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/registro_service.dart';
 import 'package:fit_match/utils/utils.dart';
+import 'package:fit_match/widget/charts/line_chart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class EstadisticasRegistroScreen extends StatefulWidget {
   final User user;
@@ -38,6 +40,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
 
   @override
   void dispose() {
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -91,19 +94,25 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
         for (var exercise in group.ejerciciosDetallados) {
           dropdownItems.add(
             DropdownMenuItem(
-              value: exercise.detailedExerciseId,
-              child: Text(
+                value: exercise.detailedExerciseId,
+                child: Text(
                   exercise.ejercicio != null
                       ? exercise.ejercicio!.name
                       : "Ejercicio no especificado",
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  )),
-            ),
+                    color: Theme.of(context).brightness == Brightness.light
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.primary,
+                  ),
+                )),
           );
         }
       }
     }
+    int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
+
+    List<FlSpot> spots = getSpotsFromRegistros(registros, registerTypeId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -117,11 +126,19 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
             children: [
               // DropdownButton aquí
               DropdownButton<int>(
-                iconEnabledColor: Theme.of(context).colorScheme.onPrimary,
+                //if is dark
+                iconEnabledColor:
+                    Theme.of(context).brightness == Brightness.light
+                        ? Theme.of(context).colorScheme.onPrimary
+                        : Theme.of(context).colorScheme.primary,
                 value:
                     selectedEjercicioId, // Asegúrate de definir y manejar esta variable
-                dropdownColor: Theme.of(context).colorScheme.primary,
-                focusColor: Theme.of(context).colorScheme.primary,
+                dropdownColor: Theme.of(context).brightness == Brightness.light
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.background,
+                focusColor: Theme.of(context).brightness == Brightness.light
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.background,
                 onChanged: (int? newValue) {
                   onEjercicioChanged(newValue);
                 },
@@ -147,7 +164,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
         children: [
           isLoading
               ? const Center(child: CircularProgressIndicator())
-              : buildGraphView(context),
+              : Center(child: buildGraphView(context)),
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : buildListView(context),
@@ -156,13 +173,41 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     );
   }
 
-  Widget buildGraphView(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(),
-      ),
+  Widget buildGraphView(
+    BuildContext context,
+  ) {
+    int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
+    return LineChartSample(
+      registroSet: registros,
+      registerTypeId: registerTypeId,
+      system: widget.user.system,
     );
+  }
+
+  List<FlSpot> getSpotsFromRegistros(
+      List<RegistroSet> registros, int registerTypeId) {
+    return registros.asMap().entries.map((entry) {
+      int index = entry.key;
+      double value = 0.0; // Inicialización predeterminada
+      double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
+
+      switch (registerTypeId) {
+        case 4: // AMRAP: usar 'reps'
+          value = entry.value.reps?.toDouble() ?? 0.0;
+          break;
+        case 5:
+          value = entry.value.time ?? 0.0;
+        case 6:
+          value = entry.value.time ?? 0.0;
+          break;
+        default: // Otro tipo: usar 'weight' si eso tiene sentido
+          value = (entry.value.weight?.toDouble() ?? 0.0) *
+              (entry.value.reps?.toDouble() ?? 0.0);
+          break;
+      }
+
+      return FlSpot(date, value);
+    }).toList();
   }
 
   Widget buildListView(BuildContext context) {
@@ -190,60 +235,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
                 final registro = registros[index];
 
                 // Determina los widgets a incluir basado en el tipo de registro
-                List<Widget> rowContent = [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      DateFormat.yMMMMd('es_ES').format(registro.timestamp),
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  ),
-                ];
-
-                switch (_getRegisterTypeOfActiveDetailedExercise()) {
-                  case 4: // AMRAP
-                    rowContent.add(const Expanded(
-                      child: Text("AMRAP",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                    ));
-                    break;
-                  case 5: // Tiempo
-                    rowContent.add(Expanded(
-                      child: Text("${registro.time} min",
-                          style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ));
-                    break;
-                  case 6: // Rango de tiempo
-                    rowContent.addAll([
-                      Expanded(
-                        child: Text("${registro.time} min",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      Expanded(
-                        child: Text(
-                            "${_getWeight(registro.weight!)} ${_getSystemUnit()}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ]);
-                    break;
-                  default: // Otro tipo
-                    rowContent.addAll([
-                      Expanded(
-                        child: Text("${registro.reps} reps",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      Expanded(
-                        child: Text(
-                            "${_getWeight(registro.weight!)} ${_getSystemUnit()}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ]);
-                }
+                List<Widget> rowContent = buildListViewRowContent(registro);
 
                 return ListTile(
                   title: Row(
@@ -336,6 +328,62 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     }
   }
 
+  List<Widget> buildListViewRowContent(RegistroSet registro) {
+    // Lista inicial con el widget de fecha, presente en todos los registros
+    List<Widget> rowContent = [
+      Expanded(
+        flex: 2,
+        child: Text(
+          DateFormat.yMMMMd('es_ES').format(registro.timestamp),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+      ),
+    ];
+
+    switch (_getRegisterTypeOfActiveDetailedExercise()) {
+      case 4: // AMRAP
+        rowContent.add(
+          const Expanded(
+            child: Text("AMRAP", style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        );
+        break;
+      case 5: // Tiempo
+        rowContent.add(
+          Expanded(
+            child: Text("${registro.time} min",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        );
+        break;
+      case 6: // Rango de tiempo
+        rowContent.addAll([
+          Expanded(
+            child: Text("${registro.time} min",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          Expanded(
+            child: Text("${_getWeight(registro.weight!)} ${_getSystemUnit()}",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ]);
+        break;
+      default: // Otro tipo
+        rowContent.addAll([
+          Expanded(
+            child: Text("${registro.reps} reps",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          Expanded(
+            child: Text("${_getWeight(registro.weight!)} ${_getSystemUnit()}",
+                style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ]);
+    }
+
+    return rowContent;
+  }
+
   List<Widget> buildTitleListView(int registerTypeId) {
     // Obtener los widgets basados en el tipo de registro
     List<Widget> titles = _getTitlesBasedInRegisterType(registerTypeId);
@@ -343,6 +391,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     // Comenzamos con el widget de 'Fecha'
     List<Widget> listViewTitles = [
       const Expanded(
+        flex: 2,
         child: Text(
           'Fecha',
           style: TextStyle(
@@ -374,3 +423,83 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     }
   }
 }
+
+
+
+
+ // return Padding(
+    //   padding: const EdgeInsets.all(8.0),
+    //   child: LineChart(
+    //     LineChartData(
+    //       gridData: const FlGridData(show: false),
+    //       titlesData: FlTitlesData(
+    //         bottomTitles: AxisTitles(
+    //           sideTitles: SideTitles(
+    //             showTitles: true,
+    //             getTitlesWidget: (value, meta) {
+    //               // Formato para el eje X (tiempo)
+    //               final DateTime date =
+    //                   DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    //               return SideTitleWidget(
+    //                 axisSide: meta.axisSide,
+    //                 child: Text(DateFormat.MMMd().format(date)),
+    //               );
+    //             },
+    //             reservedSize: 32,
+    //           ),
+    //         ),
+    //         leftTitles: AxisTitles(
+    //           sideTitles: SideTitles(
+    //             showTitles: true,
+    //             getTitlesWidget: (value, meta) {
+    //               // Etiquetas para el eje Y varían según el tipo de registro
+    //               String title = "";
+    //               switch (registerTypeId) {
+    //                 case 4: // AMRAP: 'Reps'
+    //                   title = "$value";
+    //                   break;
+    //                 case 5: // Tiempo: 'Minutos'
+    //                   title = "${value.toInt()} min";
+    //                   break;
+    //                 case 6: // Rango de tiempo: igual que tiempo
+    //                   title = "${value.toInt()} min";
+    //                   break;
+    //                 default: // Otro tipo: 'Peso'
+    //                   title = "$value kg";
+    //                   break;
+    //               }
+    //               return SideTitleWidget(
+    //                 axisSide: meta.axisSide,
+    //                 child: Text(title),
+    //               );
+    //             },
+    //             reservedSize: 40,
+    //           ),
+    //         ),
+    //       ),
+    //       borderData: FlBorderData(show: false),
+    //       lineBarsData: [
+    //         LineChartBarData(
+    //           spots: spots,
+    //           isCurved: true,
+    //           color: Theme.of(context).colorScheme.primary,
+    //           dotData: const FlDotData(show: true),
+    //           belowBarData: BarAreaData(show: false),
+    //         ),
+    //       ],
+    //       lineTouchData: const LineTouchData(
+    //         enabled: true,
+    //         touchTooltipData: LineTouchTooltipData(
+    //             // Configuraciones para el tooltip al tocar
+    //             ),
+    //       ),
+    //       // Habilitar el zoom y el desplazamiento
+    //       // Ajusta el rango de zoom y el rango de desplazamiento según lo necesites
+    //       minX: minX,
+    //       maxX: minX + visibleRangeX, // Ajuste basado en el factor de zoom
+    //       minY: minY,
+    //       maxY: minY + visibleRangeY, // Ajuste basado en el factor de zoom
+    //       clipData: const FlClipData.all(),
+    //     ),
+    //   ),
+    // );

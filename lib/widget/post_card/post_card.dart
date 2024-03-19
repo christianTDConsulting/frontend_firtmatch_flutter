@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:fit_match/utils/dimensions.dart';
-import 'package:fit_match/utils/colors.dart';
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/widget/expandable_text.dart';
 import '../../models/review.dart';
@@ -281,7 +280,8 @@ class _PostCardState extends State<PostCard> {
       width: width > webScreenSize ? 500 : 250,
       height: width > webScreenSize ? 500 : 250,
       decoration: BoxDecoration(
-        border: Border.all(color: primaryColor, width: 2),
+        border:
+            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
       ),
       child: Image.network(
         widget.post.picture ?? '',
@@ -393,13 +393,14 @@ class _PostCardState extends State<PostCard> {
                 ? TextButton(
                     onPressed: _showReviews,
                     style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(secondaryColor),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.secondary),
                     ),
                     child: Text(
                       "Ver todas las reseñas",
-                      style:
-                          const TextStyle(color: secondaryColor, fontSize: 14),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 14),
                       textScaler: width < webScreenSize
                           ? const TextScaler.linear(0.9)
                           : const TextScaler.linear(1.2),

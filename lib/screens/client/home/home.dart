@@ -1,4 +1,5 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/home/analiticas/medidas.dart';
 import 'package:fit_match/screens/client/home/historial/historial.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/widget/card_option_home.dart';
@@ -37,7 +38,11 @@ class _HomeScreen extends State<HomeScreen> {
   }
 
   void _navigateToMedidas() {
-    print("Medidas");
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => MedidasScreen(
+        user: widget.user,
+      ),
+    ));
   }
 
   //SCREEN
