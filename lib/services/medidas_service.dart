@@ -1,37 +1,53 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:fit_match/models/medidas.dart';
+import 'package:fit_match/utils/backend_urls.dart';
 import 'package:http/http.dart' as http;
 
-class PlantillaPostsMethods {
+class MedidasMethods {
   Future<void> createMedidas({
     required Medidas medidas,
-    Uint8List? picture,
+    List<Uint8List>? pictures,
   }) async {
-    var uri = Uri.parse('http://yourbackend/api/medidas');
-    var request = http.MultipartRequest('POST', uri)
-      ..fields['user_id'] = medidas.userId.toString()
-      ..fields['left_arm'] = medidas.leftArm?.toString() ?? ''
-      ..fields['right_arm'] = medidas.rightArm?.toString() ?? ''
-      ..fields['shoulders'] = medidas.shoulders?.toString() ?? ''
-      ..fields['neck'] = medidas.neck?.toString() ?? ''
-      ..fields['chest'] = medidas.chest?.toString() ?? ''
-      ..fields['waist'] = medidas.waist?.toString() ?? ''
-      ..fields['upper_left_leg'] = medidas.upperLeftLeg?.toString() ?? ''
-      ..fields['upper_right_leg'] = medidas.upperRightLeg?.toString() ?? ''
-      ..fields['left_calve'] = medidas.leftCalve?.toString() ?? ''
-      ..fields['right_calve'] = medidas.rightCalve?.toString() ?? ''
-      ..fields['weight'] = medidas.weight?.toString() ?? ''
-      ..fields['timestamp'] = medidas.timestamp?.toIso8601String() ?? '';
+    var uri = Uri.parse(medidasUrl);
+    var request = http.MultipartRequest('POST', uri);
 
-    // Añade la imagen si existe
-    if (picture != null) {
-      var pictureStream = http.ByteStream(Stream.value(picture));
-      var pictureLength = picture.length;
-      var multipartFile = http.MultipartFile(
-          'picture', pictureStream, pictureLength,
-          filename: 'medida_picture.jpg');
-      request.files.add(multipartFile);
+    // Función auxiliar para añadir campos si no están vacíos
+    void addFieldIfNotEmpty(String fieldName, String? value) {
+      if (value?.isNotEmpty ?? false) {
+        request.fields[fieldName] = value!;
+      }
+    }
+
+    // Añadir campos condicionalmente
+    addFieldIfNotEmpty('user_id', medidas.userId?.toString());
+    addFieldIfNotEmpty('left_arm', medidas.leftArm?.toString());
+    addFieldIfNotEmpty('right_arm', medidas.rightArm?.toString());
+    addFieldIfNotEmpty('shoulders', medidas.shoulders?.toString());
+    addFieldIfNotEmpty('neck', medidas.neck?.toString());
+    addFieldIfNotEmpty('chest', medidas.chest?.toString());
+    addFieldIfNotEmpty('waist', medidas.waist?.toString());
+    addFieldIfNotEmpty('upper_left_leg', medidas.upperLeftLeg?.toString());
+    addFieldIfNotEmpty('upper_right_leg', medidas.upperRightLeg?.toString());
+    addFieldIfNotEmpty('left_calve', medidas.leftCalve?.toString());
+    addFieldIfNotEmpty('right_calve', medidas.rightCalve?.toString());
+    addFieldIfNotEmpty('weight', medidas.weight?.toString());
+    addFieldIfNotEmpty('timestamp', medidas.timestamp?.toIso8601String());
+
+    // Añade las imágenes si existen
+    if (pictures != null && pictures.isNotEmpty) {
+      for (var i = 0; i < pictures.length; i++) {
+        var picture = pictures[i];
+        var pictureStream = http.ByteStream(Stream.value(picture));
+        var pictureLength = picture.length;
+        var multipartFile = http.MultipartFile(
+          'picture[]', // Usar 'picture[]' para indicar un arreglo
+          pictureStream,
+          pictureLength,
+          filename: 'medida_picture_$i.jpg',
+        );
+        request.files.add(multipartFile);
+      }
     }
 
     // Enviar el request
@@ -43,7 +59,7 @@ class PlantillaPostsMethods {
   }
 
   Future<void> deleteMedidas(int medidaId) async {
-    var uri = Uri.parse('http://yourbackend/api/medidas/$medidaId');
+    var uri = Uri.parse('$medidasUrl/$medidaId');
     var response = await http.delete(uri);
 
     if (response.statusCode != 200) {
@@ -52,12 +68,12 @@ class PlantillaPostsMethods {
   }
 
   Future<List<Medidas>> getAllMedidas(int userId) async {
-    var uri = Uri.parse('http://yourbackend/api/medidas/$userId');
+    var uri = Uri.parse('$medidasUrl/$userId');
     var response = await http.get(uri);
 
     if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      return body.map((e) => Medidas.fromJson(e)).toList();
+      final List<dynamic> jsonData = json.decode(response.body) as List;
+      return jsonData.map((e) => Medidas.fromJson(e)).toList();
     } else if (response.statusCode == 204) {
       return [];
     } else {
@@ -66,24 +82,51 @@ class PlantillaPostsMethods {
   }
 
   Future<void> updateMedidas({
-    required int medidaId,
-    required double weight, // Agrega más parámetros según sean necesarios
-    Uint8List? picture,
+    required Medidas medidas,
+    List<Uint8List>? pictures,
   }) async {
-    var uri = Uri.parse('http://yourbackend/api/medidas/$medidaId');
-    var request = http.MultipartRequest('PUT', uri)
-      ..fields['weight'] =
-          weight.toString(); // Agrega más campos según sean necesarios
+    var uri = Uri.parse('medidasUrl/${medidas.measurementId}');
+    var request = http.MultipartRequest('PUT', uri);
 
-    if (picture != null) {
-      var pictureStream = http.ByteStream(Stream.value(picture));
-      var pictureLength = picture.length;
-      var multipartFile = http.MultipartFile(
-          'picture', pictureStream, pictureLength,
-          filename: 'medida_update_picture.jpg');
-      request.files.add(multipartFile);
+    // Función auxiliar para añadir campos si no están vacíos
+    void addFieldIfNotEmpty(String fieldName, String? value) {
+      if (value?.isNotEmpty ?? false) {
+        request.fields[fieldName] = value!;
+      }
     }
 
+    // Añadir campos condicionalmente
+    addFieldIfNotEmpty('user_id', medidas.userId?.toString());
+    addFieldIfNotEmpty('left_arm', medidas.leftArm?.toString());
+    addFieldIfNotEmpty('right_arm', medidas.rightArm?.toString());
+    addFieldIfNotEmpty('shoulders', medidas.shoulders?.toString());
+    addFieldIfNotEmpty('neck', medidas.neck?.toString());
+    addFieldIfNotEmpty('chest', medidas.chest?.toString());
+    addFieldIfNotEmpty('waist', medidas.waist?.toString());
+    addFieldIfNotEmpty('upper_left_leg', medidas.upperLeftLeg?.toString());
+    addFieldIfNotEmpty('upper_right_leg', medidas.upperRightLeg?.toString());
+    addFieldIfNotEmpty('left_calve', medidas.leftCalve?.toString());
+    addFieldIfNotEmpty('right_calve', medidas.rightCalve?.toString());
+    addFieldIfNotEmpty('weight', medidas.weight?.toString());
+    addFieldIfNotEmpty('timestamp', medidas.timestamp?.toIso8601String());
+
+    // Añade las imágenes si existen
+    if (pictures != null && pictures.isNotEmpty) {
+      for (var i = 0; i < pictures.length; i++) {
+        var picture = pictures[i];
+        var pictureStream = http.ByteStream(Stream.value(picture));
+        var pictureLength = picture.length;
+        var multipartFile = http.MultipartFile(
+          'picture[]', // Nota el uso de corchetes para indicar un arreglo
+          pictureStream,
+          pictureLength,
+          filename: 'medida_update_picture_$i.jpg',
+        );
+        request.files.add(multipartFile);
+      }
+    }
+
+    // Enviar el request
     var response = await request.send();
 
     if (response.statusCode != 200) {

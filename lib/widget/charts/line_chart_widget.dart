@@ -38,7 +38,7 @@ class _LineChartSample extends State<LineChartSample> {
   List<FlSpot> getSpotsFromRegistros(
       List<RegistroSet> registros, int registerTypeId) {
     return registros.asMap().entries.map((entry) {
-      int index = entry.key;
+      // int index = entry.key;
       double value = 0.0; // Inicialización predeterminada
 
       double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();

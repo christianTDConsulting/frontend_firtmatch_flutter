@@ -15,10 +15,10 @@ class Medidas {
   final List<FotosProgreso>? fotosProgreso;
   final DateTime? timestamp; //null para crear
 
-  Medidas(
-    this.timestamp, {
-    this.measurementId,
+  Medidas({
+    this.timestamp,
     required this.userId,
+    this.measurementId,
     this.leftArm,
     this.rightArm,
     this.shoulders,
@@ -35,7 +35,8 @@ class Medidas {
 
   factory Medidas.fromJson(Map<String, dynamic> json) {
     return Medidas(
-      json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
+      timestamp:
+          json['timestamp'] != null ? DateTime.parse(json['timestamp']) : null,
       measurementId: json['measurement_id'],
       userId: json['user_id'],
       leftArm: json['left_arm']?.toDouble(),

@@ -5,6 +5,7 @@ import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/expandable_text.dart';
+import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -269,63 +270,6 @@ class _RegisterCard extends State<RegisterCard> {
   }
 }
 
-class NumberInputField extends StatelessWidget {
-  final Function(String) onFieldSubmitted;
-  final String? hintText;
-  final String? label;
-  final TextEditingController? controller;
-
-  const NumberInputField({
-    Key? key,
-    required this.onFieldSubmitted,
-    this.hintText,
-    this.controller,
-    this.label,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Estilo personalizado para el borde del campo de texto
-    OutlineInputBorder borderStyle = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8), // Bordes redondeados
-      borderSide: BorderSide(
-        color: Colors.grey.shade300, // Color del borde
-      ),
-    );
-
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-      ],
-      decoration: InputDecoration(
-        border: borderStyle,
-        labelText: label,
-        enabledBorder: borderStyle,
-        focusedBorder: borderStyle.copyWith(
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor,
-            width: 2,
-          ),
-        ),
-        errorBorder: borderStyle.copyWith(
-          borderSide: const BorderSide(
-            color: Colors.red,
-          ),
-        ),
-        hintText: hintText,
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.background,
-      ),
-      textAlign: TextAlign.center,
-      onChanged: onFieldSubmitted,
-    );
-  }
-}
-
 class SetRow extends StatefulWidget {
   final SetsEjerciciosEntrada set;
   final int selectedRegisterType;
@@ -469,7 +413,7 @@ class _SetRowState extends State<SetRow> {
         weightController.text = actualSet.weight?.toString() ?? '';
         return [
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               hintText: previousToLastSet == null
                   ? "reps"
                   : previousToLastSet!.reps.toString(),
@@ -480,7 +424,7 @@ class _SetRowState extends State<SetRow> {
           ),
           dash,
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               controller: weightController,
               hintText: previousToLastSet == null
                   ? weightUnit
@@ -498,7 +442,7 @@ class _SetRowState extends State<SetRow> {
         weightController.text = actualSet.time?.toString() ?? '';
         return [
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               controller: weightController,
               label: "min",
               hintText: previousToLastSet == null
@@ -514,7 +458,7 @@ class _SetRowState extends State<SetRow> {
         weightController.text = actualSet.weight?.toString() ?? '';
         return [
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               controller: repsController,
               label: "min",
               hintText: previousToLastSet == null
@@ -526,7 +470,7 @@ class _SetRowState extends State<SetRow> {
           minText,
           dash,
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               controller: weightController,
               label: weightUnit,
               hintText: previousToLastSet == null
@@ -542,7 +486,7 @@ class _SetRowState extends State<SetRow> {
 
         return [
           Expanded(
-            child: NumberInputField(
+            child: DoubleInputField(
               label: "reps",
               hintText: previousToLastSet == null
                   ? "reps"
@@ -553,7 +497,7 @@ class _SetRowState extends State<SetRow> {
           ),
           dash,
           Expanded(
-              child: NumberInputField(
+              child: DoubleInputField(
             label: weightUnit,
             hintText: previousToLastSet == null
                 ? weightUnit

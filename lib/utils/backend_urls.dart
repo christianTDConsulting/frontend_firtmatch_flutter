@@ -70,3 +70,6 @@ const registrosSessionUrl = '${url}registrosSession';
 const sessionRegistrosUrl = '${url}sesionRegistros';
 const registroSessionAnteriorUrl = '${url}registroSessionAnterior';
 const registrosSessionPlantillaUrl = '${url}registrosSessionPlantilla';
+
+//medidas
+const medidasUrl = '${url}medidas';
