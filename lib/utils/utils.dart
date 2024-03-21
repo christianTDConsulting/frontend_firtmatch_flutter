@@ -159,21 +159,16 @@ String getExerciseLetter(int index) {
   return String.fromCharCode('A'.codeUnitAt(0) + index);
 }
 
+// for getting kg to lbs and viceversa
+
 double fromKgToLbs(double kg) {
   return double.parse((kg * 2.20462).toStringAsFixed(2));
 }
 
-// for getting system preference (imperial or metrico)
-Future<String> getSystem() async {
-  String? token = await getToken();
-  try {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!);
-    if (decodedToken.containsKey('user')) {
-      return decodedToken['user']['system'];
-    }
-    throw Exception('Error al decodificar el token');
-  } catch (e) {
-    print('Error al decodificar el token: $e');
-    return 'metrico';
-  }
+double fromCmToInches(double cm) {
+  return double.parse((cm * 0.393701).toStringAsFixed(2));
 }
+
+// for displaying all medidas atributes on a dropdown 
+
+

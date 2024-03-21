@@ -3,6 +3,8 @@ class Medidas {
   final int userId;
   final double? leftArm;
   final double? rightArm;
+  final double? leftForearm;
+  final double? rightForearm;
   final double? shoulders;
   final double? neck;
   final double? chest;
@@ -21,6 +23,8 @@ class Medidas {
     this.measurementId,
     this.leftArm,
     this.rightArm,
+    this.leftForearm,
+    this.rightForearm,
     this.shoulders,
     this.neck,
     this.chest,
@@ -41,6 +45,8 @@ class Medidas {
       userId: json['user_id'],
       leftArm: json['left_arm']?.toDouble(),
       rightArm: json['right_arm']?.toDouble(),
+      leftForearm: json['left_forearm']?.toDouble(),
+      rightForearm: json['right_forearm']?.toDouble(),
       shoulders: json['shoulders']?.toDouble(),
       neck: json['neck']?.toDouble(),
       chest: json['chest']?.toDouble(),
@@ -104,4 +110,10 @@ class FotosProgreso {
       'imagen': imagen,
     };
   }
+}
+
+class StatMedida {
+  final double value;
+  final DateTime date;
+  StatMedida({required this.value, required this.date});
 }

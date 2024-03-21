@@ -1,7 +1,9 @@
 import 'package:fit_match/models/medidas.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/home/analiticas/estadisticas_medidas.dart';
 import 'package:fit_match/screens/client/home/analiticas/nuevasMedidas.dart';
 import 'package:fit_match/services/medidas_service.dart';
+import 'package:fit_match/widget/exercise_card/medida_card.dart';
 import 'package:flutter/material.dart';
 
 class MedidasScreen extends StatefulWidget {
@@ -20,7 +22,6 @@ class _MedidasScreen extends State<MedidasScreen> {
   bool isLoading = true;
   List<Medidas> medidas = [];
 
-  @override
   @override
   void initState() {
     _initMedidas();
@@ -92,8 +93,6 @@ class _MedidasScreen extends State<MedidasScreen> {
               buttonAdd("Añadir nuevas medidas", () => _addMedida(context),
                   Icons.add),
               const SizedBox(height: 20),
-              buttonAdd("Ver estadísticas", () {}, Icons.bar_chart),
-              const SizedBox(height: 20),
               const Text(
                 'No hay datos Todavía',
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
@@ -103,26 +102,30 @@ class _MedidasScreen extends State<MedidasScreen> {
         ),
       );
     } else {
-      return Column(
-        children: [
-          buttonAdd(
-              "Añadir nuevas medidas", () => _addMedida(context), Icons.add),
-          Expanded(
-            // Wrap the ListView in an Expanded widget
-            child: ListView.builder(
-              itemCount: medidas.length,
-              itemBuilder: (context, index) {
-                return cardMedida(context, medidas[index]);
-              },
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            buttonAdd(
+              "Añadir nuevas medidas",
+              () => _addMedida(context),
+              Icons.add,
             ),
-          ),
-        ],
+            buttonAdd(
+              "Ver estadísticas",
+              () => _viewEstadistica(context),
+              Icons.bar_chart,
+            ),
+            const SizedBox(height: 20),
+            Column(
+              children: medidas
+                  .map(
+                      (medida) => MedidaCard(medida: medida, user: widget.user))
+                  .toList(),
+            ),
+          ],
+        ),
       );
     }
-  }
-
-  Widget cardMedida(BuildContext context, Medidas medida) {
-    return Container();
   }
 
   _addMedida(BuildContext context) {
@@ -130,6 +133,18 @@ class _MedidasScreen extends State<MedidasScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => NuevaMedidaScreen(user: widget.user),
+      ),
+    );
+  }
+
+  _viewEstadistica(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EstadisticasMedidasScreen(
+          user: widget.user,
+          medidas: medidas,
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:fit_match/screens/client/training/view_training_sessions/exercis
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
+
 import 'package:fit_match/widget/exercise_card/exercise_card.dart';
 import 'package:fit_match/widget/exercise_card/reorder_exercise_card.dart';
 import 'package:flutter/material.dart';

@@ -41,7 +41,7 @@ class MedidasMethods {
         var pictureStream = http.ByteStream(Stream.value(picture));
         var pictureLength = picture.length;
         var multipartFile = http.MultipartFile(
-          'picture[]', // Usar 'picture[]' para indicar un arreglo
+          'pictures', // Usar 'picture[]' para indicar un arreglo
           pictureStream,
           pictureLength,
           filename: 'medida_picture_$i.jpg',
@@ -117,7 +117,7 @@ class MedidasMethods {
         var pictureStream = http.ByteStream(Stream.value(picture));
         var pictureLength = picture.length;
         var multipartFile = http.MultipartFile(
-          'picture[]', // Nota el uso de corchetes para indicar un arreglo
+          'pictures',
           pictureStream,
           pictureLength,
           filename: 'medida_update_picture_$i.jpg',

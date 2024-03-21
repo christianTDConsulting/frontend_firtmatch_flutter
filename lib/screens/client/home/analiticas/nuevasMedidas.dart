@@ -45,6 +45,9 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
   final _leftArmController = TextEditingController();
   final _rightArmController = TextEditingController();
 
+  final _leftForearmController = TextEditingController();
+  final _rightForearmController = TextEditingController();
+
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final List<XFile>? selectedImages = await _picker.pickMultiImage();
@@ -68,6 +71,8 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
     _rightCalfController.dispose();
     _leftArmController.dispose();
     _rightArmController.dispose();
+    _leftForearmController.dispose();
+    _rightForearmController.dispose();
     super.dispose();
   }
 
@@ -82,7 +87,9 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
         _leftCalfController.text.isEmpty &&
         _rightCalfController.text.isEmpty &&
         _leftArmController.text.isEmpty &&
-        _rightArmController.text.isEmpty) {
+        _rightArmController.text.isEmpty &&
+        _leftForearmController.text.isEmpty &&
+        _rightForearmController.text.isEmpty) {
       return true;
     } else {
       return false;
@@ -125,6 +132,12 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
       rightArm: _rightArmController.text.isEmpty
           ? null
           : double.tryParse(_rightArmController.text),
+      leftForearm: _leftForearmController.text.isEmpty
+          ? null
+          : double.tryParse(_leftForearmController.text),
+      rightForearm: _rightForearmController.text.isEmpty
+          ? null
+          : double.tryParse(_rightForearmController.text),
       timestamp: DateTime
           .now(), // Asumiendo que quieres establecer la fecha actual al crear una nueva medida
     );
@@ -145,8 +158,9 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
         }
       }
 
-      await MedidasMethods()
-          .createMedidas(medidas: medidas, pictures: imagesBytes);
+      MedidasMethods().createMedidas(medidas: medidas, pictures: imagesBytes);
+      showToast(context, "Medidas añaddias!", exitoso: true);
+      Navigator.of(context).pop();
     }
   }
 
@@ -334,6 +348,7 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
               "Parte más ancha de la pantorrilla, estando de pie."),
           guideSection("Brazo (Izq/Der)",
               "Parte más gruesa del bíceps, brazo relajado o doblado a 90 grados."),
+          guideSection("Antebrazo (Izq/Der)", "Parte más ancha del antebrazo."),
         ],
       ),
     );
@@ -419,29 +434,38 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
             ...doubleDivider,
             DoubleInputField(
                 controller: _leftLegController,
-                label: "Pierna Izq",
+                label: "Pierna Izq ($heightSystem)",
                 hintText: "cm"),
             DoubleInputField(
                 controller: _rightLegController,
-                label: "Pierna Der",
+                label: "Pierna Der ($heightSystem)",
                 hintText: "cm"),
             ...doubleDivider,
             DoubleInputField(
                 controller: _leftCalfController,
-                label: "Pantorrilla Izq",
+                label: "Pantorrilla Izq ($heightSystem)",
                 hintText: "cm"),
             DoubleInputField(
                 controller: _rightCalfController,
-                label: "Pantorrilla Der",
+                label: "Pantorrilla Der ($heightSystem)",
                 hintText: "cm"),
             ...doubleDivider,
             DoubleInputField(
                 controller: _leftArmController,
-                label: "Brazo Izq",
+                label: "Brazo Izq ($heightSystem)",
                 hintText: "cm"),
             DoubleInputField(
                 controller: _rightArmController,
-                label: "Brazo Der",
+                label: "Brazo Der ($heightSystem)",
+                hintText: "cm"),
+            ...doubleDivider,
+            DoubleInputField(
+                controller: _leftForearmController,
+                label: "Antebrazo Izq ($heightSystem)",
+                hintText: "cm"),
+            DoubleInputField(
+                controller: _rightForearmController,
+                label: "Antebrazo Der ($heightSystem)",
                 hintText: "cm"),
           ],
         ),

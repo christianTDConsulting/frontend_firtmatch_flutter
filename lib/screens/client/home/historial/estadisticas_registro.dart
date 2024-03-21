@@ -7,7 +7,6 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/charts/line_chart_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 class EstadisticasRegistroScreen extends StatefulWidget {
   final User user;
@@ -111,8 +110,6 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     }
     int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
 
-    List<FlSpot> spots = getSpotsFromRegistros(registros, registerTypeId);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -124,15 +121,12 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // DropdownButton aquí
               DropdownButton<int>(
-                //if is dark
                 iconEnabledColor:
                     Theme.of(context).brightness == Brightness.light
                         ? Theme.of(context).colorScheme.onPrimary
                         : Theme.of(context).colorScheme.primary,
-                value:
-                    selectedEjercicioId, // Asegúrate de definir y manejar esta variable
+                value: selectedEjercicioId,
                 dropdownColor: Theme.of(context).brightness == Brightness.light
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.background,
@@ -184,31 +178,31 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     );
   }
 
-  List<FlSpot> getSpotsFromRegistros(
-      List<RegistroSet> registros, int registerTypeId) {
-    return registros.asMap().entries.map((entry) {
-      // int index = entry.key;
-      double value = 0.0; // Inicialización predeterminada
-      double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
+  // List<FlSpot> getSpotsFromRegistros(
+  //     List<RegistroSet> registros, int registerTypeId) {
+  //   return registros.asMap().entries.map((entry) {
+  //     // int index = entry.key;
+  //     double value = 0.0; // Inicialización predeterminada
+  //     double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
 
-      switch (registerTypeId) {
-        case 4: // AMRAP: usar 'reps'
-          value = entry.value.reps?.toDouble() ?? 0.0;
-          break;
-        case 5:
-          value = entry.value.time ?? 0.0;
-        case 6:
-          value = entry.value.time ?? 0.0;
-          break;
-        default: // Otro tipo: usar 'weight' si eso tiene sentido
-          value = (entry.value.weight?.toDouble() ?? 0.0) *
-              (entry.value.reps?.toDouble() ?? 0.0);
-          break;
-      }
+  //     switch (registerTypeId) {
+  //       case 4: // AMRAP: usar 'reps'
+  //         value = entry.value.reps?.toDouble() ?? 0.0;
+  //         break;
+  //       case 5:
+  //         value = entry.value.time ?? 0.0;
+  //       case 6:
+  //         value = entry.value.time ?? 0.0;
+  //         break;
+  //       default: // Otro tipo: usar 'weight' si eso tiene sentido
+  //         value = (entry.value.weight?.toDouble() ?? 0.0) *
+  //             (entry.value.reps?.toDouble() ?? 0.0);
+  //         break;
+  //     }
 
-      return FlSpot(date, value);
-    }).toList();
-  }
+  //     return FlSpot(date, value);
+  //   }).toList();
+  // }
 
   Widget buildListView(BuildContext context) {
     return Container(

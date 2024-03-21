@@ -1,27 +1,26 @@
 import 'dart:math';
 
-import 'package:fit_match/models/registros.dart';
+import 'package:fit_match/models/medidas.dart';
 import 'package:fit_match/utils/dimensions.dart';
-import 'package:fit_match/utils/utils.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class LineChartSample extends StatefulWidget {
-  final List<RegistroSet> registroSet;
-  final int registerTypeId;
-  final String system;
-  const LineChartSample(
-      {super.key,
-      required this.registroSet,
-      required this.registerTypeId,
-      required this.system});
+class LineChartMedidaSample extends StatefulWidget {
+  final List<StatMedida> statMedidas;
+  final String unit;
+
+  const LineChartMedidaSample({
+    super.key,
+    required this.statMedidas,
+    required this.unit,
+  });
 
   @override
-  State<LineChartSample> createState() => _LineChartSample();
+  State<LineChartMedidaSample> createState() => LineChartState();
 }
 
-class _LineChartSample extends State<LineChartSample> {
+class LineChartState extends State<LineChartMedidaSample> {
   List<Color> gradientColors = [
     const Color(0xFF50E4FF),
     const Color(0xFF2196F3),
@@ -35,49 +34,25 @@ class _LineChartSample extends State<LineChartSample> {
   late List<FlSpot> spots;
   late String system;
 
-  List<FlSpot> getSpotsFromRegistros(
-      List<RegistroSet> registros, int registerTypeId) {
-    return registros.asMap().entries.map((entry) {
-      // int index = entry.key;
-      double value = 0.0; // Inicialización predeterminada
+  List<FlSpot> getSpotsFromStatsMedida(List<StatMedida> medidas) {
+    return medidas.asMap().entries.map((entry) {
+      double value = entry.value.value;
+      double date = entry.value.date.millisecondsSinceEpoch.toDouble();
 
-      double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
-
-      switch (registerTypeId) {
-        case 4: // AMRAP: usar 'reps'
-          value = 1;
-          break;
-        case 5: // Tiempo
-          value = entry.value.time ?? 0.0;
-          break;
-        case 6: // rango Tiempo
-          value = (entry.value.time?.toDouble() ?? 0.0) *
-              (entry.value.weight?.toDouble() ?? 0.0);
-
-          break;
-        default: // Otro tipo: usar 'weight' si eso tiene sentido
-          value = (entry.value.weight?.toDouble() ?? 0.0) *
-              (entry.value.reps?.toDouble() ?? 0.0);
-          break;
-      }
       return FlSpot(date, value);
     }).toList();
   }
 
   @override
   void initState() {
+    print(widget.statMedidas);
     super.initState();
-    _initSystem();
     _initSpots();
-  }
-
-  _initSystem() {
-    system = widget.system == 'metrico' ? 'kg' : 'lbs';
   }
 
   _initSpots() {
     List<FlSpot> spotsSinNormalizar =
-        getSpotsFromRegistros(widget.registroSet, widget.registerTypeId);
+        getSpotsFromStatsMedida(widget.statMedidas);
 //deberían estar ordenados pero por si acaso
     spotsSinNormalizar.sort((a, b) => a.x.compareTo(b.x));
 
@@ -115,26 +90,9 @@ class _LineChartSample extends State<LineChartSample> {
 
     spots = spotsSinNormalizar.map((spot) {
       double x = normalizeTimestamp(spot.x, originalMinX, originalMaxX, 0, 10);
-      double y = system == 'metrico' ? spot.y : fromKgToLbs(spot.y);
+      double y = spot.y;
       return FlSpot(x, y);
     }).toList();
-  }
-
-  String _getTitle() {
-    String title = "(repes x $system)";
-    switch (widget.registerTypeId) {
-      case 4: // AMRAP: usar 'reps'
-        title = "Armrap";
-        break;
-      case 5: // Tiempo
-        title = "minutos";
-        break;
-      case 6: // rango Tiempo
-        title = "( minutos x  $system)";
-
-        break;
-    }
-    return title;
   }
 
   @override
@@ -142,39 +100,19 @@ class _LineChartSample extends State<LineChartSample> {
     final double width = MediaQuery.of(context).size.width;
     final double aspectRatio = width > webScreenSize ? 1.70 : 0.75;
     final int totalLabels = spots.length;
-    final String title = _getTitle();
-    return Stack(
-      children: <Widget>[
-        AspectRatio(
-          aspectRatio: aspectRatio,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              right: 18,
-              left: 12,
-              top: 24,
-              bottom: 12,
-            ),
-            child: LineChart(
-              mainData(aspectRatio, totalLabels),
-            ),
-          ),
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          right: 18,
+          left: 12,
+          top: 24,
+          bottom: 12,
         ),
-        Positioned(
-          top: 0,
-          left: 10,
-          child: RotatedBox(
-            quarterTurns: 3,
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
+        child: LineChart(
+          mainData(aspectRatio, totalLabels),
         ),
-      ],
+      ),
     );
   }
 
@@ -205,7 +143,6 @@ class _LineChartSample extends State<LineChartSample> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const dayInMilliseconds = 86400000;
     final style = TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
       fontWeight: FontWeight.bold,
@@ -216,26 +153,29 @@ class _LineChartSample extends State<LineChartSample> {
     double desnormalizedValue =
         desnormalizeValue(value, originalMinX, originalMaxX, 0, 10);
 
-    // Ajusta el formato de fecha basado en el rango visible
-    String dateFormat;
-    double visibleRange = originalMaxX - originalMinX;
-    if (visibleRange > 777600000) {
-      // 9 días
-      dateFormat = "MMM yy";
-    } else {
-      // 2 días
-      dateFormat = "MMM d";
-    }
-
     // Convierte el valor desnormalizado de timestamp a fecha
 
     var date = DateTime.fromMillisecondsSinceEpoch(desnormalizedValue.toInt());
-    var formattedDate = DateFormat(dateFormat).format(date);
+    var formattedDate = DateFormat("MMM d").format(date);
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
       child: Text(formattedDate, style: style),
     );
+  }
+
+  Widget leftTitleWidgets(
+    double value,
+    TitleMeta meta,
+  ) {
+    // return const SizedBox.shrink();
+    const style = TextStyle(
+      color: Color(0xff67727d),
+      fontWeight: FontWeight.bold,
+      fontSize: 15,
+    );
+
+    return Text('${value.toInt()} ${widget.unit}', style: style);
   }
 
   double calculateBottomInterval() {
@@ -268,34 +208,6 @@ class _LineChartSample extends State<LineChartSample> {
         normalizeTimestamp(0, originalMinX, originalMaxX, 0, 10);
   }
 
-  Widget leftTitleWidgets(
-    double value,
-    TitleMeta meta,
-  ) {
-    return const SizedBox.shrink();
-    // const style = TextStyle(
-    //   color: Color(0xff67727d),
-    //   fontWeight: FontWeight.bold,
-    //   fontSize: 15,
-    // );
-
-    // double interval;
-    // if (originalMaxY != originalMinY) {
-    //   interval = (originalMaxY - originalMinY) / 5;
-    // } else {
-    //   interval = 1;
-    // }
-    // double roundedValue = (value / interval).round() * interval;
-    // if (value % interval == 0 ||
-    //     value == originalMinY ||
-    //     value == originalMaxY) {
-    //   return Text(roundedValue.toInt().toString(), style: style);
-    // } else {
-    //   // Retorna un widget vacío para los valores que no coincidan
-    //   return const SizedBox.shrink();
-    // }
-  }
-
   LineChartData mainData(double aspectRatio, int totalLabels) {
     const double marginFactor = 0.00; // El margen es el 5% del rango total
 
@@ -326,23 +238,7 @@ class _LineChartSample extends State<LineChartSample> {
               final dataIndex = spots.indexWhere(
                   (spot) => spot.x == barSpot.x && spot.y == barSpot.y);
               if (dataIndex != -1) {
-                final data = widget.registroSet[dataIndex];
-                String text =
-                    "${data.reps} repes x  ${widget.system == 'metrico' ? data.weight : fromKgToLbs(data.weight ?? 0.0)} $system";
-                switch (widget.registerTypeId) {
-                  case 4: // AMRAP: usar 'reps'
-                    text = "Armrap";
-                    break;
-                  case 5: // Tiempo
-                    text = "${data.time} minutos";
-                    break;
-                  case 6: // rango Tiempoç
-
-                    text =
-                        "${data.time} minutos x ${widget.system == 'metrico' ? data.weight : fromKgToLbs(data.weight ?? 0.0)} $system";
-
-                    break;
-                }
+                String text = spots[dataIndex].y.toString() + " ${widget.unit}";
                 return LineTooltipItem(
                   text,
                   TextStyle(
