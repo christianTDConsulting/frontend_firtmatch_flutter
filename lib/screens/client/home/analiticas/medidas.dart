@@ -3,6 +3,7 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/home/analiticas/estadisticas_medidas.dart';
 import 'package:fit_match/screens/client/home/analiticas/nuevasMedidas.dart';
 import 'package:fit_match/services/medidas_service.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/exercise_card/medida_card.dart';
 import 'package:flutter/material.dart';
 
@@ -29,12 +30,26 @@ class _MedidasScreen extends State<MedidasScreen> {
   }
 
   void _initMedidas() async {
+    setState(() {
+      isLoading = true;
+    });
     List<Medidas> medidas =
         await MedidasMethods().getAllMedidas(widget.user.user_id as int);
     setState(() {
       this.medidas = medidas;
       isLoading = false;
     });
+  }
+
+  Future<void> onDelete(int measurementId) async {
+    bool exito = await MedidasMethods().deleteMedidas(measurementId);
+    if (exito) {
+      setState(() {
+        medidas
+            .removeWhere((element) => element.measurementId == measurementId);
+      });
+      showToast(context, 'Medida eliminada', exitoso: true);
+    }
   }
 
   @override
@@ -118,8 +133,8 @@ class _MedidasScreen extends State<MedidasScreen> {
             const SizedBox(height: 20),
             Column(
               children: medidas
-                  .map(
-                      (medida) => MedidaCard(medida: medida, user: widget.user))
+                  .map((medida) => MedidaCard(
+                      medida: medida, user: widget.user, onDelete: onDelete))
                   .toList(),
             ),
           ],
@@ -134,7 +149,11 @@ class _MedidasScreen extends State<MedidasScreen> {
       MaterialPageRoute(
         builder: (context) => NuevaMedidaScreen(user: widget.user),
       ),
-    );
+    ).then((result) {
+      if (result == true) {
+        _initMedidas();
+      }
+    });
   }
 
   _viewEstadistica(BuildContext context) {

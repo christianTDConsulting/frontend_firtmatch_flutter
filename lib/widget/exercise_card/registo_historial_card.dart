@@ -288,8 +288,12 @@ class RegistroHistorialCard extends StatelessWidget {
                 )));
   }
 
-  void _eliminarRegistro() async {
-    print("Eliminando registro");
+  void _eliminarRegistro(BuildContext context) async {
+    bool exito = await RegistroMethods()
+        .eliminarRegistroSession(registro.registerSessionId);
+    if (exito) {
+      showToast(context, 'Registro eliminado', exitoso: true);
+    }
   }
 
   void _editarRegistro(BuildContext context) async {
@@ -335,7 +339,7 @@ class RegistroHistorialCard extends StatelessWidget {
 
     // Si shouldPop es true, entonces navega hacia atrás.
     if (shouldPop ?? false) {
-      _eliminarRegistro();
+      _eliminarRegistro(context);
     }
 
     return Future.value(

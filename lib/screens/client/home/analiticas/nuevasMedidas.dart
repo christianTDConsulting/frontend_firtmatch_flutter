@@ -160,7 +160,7 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
 
       MedidasMethods().createMedidas(medidas: medidas, pictures: imagesBytes);
       showToast(context, "Medidas añaddias!", exitoso: true);
-      Navigator.of(context).pop();
+      Navigator.pop(context, true);
     }
   }
 

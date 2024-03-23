@@ -68,9 +68,8 @@ String formatTimeAgo(DateTime timestamp) {
 void showToast(BuildContext context, String message, {bool exitoso = true}) {
   final snackBar = SnackBar(
     content: Text(message,
-        style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold)),
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
     backgroundColor: exitoso ? Colors.green : Colors.red,
     behavior: SnackBarBehavior.floating,
     duration: const Duration(seconds: 2),

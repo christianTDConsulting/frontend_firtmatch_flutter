@@ -58,12 +58,14 @@ class MedidasMethods {
     }
   }
 
-  Future<void> deleteMedidas(int medidaId) async {
+  Future<bool> deleteMedidas(int medidaId) async {
     var uri = Uri.parse('$medidasUrl/$medidaId');
     var response = await http.delete(uri);
 
     if (response.statusCode != 200) {
       throw Exception('Error al eliminar medidas: ${response.statusCode}');
+    } else {
+      return true;
     }
   }
 

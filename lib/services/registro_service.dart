@@ -156,6 +156,13 @@ class RegistroMethods {
     return response.statusCode == 200;
   }
 
+  Future<bool> eliminarRegistroSession(int registerSessionId) async {
+    final response = await http.delete(
+      Uri.parse('$registrosSessionUrl/$registerSessionId'),
+    );
+    return response.statusCode == 200;
+  }
+
   Future<bool> terminarRegistro(int registerSessionId) async {
     final response = await http.put(
       Uri.parse('$registrosSessionUrl/$registerSessionId'),

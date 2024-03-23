@@ -10,7 +10,12 @@ import 'package:intl/intl.dart';
 class MedidaCard extends StatelessWidget {
   final Medidas medida;
   final User user;
-  MedidaCard({required this.medida, required this.user});
+  final Function(int) onDelete;
+  MedidaCard({
+    required this.medida,
+    required this.user,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -167,10 +172,6 @@ class MedidaCard extends StatelessWidget {
     }
   }
 
-  void _eliminarMedida() async {
-    print("Eliminando medida");
-  }
-
   void _editarMedida(BuildContext context) async {
     _navigateToEditMedida(context);
   }
@@ -189,7 +190,7 @@ class MedidaCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Estás seguro?'),
-        content: const Text('Se eliminará el registro.'),
+        content: const Text('Se eliminará el registro de la medida.'),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(
@@ -209,10 +210,9 @@ class MedidaCard extends StatelessWidget {
 
     // Si shouldPop es true, entonces navega hacia atrás.
     if (shouldPop ?? false) {
-      _eliminarMedida();
+      onDelete(medida.measurementId!);
     }
 
-    return Future.value(
-        false); // Evita que el botón de retroceso cierre la pantalla automáticamente.
+    return Future.value(false);
   }
 }
