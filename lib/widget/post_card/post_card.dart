@@ -177,6 +177,9 @@ class _PostCardState extends State<PostCard> {
   }
 
   _navigateToRegisterSession() async {
+    if (!_isActive()) {
+      _activarPlantilla();
+    }
     if (_lastSessionRegistrada != null) {
       final reload = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) => RegisterTrainingScreen(
@@ -320,7 +323,7 @@ class _PostCardState extends State<PostCard> {
             icon: _isActive()
                 ? Icon(
                     Icons.bookmark_added_rounded,
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   )
                 : Icon(
                     Icons.bookmark_border_rounded,

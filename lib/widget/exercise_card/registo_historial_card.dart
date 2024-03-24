@@ -13,8 +13,12 @@ class RegistroHistorialCard extends StatelessWidget {
   final SesionEntrenamiento session;
   final RegistroDeSesion registro;
   final User user;
+  final Function(RegistroDeSesion) onDelete;
   RegistroHistorialCard(
-      {required this.session, required this.registro, required this.user});
+      {required this.session,
+      required this.registro,
+      required this.user,
+      required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -288,14 +292,6 @@ class RegistroHistorialCard extends StatelessWidget {
                 )));
   }
 
-  void _eliminarRegistro(BuildContext context) async {
-    bool exito = await RegistroMethods()
-        .eliminarRegistroSession(registro.registerSessionId);
-    if (exito) {
-      showToast(context, 'Registro eliminado', exitoso: true);
-    }
-  }
-
   void _editarRegistro(BuildContext context) async {
     bool exito =
         await RegistroMethods().terminarRegistro(registro.registerSessionId);
@@ -337,9 +333,8 @@ class RegistroHistorialCard extends StatelessWidget {
       ),
     );
 
-    // Si shouldPop es true, entonces navega hacia atrás.
     if (shouldPop ?? false) {
-      _eliminarRegistro(context);
+      onDelete(registro);
     }
 
     return Future.value(

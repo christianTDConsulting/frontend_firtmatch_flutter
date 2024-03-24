@@ -7,7 +7,6 @@ import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/expandable_text.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class RegisterCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;
@@ -61,12 +60,13 @@ class _RegisterCard extends State<RegisterCard> {
     );
   }
 
-  List<RegistroSet> _getThisRegisterSessionSets(
-      SetsEjerciciosEntrada setsEjerciciosEntrada) {
-    return setsEjerciciosEntrada.registroSet!
+  _getThisRegisterSessionSets(SetsEjerciciosEntrada setsEjerciciosEntrada) {
+    List<RegistroSet> sets = setsEjerciciosEntrada.registroSet!
         .where(
             (element) => element.registerSessionId == widget.registerSessionId)
         .toList();
+
+    return sets;
   }
 
   @override
@@ -229,10 +229,6 @@ class _RegisterCard extends State<RegisterCard> {
                     ),
                   ),
                 )
-
-                // Spacer(
-                //   flex: width < webScreenSize ? 5 : 3,
-                // ),
               ],
             ),
           ),
@@ -401,36 +397,62 @@ class _SetRowState extends State<SetRow> {
           break;
       }
 
-      widget.onUpdateSet(widget.set);
+      //Solo se actualiza si lo valores no son nulos
+      switch (widget.selectedRegisterType) {
+        case 2: // Rango de repeticiones
+          if (actualSet.reps != null) {
+            widget.onUpdateSet(widget.set);
+          }
+          break;
+        case 4: // AMRAP
+          //no hay que actualizar nada
+          break;
+        case 5: // Tiempo
+          if (actualSet.time != null) {
+            widget.onUpdateSet(widget.set);
+          }
+          break;
+        case 6: //Rango de tiempo
+          if (actualSet.time != null && actualSet.weight != null) {
+            widget.onUpdateSet(widget.set);
+          }
+          break;
+        default:
+          if (actualSet.reps != null && actualSet.weight != null) {
+            widget.onUpdateSet(widget.set);
+          }
+          break;
+      }
     });
+  }
+
+  String transformWeightIntoLbs(double? weight) {
+    if (weight == null) {
+      return '';
+    }
+
+    if (widget.system == "metrico") {
+      return weight.toString();
+    } else if (widget.system == "imperial") {
+      return fromKgToLbs(weight).toString();
+    }
+
+    return '';
   }
 
   List<Widget> _buildInputFields() {
     switch (widget.selectedRegisterType) {
-      case 1: // Rango de repeticiones
+      case 2: // Objetivo de repeticiones
 
         repsController.text = actualSet.reps?.toString() ?? '';
-        weightController.text = actualSet.weight?.toString() ?? '';
+        weightController.text = transformWeightIntoLbs(actualSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
-              hintText: previousToLastSet == null
-                  ? "reps"
-                  : previousToLastSet!.reps.toString(),
+              hintText: "reps",
               controller: repsController,
               label: "reps",
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
-            ),
-          ),
-          dash,
-          Expanded(
-            child: DoubleInputField(
-              controller: weightController,
-              hintText: previousToLastSet == null
-                  ? weightUnit
-                  : previousToLastSet!.weight.toString(),
-              label: weightUnit,
-              onFieldSubmitted: (value) => _updateSet(value, 'weight'),
             ),
           ),
         ];
@@ -445,9 +467,7 @@ class _SetRowState extends State<SetRow> {
             child: DoubleInputField(
               controller: weightController,
               label: "min",
-              hintText: previousToLastSet == null
-                  ? "min"
-                  : previousToLastSet!.time.toString(),
+              hintText: "min",
               onFieldSubmitted: (value) => _updateSet(value, 'time'),
             ),
           ),
@@ -455,15 +475,13 @@ class _SetRowState extends State<SetRow> {
         ];
       case 6: // Rango de tiempo
         repsController.text = actualSet.time?.toString() ?? '';
-        weightController.text = actualSet.weight?.toString() ?? '';
+        weightController.text = transformWeightIntoLbs(actualSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
               controller: repsController,
               label: "min",
-              hintText: previousToLastSet == null
-                  ? "min"
-                  : previousToLastSet!.time.toString(),
+              hintText: "min",
               onFieldSubmitted: (value) => _updateSet(value, 'time'),
             ),
           ),
@@ -473,24 +491,19 @@ class _SetRowState extends State<SetRow> {
             child: DoubleInputField(
               controller: weightController,
               label: weightUnit,
-              hintText: previousToLastSet == null
-                  ? weightUnit
-                  : previousToLastSet!.weight.toString(),
+              hintText: weightUnit,
               onFieldSubmitted: (value) => _updateSet(value, 'weight'),
             ),
           ),
         ];
-      default: // Por defecto, solo repeticiones
-        repsController.text = actualSet.reps.toString();
-        weightController.text = actualSet.weight?.toString() ?? '';
-
+      default: // Por defecto, solo repeticiones y peso
+        repsController.text = actualSet.reps?.toString() ?? '';
+        weightController.text = transformWeightIntoLbs(actualSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
               label: "reps",
-              hintText: previousToLastSet == null
-                  ? "reps"
-                  : previousToLastSet!.reps.toString(),
+              hintText: "reps",
               controller: repsController,
               onFieldSubmitted: (value) => _updateSet(value, 'reps'),
             ),
@@ -499,9 +512,7 @@ class _SetRowState extends State<SetRow> {
           Expanded(
               child: DoubleInputField(
             label: weightUnit,
-            hintText: previousToLastSet == null
-                ? weightUnit
-                : previousToLastSet!.weight.toString(),
+            hintText: weightUnit,
             controller: weightController,
             onFieldSubmitted: (value) => _updateSet(value, 'weight'),
           ))
@@ -567,13 +578,24 @@ class _SetRowState extends State<SetRow> {
     if (previousToLastSet == null) {
       return [
         const Expanded(
-          child: Text("  _", style: TextStyle(fontSize: 16)),
+          child: Text('N/A',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: Colors.grey)),
         ),
       ];
     }
 
     //  que previousToLastSet no es nulo
     switch (widget.selectedRegisterType) {
+      case 2:
+        return [
+          Expanded(
+            child: Text(
+              "${previousToLastSet!.reps.toString()} reps ",
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ];
       case 4: // AMRAP
         return [
           const Expanded(
@@ -588,7 +610,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousToLastSet!.time?.toString() ?? '_'} min",
+              "${previousToLastSet!.time.toString()} min",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -597,7 +619,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousToLastSet!.time?.toString() ?? '_'} min x ${previousToLastSet!.weight?.toString() ?? '_'} $weightUnit",
+              "${previousToLastSet!.time.toString()} min x ${previousToLastSet!.weight.toString()} $weightUnit",
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -606,7 +628,7 @@ class _SetRowState extends State<SetRow> {
         return [
           Expanded(
             child: Text(
-              "${previousToLastSet!.reps?.toString() ?? '_'} reps x ${previousToLastSet!.weight?.toString() ?? '_'} $weightUnit",
+              "${previousToLastSet!.reps.toString()} reps x ${previousToLastSet!.weight.toString()} $weightUnit",
               overflow: TextOverflow.ellipsis,
             ),
           ),

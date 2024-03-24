@@ -1,6 +1,8 @@
+import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/registro_service.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/exercise_card/registo_historial_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -79,6 +81,16 @@ class _ViewHistorialScreen extends State<ViewHistorialScreen> {
     });
   }
 
+  _deleteRegistro(RegistroDeSesion registro) async {
+    bool exito = await RegistroMethods()
+        .eliminarRegistroSession(registro.registerSessionId);
+    if (exito) {
+      showToast(context, 'Registro eliminado', exitoso: true);
+    }
+
+    _initSesiones();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,6 +161,7 @@ class _ViewHistorialScreen extends State<ViewHistorialScreen> {
             session: sesion,
             registro: registro,
             user: widget.user,
+            onDelete: (registro) => _deleteRegistro(registro),
           ));
         }
       }

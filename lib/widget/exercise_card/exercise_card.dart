@@ -7,7 +7,6 @@ import 'package:fit_match/widget/number_input_field.dart';
 
 // import 'package:fit_match/widget/exercise_card/sets_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ExerciseCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;

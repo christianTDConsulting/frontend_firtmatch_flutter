@@ -78,34 +78,14 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     return session.registros!.any((element) => !element.finished);
   }
 
-  _initSet(SetsEjerciciosEntrada setsEjerciciosEntrada) async {
-    if (setsEjerciciosEntrada.registroSet == null ||
-        setsEjerciciosEntrada.registroSet!.isEmpty) {
-      try {
-        RegistroDeSesion activeRegistroSession = existingSession.registros!
-            .firstWhere((element) => !element.finished);
-
-        RegistroSet registroSet = await RegistroMethods()
-            .addOrUpdateRegisterSet(
-                userId: widget.user.user_id as int,
-                setId: setsEjerciciosEntrada.setId!,
-                registerSessionId: activeRegistroSession.registerSessionId);
-        setState(() {
-          setsEjerciciosEntrada.registroSet ??= [];
-          setsEjerciciosEntrada.registroSet!.insert(0, registroSet);
-        });
-      } catch (e) {
-        print("Error en _initSet: $e");
-      }
-    }
-  }
-
   Future<void> _initData() async {
-    setState(() => isLoading = true);
+    setState(() => isLoading = true); // Empieza a cargar
     SesionEntrenamiento session;
     try {
       session = await RegistroMethods().getSessionEntrenamientoWithRegistros(
-          widget.user.user_id as int, widget.sessionId);
+          widget.user.user_id as int,
+          widget
+              .sessionId); //Obtengo la sesión de entrenamiento con sus registros
     } catch (e) {
       print("Error en getSessionEntrenamientoWithRegistros: $e");
       setState(() => isLoading = false);
@@ -114,10 +94,11 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
 
     try {
       if (!_existeRegistroActivo(session)) {
+        //en caso de que no exista ningún registro activo creo uno
         var newRegistro = await RegistroMethods().createRegisterSession(
             widget.user.user_id as int, session.sessionId);
         session.registros ??= [];
-        session.registros!.add(newRegistro);
+        session.registros!.add(newRegistro); //se añade al final
       }
     } catch (e) {
       print("Error en createRegisterSession: $e");
@@ -133,9 +114,11 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     await Future.wait(
         session.ejerciciosDetalladosAgrupados!.map((ejercicioAgrupado) async {
       for (var setEntrada in ejercicioAgrupado.ejerciciosDetallados) {
-        await Future.wait(setEntrada.setsEntrada!.map((set) => _initSet(set)));
+        await Future.wait(setEntrada.setsEntrada!
+            .map((set) => _onAddSet(set, initial: true)));
       }
     }));
+
     setState(() {
       isLoading = false;
     });
@@ -145,24 +128,56 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     Navigator.pop(context, reload);
   }
 
-  void _onAddSet(SetsEjerciciosEntrada set) async {
-    RegistroDeSesion activeRegistroSession =
-        existingSession.registros!.firstWhere((element) => !element.finished);
+  Future<void> _onAddSet(SetsEjerciciosEntrada set, {initial = false}) async {
     try {
-      RegistroSet registroSet = await RegistroMethods().addOrUpdateRegisterSet(
-          userId: widget.user.user_id as int,
-          setId: set.setId!,
-          registerSessionId: activeRegistroSession.registerSessionId,
-          create: true);
+      // Obtener la sesión activa.
+      RegistroDeSesion activeRegistroSession = _getActiveSession();
 
-      setState(() {
-        set.registroSet ??= [];
-        set.registroSet!.insert(set.registroSet!.length, registroSet);
-      });
+      // Verificar si el set ya existe para la sesión activa.
+      if (!initial ||
+          !_registerSetAlreadyExists(
+              set, activeRegistroSession.registerSessionId)) {
+        // Crear y añadir el nuevo registro de set.
+        RegistroSet newRegistroSet = await _createAndAddRegistroSet(
+            set, activeRegistroSession.registerSessionId);
+
+        // Actualizar el estado con el nuevo set.
+        _updateSetState(set, newRegistroSet);
+      }
     } catch (e) {
       print("Error en _onAddSet: $e");
-      return;
     }
+  }
+
+  RegistroDeSesion _getActiveSession() {
+    return existingSession.registros!
+        .firstWhere((element) => !element.finished);
+  }
+
+  /// Comprueba si el Registroset ya existe en la sesión.
+  bool _registerSetAlreadyExists(
+      SetsEjerciciosEntrada set, num registerSessionId) {
+    return set.registroSet?.any((registroSet) =>
+            registroSet.registerSessionId == registerSessionId) ??
+        false;
+  }
+
+  /// Crea y añade un nuevo registro de set.
+  Future<RegistroSet> _createAndAddRegistroSet(
+      SetsEjerciciosEntrada set, num registerSessionId) async {
+    return await RegistroMethods().addOrUpdateRegisterSet(
+        userId: widget.user.user_id as int,
+        setId: set.setId!,
+        registerSessionId: registerSessionId as int,
+        create: true);
+  }
+
+  /// Actualiza el estado con el nuevo set.
+  void _updateSetState(SetsEjerciciosEntrada set, RegistroSet registroSet) {
+    setState(() {
+      set.registroSet ??= [];
+      set.registroSet!.add(registroSet);
+    });
   }
 
   void _onDeleteSet(SetsEjerciciosEntrada set, RegistroSet registroSet) async {
@@ -214,7 +229,7 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
             automaticallyImplyLeading: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => _navigateBack(context),
+              onPressed: () => _navigateBack(context, reload: true),
             ),
           ),
           body: isLoading
