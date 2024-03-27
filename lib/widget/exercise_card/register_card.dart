@@ -348,7 +348,7 @@ class _SetRowState extends State<SetRow> {
               element.registerSessionId != widget.registerSessionId)
           .toList();
 
-      if (filteredSets.isEmpty) {
+      if (filteredSets.isEmpty || filteredSets.length < 2) {
         return null;
       } else {
         RegistroSet previousToLast = filteredSets.reduce((curr, next) =>
@@ -520,68 +520,70 @@ class _SetRowState extends State<SetRow> {
     }
   }
 
-  List<Widget> _buildExpectedInputFields() {
+  List<Widget> _buildExpectedInputFields(double width) {
     switch (widget.selectedRegisterType) {
       case 1: // Rango de repeticiones
 
         return [
-          Expanded(
-            child: Text(
-              "${widget.set.minReps?.toString() ?? '_'} reps-${widget.set.maxReps?.toString() ?? '_'} reps",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${widget.set.minReps?.toString() ?? '_'} - ${widget.set.maxReps?.toString() ?? '_'} reps",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       case 4: // AMRAP
         return [
-          const Expanded(
-            child: Text('AMRAP',
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 16)),
+          Text(
+            'AMRAP',
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
+            ),
           ),
         ];
       case 5: // Tiempo
 
         return [
-          Expanded(
-            child: Text(
-              "${widget.set.time?.toString() ?? '_'} min",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${widget.set.time?.toString() ?? '_'} min",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
-          minText,
         ];
       case 6: // Rango de tiempo
 
         return [
-          Expanded(
-            child: Text(
-              "${widget.set.maxTime?.toString() ?? '_'} min-${widget.set.maxTime?.toString() ?? '_'} min",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${widget.set.maxTime?.toString() ?? '_'} - ${widget.set.maxTime?.toString() ?? '_'} min",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       default: // Por defecto, solo repeticiones
 
         return [
-          Expanded(
-            child: Text(
-              "${widget.set.reps?.toString() ?? '_'} reps",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${widget.set.reps?.toString() ?? '_'} reps",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
     }
   }
 
-  List<Widget> _buildLastSessionInputFields() {
-    if (previousToLastSet == null) {
+  List<Widget> _buildLastSessionInputFields(double width) {
+    if (previousToLastSet == null ||
+        previousToLastSet!.reps == null ||
+        previousToLastSet!.time == null ||
+        previousToLastSet!.weight == null) {
       return [
-        const Expanded(
-          child: Text('N/A',
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.grey)),
-        ),
+        Text('N/A',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+                color: Colors.grey, fontSize: width > webScreenSize ? 16 : 12)),
       ];
     }
 
@@ -589,47 +591,46 @@ class _SetRowState extends State<SetRow> {
     switch (widget.selectedRegisterType) {
       case 2:
         return [
-          Expanded(
-            child: Text(
-              "${previousToLastSet!.reps.toString()} reps ",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${previousToLastSet!.reps.toString()} reps ",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       case 4: // AMRAP
         return [
-          const Expanded(
-            child: Text(
-              'AMRAP',
-              style: TextStyle(fontSize: 16),
-              overflow: TextOverflow.ellipsis,
+          Text(
+            'AMRAP',
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       case 5: // Tiempo
         return [
-          Expanded(
-            child: Text(
-              "${previousToLastSet!.time.toString()} min",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${previousToLastSet!.time.toString()} min",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       case 6: // Rango de tiempo
         return [
-          Expanded(
-            child: Text(
-              "${previousToLastSet!.time.toString()} min x ${previousToLastSet!.weight.toString()} $weightUnit",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${previousToLastSet!.time.toString()} min x ${previousToLastSet!.weight.toString()} $weightUnit",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
       default: // Por defecto, solo repeticiones
         return [
-          Expanded(
-            child: Text(
-              "${previousToLastSet!.reps.toString()} reps x ${previousToLastSet!.weight.toString()} $weightUnit",
-              overflow: TextOverflow.ellipsis,
+          Text(
+            "${previousToLastSet!.reps.toString()} reps x ${previousToLastSet!.weight.toString()} $weightUnit",
+            style: TextStyle(
+              fontSize: width > webScreenSize ? 16 : 12,
             ),
           ),
         ];
@@ -640,8 +641,8 @@ class _SetRowState extends State<SetRow> {
     double width = MediaQuery.of(context).size.width;
 
     List<Widget> inputFields = _buildInputFields();
-    List<Widget> expectedInputFields = _buildExpectedInputFields();
-    List<Widget> lastSessionInputFields = _buildLastSessionInputFields();
+    List<Widget> expectedInputFields = _buildExpectedInputFields(width);
+    List<Widget> lastSessionInputFields = _buildLastSessionInputFields(width);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -649,13 +650,18 @@ class _SetRowState extends State<SetRow> {
         Expanded(
             child: Text('${widget.set.setOrder}',
                 style: const TextStyle(fontSize: 16))),
-        Expanded(
-          flex: 2,
-          child: Row(children: expectedInputFields),
+        Flexible(
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            children: expectedInputFields,
+          ),
         ),
         Expanded(
           flex: 2,
-          child: Center(child: Row(children: lastSessionInputFields)),
+          child: Center(
+              child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  children: lastSessionInputFields)),
         ),
         Expanded(
           flex: width < webScreenSize ? 4 : 2,
