@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/client/discover/filtro_screen.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
+import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
@@ -22,6 +26,15 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   bool hasMore = true;
   int currentPage = 1;
   int pageSize = 10;
+
+  //FILTROS
+  Timer? _debounce;
+  String filtroBusqueda = '';
+  List<String> selectedObjectives = [];
+  List<String> selectedInterests = [];
+  List<String> selectedExperiences = [];
+  List<String> selectedEquipments = [];
+  List<String> selectedDurations = [];
 
   final ScrollController _scrollController = ScrollController();
 
@@ -56,8 +69,16 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
 
     try {
       // Obtener nuevos posts.
-      var newPosts = await PlantillaPostsMethods()
-          .getAllPosts(page: currentPage, pageSize: pageSize);
+      var newPosts = await PlantillaPostsMethods().getAllPosts(
+        page: currentPage,
+        pageSize: pageSize,
+        name: filtroBusqueda,
+        experiences: selectedExperiences,
+        objectives: selectedObjectives,
+        interests: selectedInterests,
+        equipment: selectedEquipments,
+        duration: selectedDurations,
+      );
       if (newPosts.isEmpty) {
         setState(() {
           hasMore = false;
@@ -121,6 +142,57 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
         builder: (context) => PostCard(post: post, user: widget.user)));
   }
 
+  //FILTROS
+  int _countActiveFilters() {
+    return selectedObjectives.length +
+        selectedInterests.length +
+        selectedExperiences.length +
+        selectedEquipments.length +
+        selectedDurations.length;
+  }
+
+  void _clearFilters() {
+    setState(() {
+      selectedObjectives.clear();
+      selectedInterests.clear();
+      selectedExperiences.clear();
+      selectedEquipments.clear();
+      selectedDurations.clear();
+    });
+
+    // Opcional: Recargar los posts sin filtros aquí
+  }
+
+  void _onSearchChanged(String text) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        filtroBusqueda = text;
+      });
+    });
+    loadMorePosts();
+    // load post
+  }
+
+  void _showFilters() async {
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => FiltroScreen()),
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedObjectives = result['selectedObjectives'];
+        selectedInterests = result['selectedInterests'];
+        selectedExperiences = result['selectedExperiences'];
+        selectedEquipments = result['selectedEquipments'];
+        selectedDurations = result['selectedDurations'];
+      });
+
+      // Actualizar los posts con los filtros seleccionados
+      loadMorePosts();
+    }
+  }
+
   //SCREEN
 
   @override
@@ -130,7 +202,44 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Filtros por terminar"),
+        title: Container(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: SearchWidget(
+                  text: filtroBusqueda,
+                  hintText: 'Buscar plantillas de ejercicio',
+                  onChanged: (text) => _onSearchChanged(text),
+                ),
+              ),
+              if (_countActiveFilters() <= 0)
+                ElevatedButton(
+                  onPressed: _showFilters,
+                  child: const Text('Filtrar'),
+                ),
+              if (_countActiveFilters() > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                  ),
+                  child: Text(
+                    'Filtros: ${_countActiveFilters() > 0 ? _countActiveFilters() : ''}',
+                  ),
+                ),
+              if (_countActiveFilters() > 0)
+                IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: _clearFilters,
+                ),
+            ],
+          ),
+        ),
       ),
       body: LiquidPullToRefresh(
         onRefresh: _handleRefresh,

@@ -1,5 +1,4 @@
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/providers/get_jwt_token.dart';
 import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
@@ -9,7 +8,6 @@ import 'package:fit_match/screens/client/discover/view_plantillas_post_screen.da
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fit_match/utils/dimensions.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 
 // for picking up image from gallery
 pickImage(ImageSource source) async {
@@ -118,6 +116,12 @@ List<RadioPreference<String>> experienciaOptions = [
   RadioPreference(title: 'Avanzado', value: 'Avanzado'),
 ];
 
+List<CheckboxPreference> experienciaCheckBox = [
+  CheckboxPreference(title: 'Principiante'),
+  CheckboxPreference(title: 'Intermedio'),
+  CheckboxPreference(title: 'Avanzado'),
+];
+
 List<RadioPreference<String>> equipmentOptions = [
   RadioPreference(title: 'Gimnasio completo', value: 'Gimnasio completo'),
   RadioPreference(title: 'Mancuernas y barras', value: 'Mancuernas y barras'),
@@ -125,6 +129,23 @@ List<RadioPreference<String>> equipmentOptions = [
   RadioPreference(title: 'Solo barras', value: 'Solo barra'),
   RadioPreference(
       title: 'Nada (sin equipamiento)', value: 'Nada (sin equipamiento)'),
+];
+
+List<CheckboxPreference> equipmentCheckBox = [
+  CheckboxPreference(title: 'Gimnasio completo'),
+  CheckboxPreference(title: 'Mancuernas y barras'),
+  CheckboxPreference(title: 'Solo mancuernas'),
+  CheckboxPreference(title: 'Solo barras'),
+  CheckboxPreference(title: 'Nada (sin equipamiento)'),
+];
+
+List<CheckboxPreference> durationCheckBox = [
+  CheckboxPreference(title: '15 minutos o menos'),
+  CheckboxPreference(title: '30 minutos'),
+  CheckboxPreference(title: 'Entre 30 minutos y 1 hora'),
+  CheckboxPreference(title: 'Entre 1 hora  y 1 hora y 30 minutos'),
+  CheckboxPreference(title: 'Entre 1 hora y 30 minutos 2 horas'),
+  CheckboxPreference(title: 'Mas de 2 horas'),
 ];
 
 List<RadioPreference<String>> durationOptions = [

@@ -5,6 +5,33 @@ import 'package:fit_match/widget/post_card/star.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+Widget buildHorizontalChipsScroller(Map<String, dynamic> sectionsMap) {
+  // Creamos una lista de widgets para las secciones que realmente tienen contenido.
+  List<Widget> sectionWidgets = sectionsMap.entries
+      .where((entry) =>
+          entry.value.isNotEmpty) // Filtramos las secciones con contenido
+      .map<Widget>((entry) => buildChipsSection(
+          null, entry.value)) // Construimos los widgets de sección
+      .toList();
+
+  // Si no hay secciones con contenido, mostramos un contenedor vacío o algún otro widget de tu elección.
+  if (sectionWidgets.isEmpty) {
+    return Container(); // O cualquier otro widget que desees mostrar cuando no haya contenido.
+  }
+
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Wrap(
+      spacing: 8.0, // Espacio horizontal entre los chips.
+      runSpacing:
+          4.0, // Espacio vertical entre los chips, si decides usar Wrap como contenedor principal.
+      direction: Axis
+          .horizontal, // Asegura que los elementos se distribuyan horizontalmente.
+      children: sectionWidgets,
+    ),
+  );
+}
+
 Widget buildPostItem(PlantillaPost post, double width,
     {VoidCallback? showPost, Widget? trailing}) {
   final formattedRating = NumberFormat("0.00").format(post.ratingAverage);
@@ -64,8 +91,7 @@ Widget buildPostItem(PlantillaPost post, double width,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 14.0),
                         ),
-                        if (sectionsMap['Experiencia']!.isNotEmpty)
-                          buildChipsSection(null, sectionsMap['Experiencia']),
+                        buildHorizontalChipsScroller(sectionsMap),
                         const SizedBox(height: 10),
                         post.ratingAverage != null
                             ? StarDisplay(

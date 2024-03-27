@@ -16,12 +16,20 @@ class PlantillaPostsMethods {
     }
   }
 
-  Future<List<PlantillaPost>> getAllPosts(
-      {num? userId,
-      int? page = 1,
-      int? pageSize = 10,
-      bool? isPublic = true,
-      bool? isHidden = false}) async {
+  Future<List<PlantillaPost>> getAllPosts({
+    num? userId,
+    int? page = 1,
+    int? pageSize = 10,
+    bool? isPublic = true,
+    bool? isHidden = false,
+    String? name,
+    List<String>? experiences,
+    List<String>? objectives,
+    List<String>? interests,
+    List<String>? equipment,
+    List<String>? duration,
+  }) async {
+    // Construye la URL base con parámetros existentes
     String url = "$plantillaPostsUrl?page=$page&pageSize=$pageSize";
     if (userId != null) {
       url += "&userId=$userId";
@@ -32,7 +40,28 @@ class PlantillaPostsMethods {
     if (isHidden != null) {
       url += "&isHidden=$isHidden";
     }
+    if (name != null) {
+      url += "&name=$name";
+    }
 
+    // Añade filtros de etiquetas como parámetros de consulta
+    if (experiences != null && experiences.isNotEmpty) {
+      url += "&experience=${experiences.join(',')}";
+    }
+    if (objectives != null && objectives.isNotEmpty) {
+      url += "&objective=${objectives.join(',')}";
+    }
+    if (interests != null && interests.isNotEmpty) {
+      url += "&interests=${interests.join(',')}";
+    }
+    if (equipment != null && equipment.isNotEmpty) {
+      url += "&equipment=${equipment.join(',')}";
+    }
+    if (duration != null && duration.isNotEmpty) {
+      url += "&duration=${duration.join(',')}";
+    }
+
+    // Realiza la solicitud GET
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;
