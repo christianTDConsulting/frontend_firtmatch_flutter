@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         email: '',
         password: '',
         profile_picture: '',
-        birth: DateTime.now(),
+        birth: null,
         profile_id: 0,
         public: false);
 

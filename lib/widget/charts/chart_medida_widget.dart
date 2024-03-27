@@ -179,33 +179,48 @@ class LineChartState extends State<LineChartMedidaSample> {
   }
 
   double calculateBottomInterval() {
-    final double totalRange = originalMaxX - originalMinX;
-
-    const double minVisibleInterval = 86400000; // 1 día en milisegundos.
-
-    // Calcula el número de intervalos visibles basado en el ancho del gráfico y un ancho estimado por etiqueta.
-    // Ajusta el 'labelWidth' según el tamaño medio de tus etiquetas para evitar el solapamiento.
-    double width = MediaQuery.of(context).size.width -
-        40; // Ajusta según el padding/margen de tu gráfico.
-    const double labelWidth = 60; // Estimación del ancho por etiqueta.
-    int numLabels = (width / labelWidth).floor();
-
-    // Asegúrate de no dividir por cero.
-    if (numLabels == 0) {
-      return totalRange; // Solo muestra una etiqueta si no hay suficiente espacio.
+    // Verifica si originalMinX o originalMaxX no son números válidos o si son iguales.
+    if (originalMinX.isNaN ||
+        originalMaxX.isNaN ||
+        originalMaxX == originalMinX) {
+      // Retorna un valor predeterminado seguro para evitar división por cero o operaciones con NaN.
+      return 86400000; // Equivalente a 1 día en milisegundos como valor predeterminado.
     }
 
-    // Calcula el intervalo de tiempo (en milisegundos) entre etiquetas para evitar el solapamiento.
+    final double totalRange = originalMaxX - originalMinX;
+    const double minVisibleInterval = 86400000; // 1 día en milisegundos.
+
+    // Calcula el ancho disponible para el gráfico, ajustando por el padding/margen.
+    double width = MediaQuery.of(context).size.width - 40;
+    const double labelWidth =
+        60; // Estimación del ancho necesario por etiqueta.
+
+    // Calcula el número de etiquetas que pueden ajustarse sin solaparse.
+    int numLabels = (width / labelWidth).floor();
+
+    // Si numLabels es 0, ajusta a 1 para evitar la división por cero más adelante.
+    numLabels = max(numLabels, 1);
+
+    // Calcula el intervalo de tiempo entre etiquetas para evitar el solapamiento.
     double interval = totalRange / numLabels;
 
-    // Asegura que el intervalo no sea menor que el mínimo establecido.
+    // Asegura que el intervalo no sea menor que el mínimo visible establecido.
     interval = max(interval, minVisibleInterval);
 
-    // Convierte el intervalo de milisegundos a la unidad que estés usando en el eje X.
-    // Si estás normalizando las fechas a otro rango (por ejemplo, 0 a 10), necesitarás convertir este intervalo.
-    // De lo contrario, si estás usando milisegundos directamente, puedes devolver este valor.
-    return normalizeTimestamp(interval, originalMinX, originalMaxX, 0, 10) -
+    // La función normalizeTimestamp() ajusta el intervalo calculado a la escala utilizada en el eje X.
+    // Es necesario asegurarse de que esta función maneje correctamente los valores y no genere NaN.
+    double normalizedInterval =
+        normalizeTimestamp(interval, originalMinX, originalMaxX, 0, 10);
+    double normalizedZero =
         normalizeTimestamp(0, originalMinX, originalMaxX, 0, 10);
+
+    // Verifica si el resultado de la normalización es NaN.
+    if (normalizedInterval.isNaN || normalizedZero.isNaN) {
+      // Retorna un valor predeterminado si la normalización falla.
+      return 86400000; // Equivalente a 1 día en milisegundos como valor predeterminado.
+    }
+
+    return normalizedInterval - normalizedZero;
   }
 
   LineChartData mainData(double aspectRatio, int totalLabels) {

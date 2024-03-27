@@ -77,7 +77,6 @@ class _ViewSesionEntrenamientoScreen
       ),
     ))
         .then((deleteInfo) {
-      print(deleteInfo);
       initSesionEntrenamientos(); //cargo las sesiones y se actualizan
       if (deleteInfo != null) {
         _deleteSesionById(deleteInfo);

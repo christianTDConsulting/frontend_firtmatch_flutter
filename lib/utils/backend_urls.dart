@@ -4,6 +4,10 @@ const url = 'http://localhost:3000/';
 // Authentication
 const loginUrl = '${url}verificar';
 
+// OTP
+const checkOtpUrl = '${url}otp/check';
+const sendOtpUrl = '${url}otp/send';
+
 // User Management
 const usuariosUrl = '${url}usuarios';
 const usuarioTokenUrl = '${url}usuarioToken';

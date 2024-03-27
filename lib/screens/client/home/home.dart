@@ -145,11 +145,24 @@ class _HomeScreen extends State<HomeScreen> {
         Positioned(
           left: (circleSize - imageSize) / 2,
           top: (circleSize - imageSize) / 2,
-          child: CircleAvatar(
-            radius: imageSize / 2,
-            backgroundImage: NetworkImage(widget.user.profile_picture),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+          child: ClipOval(
+            child: Image.network(
+              widget.user.profile_picture ?? "",
+              width: imageSize, // Diámetro del círculo
+              height: imageSize,
+              fit: BoxFit.cover, // Asegúrate de que la imagen cubra el círculo
+              errorBuilder:
+                  (BuildContext context, Object error, StackTrace? stackTrace) {
+                return Icon(Icons.account_circle,
+                    size: imageSize); // Ejemplo con un Icono
+              },
+            ),
           ),
+          //  CircleAvatar(
+          //   radius: imageSize / 2,
+          //   backgroundImage: NetworkImage(widget.user.profile_picture),
+          //   backgroundColor: Theme.of(context).colorScheme.primary,
+          // ),
         ),
       ],
     );
