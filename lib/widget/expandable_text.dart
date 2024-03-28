@@ -9,10 +9,10 @@ class ExpandableText extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ExpandableTextState createState() => _ExpandableTextState();
+  ExpandableTextState createState() => ExpandableTextState();
 }
 
-class _ExpandableTextState extends State<ExpandableText> {
+class ExpandableTextState extends State<ExpandableText> {
   bool isExpanded = false;
   late TextPainter textPainter;
   bool shouldShowButton = false;

@@ -2,6 +2,8 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class FiltroScreen extends StatefulWidget {
+  const FiltroScreen({super.key});
+
   @override
   FiltroScreenState createState() => FiltroScreenState();
 }

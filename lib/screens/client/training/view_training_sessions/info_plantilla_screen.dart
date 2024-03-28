@@ -8,7 +8,7 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/custom_button.dart';
 
 import 'package:collection/collection.dart';
-import 'package:fit_match/widget/edit_Icon.dart';
+import 'package:fit_match/widget/edit_icon.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/widget/preferences_section.dart';
 import 'package:flutter/foundation.dart';
@@ -22,10 +22,10 @@ class CreateProgramScreen extends StatefulWidget {
   const CreateProgramScreen({super.key, required this.user, this.templateId});
 
   @override
-  _CreateProgramScreenState createState() => _CreateProgramScreenState();
+  CreateProgramScreenState createState() => CreateProgramScreenState();
 }
 
-class _CreateProgramScreenState extends State<CreateProgramScreen> {
+class CreateProgramScreenState extends State<CreateProgramScreen> {
   PlantillaPost? editingTemplate;
   final _formKey = GlobalKey<FormState>();
   final _programNameController = TextEditingController();

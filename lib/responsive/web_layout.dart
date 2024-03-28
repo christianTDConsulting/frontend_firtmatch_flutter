@@ -11,10 +11,10 @@ class WebLayout extends StatefulWidget {
       : super(key: key);
 
   @override
-  _WebLayoutState createState() => _WebLayoutState();
+  WebLayoutState createState() => WebLayoutState();
 }
 
-class _WebLayoutState extends State<WebLayout> {
+class WebLayoutState extends State<WebLayout> {
   int _page = 0;
   late PageController pageController; // for tabs animation
 

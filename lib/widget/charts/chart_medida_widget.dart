@@ -241,8 +241,8 @@ class LineChartState extends State<LineChartMedidaSample> {
     double rangeY = maxY - minY; // El rango total en el eje Y
     minY -= rangeY * marginFactor; // Resta el margen al mínimo
     maxY += rangeY * marginFactor; // Añade el margen al máximo
-    double visibleRange =
-        originalMaxX - originalMinX; // Actualiza esto según el zoom
+    // double visibleRange =
+    //     originalMaxX - originalMinX; // Actualiza esto según el zoom
 
     return LineChartData(
       lineTouchData: LineTouchData(
@@ -253,7 +253,7 @@ class LineChartState extends State<LineChartMedidaSample> {
               final dataIndex = spots.indexWhere(
                   (spot) => spot.x == barSpot.x && spot.y == barSpot.y);
               if (dataIndex != -1) {
-                String text = spots[dataIndex].y.toString() + " ${widget.unit}";
+                String text = "${spots[dataIndex].y} ${widget.unit}";
                 return LineTooltipItem(
                   text,
                   TextStyle(

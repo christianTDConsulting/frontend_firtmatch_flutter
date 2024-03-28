@@ -15,10 +15,10 @@ class ViewTrainingScreen extends StatefulWidget {
   const ViewTrainingScreen({super.key, required this.user});
 
   @override
-  _ViewTrainingScreen createState() => _ViewTrainingScreen();
+  ViewTrainingState createState() => ViewTrainingState();
 }
 
-class _ViewTrainingScreen extends State<ViewTrainingScreen>
+class ViewTrainingState extends State<ViewTrainingScreen>
     with SingleTickerProviderStateMixin {
   List<PlantillaPost> trainingTemplates = [];
   List<PlantillaPost> createdTrainingTemplates = [];

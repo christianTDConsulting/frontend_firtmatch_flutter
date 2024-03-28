@@ -4,7 +4,7 @@ import 'package:fit_match/services/medidas_service.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
-import 'package:fit_match/widget/edit_Icon.dart';
+import 'package:fit_match/widget/edit_icon.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,8 +49,8 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
   final _rightForearmController = TextEditingController();
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final List<XFile>? selectedImages = await _picker.pickMultiImage();
+    final ImagePicker picker = ImagePicker();
+    final List<XFile>? selectedImages = await picker.pickMultiImage();
     if (selectedImages != null) {
       setState(() {
         _images.addAll(selectedImages);
@@ -151,11 +151,9 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
       Medidas medidas = _getMedidaByControllers();
       List<Uint8List>? imagesBytes = [];
 
-      if (_images != null) {
-        for (XFile img in _images) {
-          Uint8List imgBytes = await img.readAsBytes();
-          imagesBytes.add(imgBytes);
-        }
+      for (XFile img in _images) {
+        Uint8List imgBytes = await img.readAsBytes();
+        imagesBytes.add(imgBytes);
       }
 
       MedidasMethods().createMedidas(medidas: medidas, pictures: imagesBytes);
@@ -402,7 +400,7 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
         GridView.count(
           shrinkWrap: true,
           physics:
-              NeverScrollableScrollPhysics(), // To work inside SingleChildScrollView
+              const NeverScrollableScrollPhysics(), // To work inside SingleChildScrollView
           crossAxisCount: 2,
           childAspectRatio: 4, // Adjusts the aspect ratio of the grid tiles
           crossAxisSpacing: 4, // Horizontal space between tiles

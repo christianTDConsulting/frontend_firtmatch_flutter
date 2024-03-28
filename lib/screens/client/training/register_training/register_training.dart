@@ -18,10 +18,10 @@ class RegisterTrainingScreen extends StatefulWidget {
     required this.user,
   });
   @override
-  _RegisterTrainingScreen createState() => _RegisterTrainingScreen();
+  RegisterTrainingState createState() => RegisterTrainingState();
 }
 
-class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
+class RegisterTrainingState extends State<RegisterTrainingScreen> {
   SesionEntrenamiento existingSession = SesionEntrenamiento(
     sessionId: 0,
     templateId: 0,
@@ -59,9 +59,9 @@ class _RegisterTrainingScreen extends State<RegisterTrainingScreen> {
     _initData();
   }
 
-  void _setLoadingState(bool loading) {
-    setState(() => isLoading = loading);
-  }
+  // void _setLoadingState(bool loading) {
+  //   setState(() => isLoading = loading);
+  // }
 
   Widget _buildSectionContent(String content) {
     return Container(

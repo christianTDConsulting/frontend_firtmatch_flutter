@@ -6,7 +6,7 @@ import 'package:fit_match/services/registro_service.dart';
 import 'package:fit_match/services/review_service.dart';
 import 'package:fit_match/widget/chip_section.dart';
 import 'package:fit_match/widget/custom_button_session.dart';
-import 'package:fit_match/widget/exercise_card/overviewPlantilla.dart';
+import 'package:fit_match/widget/exercise_card/overview_plantilla.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:intl/intl.dart';
@@ -29,10 +29,10 @@ class PostCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PostCardState createState() => _PostCardState();
+  PostCardState createState() => PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class PostCardState extends State<PostCard> {
   String _selectedOption = 'General';
   bool _isLoading = true; // Indicador de carga general
   bool _isLoadingActivePost = true; //Indicador de carga para el botón de activo
@@ -197,7 +197,7 @@ class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final String StateRegister =
+    final String stateRegister =
         _lastSessionIsFinished ? 'Empezar sesión ' : 'Continuar con sesión';
     final String buttonTextName = _lastSessionRegistrada != null
         ? _lastSessionRegistrada!.sessionName
@@ -252,7 +252,7 @@ class _PostCardState extends State<PostCard> {
               child: CustomButtonSession(
                   icon: Icons.sports_gymnastics_outlined,
                   onTap: () => {_navigateToRegisterSession()},
-                  text: '$StateRegister $buttonTextName'),
+                  text: '$stateRegister $buttonTextName'),
             ),
         ],
       ),

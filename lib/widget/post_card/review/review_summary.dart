@@ -22,10 +22,10 @@ class ReviewSummaryWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ReviewSummaryWidgetState createState() => _ReviewSummaryWidgetState();
+  ReviewSummaryWidgetState createState() => ReviewSummaryWidgetState();
 }
 
-class _ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
+class ReviewSummaryWidgetState extends State<ReviewSummaryWidget> {
   void _showReviewInput(BuildContext context, double width) {
     Navigator.of(context).push(
       MaterialPageRoute(

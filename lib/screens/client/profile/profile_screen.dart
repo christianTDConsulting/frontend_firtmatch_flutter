@@ -7,7 +7,7 @@ import 'package:fit_match/screens/shared/login_screen.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/edit_Icon.dart';
+import 'package:fit_match/widget/edit_icon.dart';
 import 'package:fit_match/widget/text_field_input.dart';
 
 import 'package:flutter/material.dart';
@@ -625,7 +625,7 @@ class ViewProfileState extends State<ViewProfileScreen> {
         fontSize: 14, color: Theme.of(context).colorScheme.onBackground);
     const contentPadding = EdgeInsets.symmetric(vertical: 0, horizontal: 16);
 
-    final primaryContainer = Theme.of(context).colorScheme.primaryContainer;
+    // final primaryContainer = Theme.of(context).colorScheme.primaryContainer;
     if (isExpandable) {
       return ExpansionTile(
         leading: Icon(icon,

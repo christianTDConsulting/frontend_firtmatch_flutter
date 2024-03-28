@@ -13,10 +13,10 @@ class ViewHistorialScreen extends StatefulWidget {
   const ViewHistorialScreen({Key? key, required this.user}) : super(key: key);
 
   @override
-  _ViewHistorialScreen createState() => _ViewHistorialScreen();
+  ViewHistorialState createState() => ViewHistorialState();
 }
 
-class _ViewHistorialScreen extends State<ViewHistorialScreen> {
+class ViewHistorialState extends State<ViewHistorialScreen> {
   List<SesionEntrenamiento> sesiones = [];
   DateTime?
       selectedDay; // Cambiado para permitir nulo, indicando ninguna selección

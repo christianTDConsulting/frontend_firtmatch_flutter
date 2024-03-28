@@ -205,7 +205,7 @@ class _LineChartSample extends State<LineChartSample> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    const dayInMilliseconds = 86400000;
+    // const dayInMilliseconds = 86400000;
     final style = TextStyle(
       color: Theme.of(context).colorScheme.onBackground,
       fontWeight: FontWeight.bold,
@@ -372,8 +372,8 @@ class _LineChartSample extends State<LineChartSample> {
     double rangeY = maxY - minY; // El rango total en el eje Y
     minY -= rangeY * marginFactor; // Resta el margen al mínimo
     maxY += rangeY * marginFactor; // Añade el margen al máximo
-    double visibleRange =
-        originalMaxX - originalMinX; // Actualiza esto según el zoom
+    // double visibleRange =
+    //     originalMaxX - originalMinX; // Actualiza esto según el zoom
 
     return LineChartData(
       lineTouchData: LineTouchData(

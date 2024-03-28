@@ -5,21 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:provider/provider.dart';
 
-class mobileLayout extends StatefulWidget {
+class MobileLayout extends StatefulWidget {
   final User user;
   final int initialPage;
 
-  const mobileLayout({
+  const MobileLayout({
     Key? key,
     required this.user,
     this.initialPage = 0,
   }) : super(key: key);
 
   @override
-  _mobileLayout createState() => _mobileLayout();
+  MobileLayoutState createState() => MobileLayoutState();
 }
 
-class _mobileLayout extends State<mobileLayout> {
+class MobileLayoutState extends State<MobileLayout> {
   late PageController pageController; // for tabs animation
 
   @override

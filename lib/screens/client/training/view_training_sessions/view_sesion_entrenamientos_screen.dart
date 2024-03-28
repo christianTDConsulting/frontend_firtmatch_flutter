@@ -145,8 +145,6 @@ class _ViewSesionEntrenamientoScreen
   }
 
   Widget _buildEntrenamientosList(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
     if (sesiones.isEmpty) {
       return const Text(
         'No hay sesiones de entrenamiento todavía',

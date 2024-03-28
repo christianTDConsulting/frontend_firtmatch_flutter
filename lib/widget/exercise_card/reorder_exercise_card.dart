@@ -10,10 +10,10 @@ class ReorderExercises extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ReorderExercisesState createState() => _ReorderExercisesState();
+  ReorderExercisesState createState() => ReorderExercisesState();
 }
 
-class _ReorderExercisesState extends State<ReorderExercises> {
+class ReorderExercisesState extends State<ReorderExercises> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

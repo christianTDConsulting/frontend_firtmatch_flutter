@@ -207,11 +207,13 @@ class TipoDeRegistro {
 class GrupoMuscular {
   final int muscleGroupId;
   final String? name;
+  final String? iconName;
   //final List<Ejercicios> ejercicios;
 
   GrupoMuscular({
     required this.muscleGroupId,
     this.name,
+    this.iconName,
     //required this.ejercicios,
   });
 
@@ -219,6 +221,7 @@ class GrupoMuscular {
     return GrupoMuscular(
       muscleGroupId: json['muscle_group_id'],
       name: json['name'],
+      iconName: json['icon_name'],
       /* 
      ejercicios: (json['ejercicios'] as List)
           .map((ejercicio) => Ejercicios.fromJson(ejercicio))
@@ -231,6 +234,7 @@ class GrupoMuscular {
     return {
       'muscle_group_id': muscleGroupId,
       'name': name,
+      'icon_name': iconName,
       //'ejercicios': ejercicios.map((ejercicio) => ejercicio.toJson()).toList(),
     };
   }

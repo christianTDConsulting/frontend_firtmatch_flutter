@@ -98,7 +98,7 @@ class MedidasMethods {
     }
 
     // Añadir campos condicionalmente
-    addFieldIfNotEmpty('user_id', medidas.userId?.toString());
+    addFieldIfNotEmpty('user_id', medidas.userId.toString());
     addFieldIfNotEmpty('left_arm', medidas.leftArm?.toString());
     addFieldIfNotEmpty('right_arm', medidas.rightArm?.toString());
     addFieldIfNotEmpty('shoulders', medidas.shoulders?.toString());

@@ -65,11 +65,11 @@ class AuthMethods {
     return res;
   }
 
-  Future<bool> updateUserPreference(num user_id) async {
+  Future<bool> updateUserPreference(num userId) async {
     try {
       initPrefrences();
       final response = await http.get(
-        Uri.parse('$usuarioTokenUrl/$user_id'),
+        Uri.parse('$usuarioTokenUrl/$userId'),
       );
       if (response.statusCode == 200) {
         await preferences!
@@ -199,7 +199,7 @@ class UserMethods {
     }
   }
 
-  Future<bool> UserWithEmailDoesntExists(String email) async {
+  Future<bool> userWithEmailDoesntExists(String email) async {
     try {
       final response = await http.get(Uri.parse('$usuariosUrl/email/$email'));
 

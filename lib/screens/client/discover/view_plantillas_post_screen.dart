@@ -60,15 +60,19 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
     }
   }
 
-  Future<void> loadMorePosts() async {
-    // Si no hay más posts o ya está cargando, retorna.
-    if (!hasMore || isLoading) return;
+  Future<void> loadMorePosts({bool isRefresh = false}) async {
+    if (!hasMore || isLoading && !isRefresh) return;
 
-    // Inicia la carga de posts.
+    if (isRefresh) {
+      setState(() {
+        currentPage = 1;
+        posts.clear();
+      });
+    }
+
     _setLoadingState(true);
 
     try {
-      // Obtener nuevos posts.
       var newPosts = await PlantillaPostsMethods().getAllPosts(
         page: currentPage,
         pageSize: pageSize,
@@ -79,27 +83,14 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
         equipment: selectedEquipments,
         duration: selectedDurations,
       );
-      if (newPosts.isEmpty) {
-        setState(() {
-          hasMore = false;
-          showToast(
-            context,
-            "No hay mas rutinas disponibles.",
-          );
-        });
-      }
-      // Actualizar la lista de posts y el estado si el componente sigue montado.
-      else if (mounted) {
+
+      if (mounted) {
         _updatePostsList(newPosts);
       }
     } catch (e) {
-      // En caso de error, actualiza el estado.
-      _handleLoadingError(e);
+      if (mounted) _handleLoadingError(e);
     } finally {
-      // Finalmente, asegura que se actualice el estado de carga.
-      if (mounted) {
-        _setLoadingState(false);
-      }
+      if (mounted) _setLoadingState(false);
     }
   }
 
@@ -121,6 +112,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       if (newPosts.isNotEmpty) {
         currentPage++;
         posts.addAll(newPosts);
+        print(posts.length);
       } else {
         hasMore = false;
       }
@@ -143,6 +135,11 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   }
 
   //FILTROS
+
+  void _onFilterApplied() {
+    loadMorePosts(isRefresh: true);
+  }
+
   int _countActiveFilters() {
     return selectedObjectives.length +
         selectedInterests.length +
@@ -159,6 +156,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       selectedEquipments.clear();
       selectedDurations.clear();
     });
+    _onFilterApplied();
 
     // Opcional: Recargar los posts sin filtros aquí
   }
@@ -166,12 +164,14 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   void _onSearchChanged(String text) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-        filtroBusqueda = text;
-      });
+      if (mounted) {
+        setState(() {
+          filtroBusqueda = text;
+        });
+        loadMorePosts(
+            isRefresh: true); // Carga posts con el filtro actualizado.
+      }
     });
-    loadMorePosts();
-    // load post
   }
 
   void _showFilters() async {
@@ -189,7 +189,7 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       });
 
       // Actualizar los posts con los filtros seleccionados
-      loadMorePosts();
+      _onFilterApplied();
     }
   }
 

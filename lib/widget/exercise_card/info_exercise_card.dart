@@ -16,7 +16,7 @@ Widget buildInfoGroupCard(
           int ejercicioIndex = entry.key;
           EjercicioDetallado ejercicioDetallado = entry.value;
           String letterExercise = grupo.ejerciciosDetallados.length > 1
-              ? '${getExerciseLetter(ejercicioIndex)}'
+              ? getExerciseLetter(ejercicioIndex)
               : '';
           String tituloUnico = '${groupIndex + 1}$letterExercise';
           return Column(

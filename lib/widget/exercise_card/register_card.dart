@@ -29,10 +29,10 @@ class RegisterCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RegisterCard createState() => _RegisterCard();
+  RegisterCardState createState() => RegisterCardState();
 }
 
-class _RegisterCard extends State<RegisterCard> {
+class RegisterCardState extends State<RegisterCard> {
   Timer? _debounce;
 
   @override
@@ -288,10 +288,10 @@ class SetRow extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SetRowState createState() => _SetRowState();
+  SetRowState createState() => SetRowState();
 }
 
-class _SetRowState extends State<SetRow> {
+class SetRowState extends State<SetRow> {
   late TextEditingController repsController;
   late TextEditingController weightController;
   Timer? _debounce;

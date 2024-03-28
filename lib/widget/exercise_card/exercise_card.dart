@@ -33,10 +33,10 @@ class ExerciseCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ExerciseCard createState() => _ExerciseCard();
+  ExerciseCardState createState() => ExerciseCardState();
 }
 
-class _ExerciseCard extends State<ExerciseCard> {
+class ExerciseCardState extends State<ExerciseCard> {
   Map<int, int> selectedRegisterTypes = {};
   Map<int, TextEditingController> noteControllers = {};
   Map<int, bool> showNote = {};
@@ -353,10 +353,10 @@ class SetRow extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SetRowState createState() => _SetRowState();
+  SetRowState createState() => SetRowState();
 }
 
-class _SetRowState extends State<SetRow> {
+class SetRowState extends State<SetRow> {
   late TextEditingController minController;
   late TextEditingController maxController;
   Timer? _debounce;

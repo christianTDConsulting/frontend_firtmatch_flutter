@@ -25,10 +25,10 @@ class ReviewListWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ReviewListWidgetState createState() => _ReviewListWidgetState();
+  ReviewListWidgetState createState() => ReviewListWidgetState();
 }
 
-class _ReviewListWidgetState extends State<ReviewListWidget> {
+class ReviewListWidgetState extends State<ReviewListWidget> {
   final TextEditingController _textController = TextEditingController();
 
   Map<num, bool> commentsVisibility = {};
@@ -489,7 +489,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
   }
 
   Widget _buildCommentItem(ComentarioReview comentario, num width) {
-    final _timeAgo = formatTimeAgo(comentario.timestamp);
+    final timeAgo = formatTimeAgo(comentario.timestamp);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -515,7 +515,7 @@ class _ReviewListWidgetState extends State<ReviewListWidget> {
                             : const TextScaler.linear(1.2)),
                     const SizedBox(width: 4),
                     Text(
-                      "-$_timeAgo",
+                      "-$timeAgo",
                       style: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).colorScheme.primary),

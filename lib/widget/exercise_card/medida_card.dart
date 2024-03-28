@@ -11,7 +11,8 @@ class MedidaCard extends StatelessWidget {
   final Medidas medida;
   final User user;
   final Function(int) onDelete;
-  MedidaCard({
+  const MedidaCard({
+    super.key,
     required this.medida,
     required this.user,
     required this.onDelete,
