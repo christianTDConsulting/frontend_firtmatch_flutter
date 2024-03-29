@@ -52,7 +52,7 @@ class SesionEntrenamientoMethods {
   }
 
   Future<List<SesionEntrenamiento>> getSesionesEntrenamientoByTemplateId(
-      templateId) async {
+      int templateId) async {
     final response = await http.get(
       Uri.parse('$sesionEntrenamientoTemplateUrl/$templateId'),
     );

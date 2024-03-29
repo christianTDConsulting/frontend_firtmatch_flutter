@@ -112,7 +112,6 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
       if (newPosts.isNotEmpty) {
         currentPage++;
         posts.addAll(newPosts);
-        print(posts.length);
       } else {
         hasMore = false;
       }

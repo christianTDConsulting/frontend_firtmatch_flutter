@@ -1,7 +1,11 @@
+import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
+import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/widget/dialog.dart';
+import 'package:fit_match/widget/exercise_info.dart';
 import 'package:fit_match/widget/preferences.dart';
 import 'package:fit_match/models/review.dart';
 import 'package:fit_match/screens/client/discover/view_plantillas_post_screen.dart';
@@ -181,14 +185,34 @@ String getExerciseLetter(int index) {
 
 // for getting kg to lbs and viceversa
 
-double fromKgToLbs(double kg) {
+double fromKgToLbs(num kg) {
   return double.parse((kg * 2.20462).toStringAsFixed(2));
 }
 
-double fromCmToInches(double cm) {
+double fromCmToInches(num cm) {
   return double.parse((cm * 0.393701).toStringAsFixed(2));
 }
 
-// for displaying all medidas atributes on a dropdown 
+Future<String?> getIconNameByMuscleGroupId(
+    int muscleGroupId, List<GrupoMuscular> groups) async {
+  if (groups.isEmpty) {
+    groups = await EjerciciosMethods().getGruposMusculares();
+  }
 
+  final GrupoMuscular group = groups.firstWhere(
+    (group) => group.muscleGroupId == muscleGroupId,
+  );
 
+  return group.iconName;
+}
+
+void showDialogExerciseInfo(BuildContext context, String name,
+    String? description, String? imagen, String? videoUrl) async {
+  CustomDialog.show(
+    context,
+    buildInfoWidget(name, description, imagen, videoUrl),
+    () {
+      print('Diálogo cerrado');
+    },
+  );
+}

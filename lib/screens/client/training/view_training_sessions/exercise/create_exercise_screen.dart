@@ -1,6 +1,7 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
+import 'package:fit_match/widget/my_youtube_player.dart';
 import 'package:flutter/material.dart';
 // import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -141,8 +142,7 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
               if (_previewImageUrl != null) ...[
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
-                  child: Image.asset(_previewImageUrl!,
-                      height: 100), // Ajusta según necesites
+                  child: Image.asset(_previewImageUrl!, height: 100),
                 ),
               ],
               DropdownButtonFormField<Equipment>(
@@ -171,6 +171,11 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
                 controller: _urlController,
                 decoration:
                     const InputDecoration(labelText: 'URL del Video (YouTube)'),
+                onChanged: (value) {
+                  setState(() {
+                    // Esto fuerza a que el widget se reconstruya y revise la condición de si mostrar o no el reproductor.
+                  });
+                },
                 validator: (value) {
                   if (value != null &&
                       value.isNotEmpty &&
@@ -180,14 +185,10 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
                   return null;
                 },
               ),
-              // if (_youtubePlayerController != null)
-              //   YoutubePlayer(
-              //     controller: _youtubePlayerController!,
-              //     showVideoProgressIndicator: true,
-              //     onReady: () {
-              //       _youtubePlayerController!.addListener(() {});
-              //     },
-              //   ),
+              if (_urlController.text.isNotEmpty &&
+                  _urlController.text.contains("youtube.com/watch?v=")) ...[
+                Center(child: MyYoutubePlayer(uri: _urlController.text)),
+              ],
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {

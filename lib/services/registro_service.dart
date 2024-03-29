@@ -110,8 +110,8 @@ class RegistroMethods {
     bool? create,
     int? registerSetId,
     int? reps,
-    double? weight,
-    double? time,
+    num? weight,
+    num? time,
   }) async {
     final response = await http.post(
       Uri.parse(registrosUrl),

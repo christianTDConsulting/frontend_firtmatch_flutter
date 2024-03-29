@@ -48,7 +48,7 @@ class _LineChartSample extends State<LineChartSample> {
           value = 1;
           break;
         case 5: // Tiempo
-          value = entry.value.time ?? 0.0;
+          value = entry.value.time != null ? entry.value.time!.toDouble() : 0.0;
           break;
         case 6: // rango Tiempo
           value = (entry.value.time?.toDouble() ?? 0.0) *

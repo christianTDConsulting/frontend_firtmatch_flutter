@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
+import 'package:fit_match/widget/exercise_info.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 
 // import 'package:fit_match/widget/exercise_card/sets_list.dart';
@@ -93,14 +94,6 @@ class ExerciseCardState extends State<ExerciseCard> {
         });
         break;
     }
-  }
-
-  void _showDialog(String description, BuildContext context) async {
-    CustomDialog.show(
-      context,
-      Text(description),
-      () {},
-    );
   }
 
   void _onEditNote(int groupIndex, int exerciseIndex, String note) {
@@ -205,11 +198,20 @@ class ExerciseCardState extends State<ExerciseCard> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.info_outline),
-                    onPressed: () {
-                      _showDialog(
-                          ejercicioDetallado.ejercicio!.description ??
-                              'Sin descripción',
-                          context);
+                    onPressed: () async {
+                      String? iconName =
+                          ejercicioDetallado.ejercicio?.muscleGroupId != null
+                              ? await getIconNameByMuscleGroupId(
+                                  ejercicioDetallado.ejercicio!.muscleGroupId,
+                                  [])
+                              : null;
+
+                      showDialogExerciseInfo(
+                          context,
+                          ejercicioDetallado.ejercicio!.name,
+                          ejercicioDetallado.ejercicio!.description,
+                          iconName,
+                          ejercicioDetallado.ejercicio!.video);
                     },
                     constraints: const BoxConstraints(),
                     alignment: Alignment.centerRight,

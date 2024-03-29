@@ -86,10 +86,11 @@ class EjercicioDetallado {
 
 class Ejercicios {
   final int exerciseId;
-  final String name;
-  final String? description;
-  final int muscleGroupId;
-  final int? materialId;
+  String name;
+  String? description;
+  int muscleGroupId;
+  int? materialId;
+  String? video;
 
   Ejercicios({
     required this.exerciseId,
@@ -97,6 +98,7 @@ class Ejercicios {
     this.description,
     required this.muscleGroupId,
     this.materialId,
+    this.video,
   });
 
   factory Ejercicios.fromJson(Map<String, dynamic> json) {
@@ -106,6 +108,7 @@ class Ejercicios {
       description: json['description'],
       muscleGroupId: json['muscle_group_id'],
       materialId: json['material_id'],
+      video: json['video'],
     );
   }
 
@@ -116,6 +119,7 @@ class Ejercicios {
       'description': description,
       'muscle_group_id': muscleGroupId,
       'material_id': materialId,
+      'video': video,
     };
   }
 }
@@ -126,11 +130,11 @@ class SetsEjerciciosEntrada {
   List<RegistroSet>? registroSet;
   int setOrder;
   int? reps;
-  double? time;
+  num? time;
   int? minReps;
   int? maxReps;
-  double? minTime;
-  double? maxTime;
+  num? minTime;
+  num? maxTime;
 
   SetsEjerciciosEntrada({
     this.setId,

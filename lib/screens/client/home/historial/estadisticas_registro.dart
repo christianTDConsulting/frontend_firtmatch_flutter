@@ -401,7 +401,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     return listViewTitles;
   }
 
-  _getWeight(double weight) {
+  _getWeight(num weight) {
     if (widget.user.system == 'imperial') {
       return fromKgToLbs(weight);
     } else if (widget.user.system == 'metrico') {

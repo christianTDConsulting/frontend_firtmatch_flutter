@@ -6,7 +6,9 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/exercise/create_exercise_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/dimensions.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
+import 'package:fit_match/widget/exercise_info.dart';
 import 'package:fit_match/widget/exercise_list_item_seletable.dart';
 import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/material.dart';
@@ -136,16 +138,6 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
     setState(() {
       equipment = mats;
     });
-  }
-
-  void _showDialog(String description) async {
-    CustomDialog.show(
-      context,
-      Text(description),
-      () {
-        print('Diálogo cerrado');
-      },
-    );
   }
 
   void _selectExercise(Ejercicios ejercicio) {
@@ -303,10 +295,16 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
                     order: selectedExercisesOrder[exercises[index].exerciseId],
                     onSelectedEjercicio: (exercise) =>
                         _selectExercise(exercise),
-                    onPressedInfo: () {
-                      _showDialog(exercises[index].description != null
-                          ? exercises[index].description!
-                          : 'Sin descripción');
+                    onPressedInfo: () async {
+                      String? iconName = await getIconNameByMuscleGroupId(
+                          exercises[index].muscleGroupId, muscleGroups);
+
+                      showDialogExerciseInfo(
+                          context,
+                          exercises[index].name,
+                          exercises[index].description,
+                          iconName,
+                          exercises[index].video);
                     },
                   );
                 } else {

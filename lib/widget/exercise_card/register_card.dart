@@ -3,7 +3,6 @@ import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/expandable_text.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/material.dart';
@@ -50,14 +49,6 @@ class RegisterCardState extends State<RegisterCard> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  void _showDialog(String description, BuildContext context) async {
-    CustomDialog.show(
-      context,
-      Text(description),
-      () {},
-    );
   }
 
   _getThisRegisterSessionSets(SetsEjerciciosEntrada setsEjerciciosEntrada) {
@@ -150,11 +141,19 @@ class RegisterCardState extends State<RegisterCard> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.info_outline),
-                  onPressed: () {
-                    _showDialog(
-                        ejercicioDetallado.ejercicio!.description ??
-                            'Sin descripción',
-                        context);
+                  onPressed: () async {
+                    String? iconName =
+                        ejercicioDetallado.ejercicio?.muscleGroupId != null
+                            ? await getIconNameByMuscleGroupId(
+                                ejercicioDetallado.ejercicio!.muscleGroupId, [])
+                            : null;
+
+                    showDialogExerciseInfo(
+                        context,
+                        ejercicioDetallado.ejercicio!.name,
+                        ejercicioDetallado.ejercicio!.description,
+                        iconName,
+                        ejercicioDetallado.ejercicio!.video);
                   },
                   constraints: const BoxConstraints(),
                   alignment: Alignment.centerRight,
@@ -426,7 +425,7 @@ class SetRowState extends State<SetRow> {
     });
   }
 
-  String transformWeightIntoLbs(double? weight) {
+  String transformWeightIntoLbs(num? weight) {
     if (weight == null) {
       return '';
     }
