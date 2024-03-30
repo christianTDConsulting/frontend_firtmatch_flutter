@@ -237,6 +237,7 @@ class PostCardState extends State<PostCard> {
                         ),
                         const SizedBox(height: 12),
                         _buildContentBasedOnSelection(width),
+                        const SizedBox(height: 80),
                       ],
                     ),
                   ),

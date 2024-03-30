@@ -165,12 +165,23 @@ class ViewTrainingState extends State<ViewTrainingScreen>
     super.initState();
     _loadTrainingTemplates();
     _tabController = TabController(length: 3, vsync: this);
+
+    // Añade un listener para escuchar cambios en la selección de pestañas.
+    _tabController.addListener(() {
+      // Llama a setState cada vez que el índice del controlador cambia.
+      // Esto asegura que la UI se actualice correctamente para mostrar/ocultar
+      // el FloatingActionButton en respuesta a cambios de pestaña.
+      setState(() {
+        // Este bloque puede permanecer vacío o puedes usarlo para ejecutar
+        // código adicional cuando cambie la pestaña, si es necesario.
+      });
+    });
   }
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -236,26 +247,25 @@ class ViewTrainingState extends State<ViewTrainingScreen>
           ...lista
               .map((template) => _buildListItem(width, template, tipo))
               .toList(),
-          if (tipo == 'Creados')
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: _createNewTemplate,
-                  child: const Icon(Icons.add),
-                ),
-              ),
-            ),
+          // if (tipo == 'Creados')
+          //   Align(
+          //     alignment: Alignment.bottomRight,
+          //     child: Padding(
+          //       padding: const EdgeInsets.all(16.0),
+          //       child: FloatingActionButton(
+          //         onPressed: _createNewTemplate,
+          //         child: const Icon(Icons.add),
+          //       ),
+          //     ),
+          //   ),
         ],
       ),
     );
   }
 
   Widget _buildListItem(double width, PlantillaPost template, String tipo) {
-    return buildPostItem(
-      template,
-      width,
+    return PreviewPostItem(
+      post: template,
       showPost: () => tipo == 'Activos'
           ? _verMas(template)
           : (tipo == 'Creados' ? _editTemplate(template) : null),

@@ -82,6 +82,8 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
         interests: selectedInterests,
         equipment: selectedEquipments,
         duration: selectedDurations,
+        isPublic: true,
+        isHidden: false,
       );
 
       if (mounted) {
@@ -254,9 +256,8 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
             }
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 15.0),
-              child: buildPostItem(
-                posts[index],
-                width,
+              child: PreviewPostItem(
+                post: posts[index],
                 showPost: () => _showPost(posts[index]),
               ),
             );
