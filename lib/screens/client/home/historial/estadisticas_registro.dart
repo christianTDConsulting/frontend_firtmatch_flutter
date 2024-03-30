@@ -259,6 +259,17 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
 
   List<Widget> _getTitlesBasedInRegisterType(int registerTypeId) {
     switch (registerTypeId) {
+      case 3:
+        return [
+          const Expanded(
+            child: Text(
+              "Repeticiones",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ];
       case 4: // AMRAP
         return [
           const Expanded(
@@ -345,7 +356,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
       case 5: // Tiempo
         rowContent.add(
           Expanded(
-            child: Text("${registro.time} min",
+            child: Text("${registro.time ?? 0} min",
                 style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         );
@@ -353,11 +364,12 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
       case 6: // Rango de tiempo
         rowContent.addAll([
           Expanded(
-            child: Text("${registro.time} min",
+            child: Text("${registro.time ?? 0} min",
                 style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           Expanded(
-            child: Text("${_getWeight(registro.weight!)} ${_getSystemUnit()}",
+            child: Text(
+                "${_getWeight(registro.weight ?? 0)} ${_getSystemUnit()}",
                 style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ]);
@@ -365,11 +377,12 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
       default: // Otro tipo
         rowContent.addAll([
           Expanded(
-            child: Text("${registro.reps} reps",
+            child: Text("${registro.reps ?? 0} reps",
                 style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           Expanded(
-            child: Text("${_getWeight(registro.weight!)} ${_getSystemUnit()}",
+            child: Text(
+                "${_getWeight(registro.weight ?? 0)} ${_getSystemUnit()}",
                 style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ]);

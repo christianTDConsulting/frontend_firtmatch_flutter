@@ -385,28 +385,34 @@ class _LineChartSample extends State<LineChartSample> {
                   (spot) => spot.x == barSpot.x && spot.y == barSpot.y);
               if (dataIndex != -1) {
                 final data = widget.registroSet[dataIndex];
-                String text =
-                    "${data.reps} repes x  ${widget.system == 'metrico' ? data.weight : fromKgToLbs(data.weight ?? 0.0)} $system";
+                // Asumiendo que 'fromKgToLbs' maneja correctamente valores nulos o esto se ajusta antes de la llamada
+                final weightText = widget.system == 'metrico'
+                    ? (data.weight ?? 0.0)
+                    : fromKgToLbs(data.weight ?? 0.0);
+                final system = widget.system == 'metrico'
+                    ? 'kg'
+                    : 'lbs'; // Asegúrate de que esta variable 'system' esté definida correctamente en tu código
+                String text = "${data.reps ?? 0} repes x $weightText $system";
+
                 switch (widget.registerTypeId) {
                   case 4: // AMRAP: usar 'reps'
-                    text = "Armrap";
+                    text = "AMRAP: ${data.reps ?? 0} repes";
                     break;
                   case 5: // Tiempo
-                    text = "${data.time} minutos";
+                    text = "${data.time ?? 0} minutos";
                     break;
-                  case 6: // rango Tiempoç
-
-                    text =
-                        "${data.time} minutos x ${widget.system == 'metrico' ? data.weight : fromKgToLbs(data.weight ?? 0.0)} $system";
-
+                  case 6: // Rango de Tiempo
+                    text = "${data.time ?? 0} minutos x $weightText $system";
                     break;
                 }
+
                 return LineTooltipItem(
                   text,
                   TextStyle(
                       color: Theme.of(context).colorScheme.onPrimaryContainer),
                 );
               }
+
               return null;
             }).toList();
           },

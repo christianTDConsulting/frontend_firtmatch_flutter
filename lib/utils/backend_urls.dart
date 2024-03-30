@@ -15,6 +15,9 @@ const usuarioTokenUrl = '${url}usuarioToken';
 // Plantilla (Template) Management
 const plantillaPostsUrl = '${url}plantillaPosts';
 
+//Duplicar plantilla
+const duplicarPlantillaUrl = '${url}duplicatePlantilla';
+
 //Plantilla toggle publico
 const plantillaPublicoUrl = '${url}plantillaPostsPublic';
 

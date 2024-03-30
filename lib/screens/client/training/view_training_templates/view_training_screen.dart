@@ -76,6 +76,18 @@ class ViewTrainingState extends State<ViewTrainingScreen>
     );
   }
 
+  void _duplicar(int templateId) async {
+    try {
+      await PlantillaPostsMethods().duplicatePlantilla(
+          userId: widget.user.user_id, templateId: templateId);
+
+      showToast(context, 'Plantilla duplicada correctamente');
+      _loadTrainingTemplates();
+    } catch (e) {
+      showToast(context, 'Error al duplicar la plantilla', exitoso: false);
+    }
+  }
+
   void _publicar(PlantillaPost template) async {
     try {
       final bool exito =
@@ -298,6 +310,11 @@ class ViewTrainingState extends State<ViewTrainingScreen>
               child: Text('Eliminar',
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
+              value: 'duplicar',
+              child: Text('Duplicar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
         ];
       case "Creados":
         String labelPublic = template.picture == null || !template.public
@@ -368,6 +385,10 @@ class ViewTrainingState extends State<ViewTrainingScreen>
 
       case 'delete_guardados':
         _delete(template.templateId, 'guardadas');
+        break;
+
+      case 'duplicar':
+        _duplicar(template.templateId);
         break;
     }
   }

@@ -76,6 +76,26 @@ class PlantillaPostsMethods {
     }
   }
 
+  Future<bool> duplicatePlantilla({
+    required num userId,
+    required num templateId,
+  }) async {
+    final response = await http.post(
+      Uri.parse(duplicarPlantillaUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'template_id': templateId,
+        'user_id': userId,
+      }),
+    );
+    if (response.statusCode == 201) {
+      return true;
+    } else {
+      throw Exception(
+          'Error al crear la plantilla. Código de estado: ${response.statusCode}');
+    }
+  }
+
   Future<int> postPlantilla({
     required num userId,
     required String templateName,

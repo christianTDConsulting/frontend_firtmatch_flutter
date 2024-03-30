@@ -201,7 +201,12 @@ class PreviewPostItem extends StatelessWidget {
                     child: SizedBox(
                       width: width > webScreenSize ? 250 : 100,
                       height: width > webScreenSize ? 250 : 100,
-                      child: Image.network(post.picture ?? ''),
+                      child: post.picture != null && post.picture!.isNotEmpty
+                          ? Image.network(post.picture!)
+                          : const Icon(
+                              Icons.image,
+                              size: 100,
+                            ),
                     ),
                   ),
                   Expanded(

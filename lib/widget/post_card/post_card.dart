@@ -287,9 +287,12 @@ class PostCardState extends State<PostCard> {
         border:
             Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
       ),
-      child: Image.network(
-        widget.post.picture ?? '',
-      ),
+      child: widget.post.picture != null && widget.post.picture!.isNotEmpty
+          ? Image.network(widget.post.picture!)
+          : const Icon(
+              Icons.image,
+              size: 300,
+            ),
     );
   }
 
