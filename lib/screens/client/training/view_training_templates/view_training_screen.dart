@@ -278,9 +278,8 @@ class ViewTrainingState extends State<ViewTrainingScreen>
   Widget _buildListItem(double width, PlantillaPost template, String tipo) {
     return PreviewPostItem(
       post: template,
-      showPost: () => tipo == 'Activos'
-          ? _verMas(template)
-          : (tipo == 'Creados' ? _editTemplate(template) : null),
+      showPost: () => _verMas(template),
+      // : (tipo == 'Creados' ? _editTemplate(template) : null),
       trailing: PopupMenuButton<String>(
         color: Theme.of(context).colorScheme.primary,
         onSelected: (value) => _handleMenuItemSelected(value, template),
@@ -335,7 +334,12 @@ class ViewTrainingState extends State<ViewTrainingScreen>
               value: 'publicar',
               child: Text(labelPublic,
                   style: TextStyle(
-                      color: Theme.of(context).colorScheme.background)))
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
+              value: 'duplicar',
+              child: Text('Duplicar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
         ];
       case "Archivados":
         return [
@@ -352,6 +356,11 @@ class ViewTrainingState extends State<ViewTrainingScreen>
           PopupMenuItem<String>(
               value: 'activar',
               child: Text('Activar',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.background))),
+          PopupMenuItem<String>(
+              value: 'duplicar',
+              child: Text('Duplicar',
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.background))),
         ];

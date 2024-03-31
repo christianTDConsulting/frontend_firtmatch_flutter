@@ -72,11 +72,14 @@ class CreateProgramScreenState extends State<CreateProgramScreen> {
         _descriptionController.text = editingTemplate!.description ?? '';
 
         // Cargar imagen desde Cloudinary
-        Uint8List? loadedImage =
-            await _loadImageFromUrl(editingTemplate!.picture!);
-        setState(() {
-          _thumbnailImage = loadedImage;
-        });
+        if (editingTemplate!.picture != null &&
+            editingTemplate!.picture!.isNotEmpty) {
+          Uint8List? loadedImage =
+              await _loadImageFromUrl(editingTemplate!.picture!);
+          setState(() {
+            _thumbnailImage = loadedImage;
+          });
+        }
 
         // Inicializar preferencias
         _initializePreferences(editingTemplate!);

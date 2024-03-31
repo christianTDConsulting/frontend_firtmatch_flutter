@@ -363,6 +363,7 @@ class PostCardState extends State<PostCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        buildSectionTitle('Creado por ${widget.post.username}'),
         if (sectionsMap['Experiencia']!.isNotEmpty)
           buildChipsSection(
               'Experiencia Recomendada', sectionsMap['Experiencia']!),
