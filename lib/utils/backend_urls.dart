@@ -80,3 +80,6 @@ const registrosSessionPlantillaUrl = '${url}registrosSessionPlantilla';
 
 //medidas
 const medidasUrl = '${url}medidas';
+
+//notificaciones
+const notificacionUrl = '${url}notificacion';

@@ -1,4 +1,5 @@
 import 'package:fit_match/models/user.dart';
+// import 'package:fit_match/providers/notifications.dart';
 import 'package:fit_match/providers/pageState.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -85,6 +86,40 @@ class MobileLayoutState extends State<MobileLayout> {
   BottomNavigationBarItem buildTabBarItem(Widget icon, int pageNumber) {
     return BottomNavigationBarItem(icon: icon);
   }
+
+  // BottomNavigationBarItem buildTabBarItemNumber(
+  //     Widget icon, int pageNumber, int notifCount) {
+  //   return BottomNavigationBarItem(
+  //     icon: Stack(
+  //       children: <Widget>[
+  //         icon,
+  //         if (notifCount > 0)
+  //           Positioned(
+  //             right: 0,
+  //             child: Container(
+  //               padding: const EdgeInsets.all(1),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.red,
+  //                 borderRadius: BorderRadius.circular(6),
+  //               ),
+  //               constraints: const BoxConstraints(
+  //                 minWidth: 12,
+  //                 minHeight: 12,
+  //               ),
+  //               child: Text(
+  //                 '$notifCount',
+  //                 style: const TextStyle(
+  //                   color: Colors.white,
+  //                   fontSize: 8,
+  //                 ),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //             ),
+  //           ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

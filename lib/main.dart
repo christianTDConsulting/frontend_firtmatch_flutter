@@ -1,3 +1,4 @@
+// import 'package:fit_match/providers/notifications.dart';
 import 'package:fit_match/providers/pageState.dart';
 import 'package:fit_match/providers/theme_provider.dart';
 
@@ -18,6 +19,7 @@ void main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => PageState()),
     ChangeNotifierProvider(create: (_) => ThemeProvider.instance),
+    // ChangeNotifierProvider(create: (_) => NotificationCounter()),
   ], child: MyApp(token: token, theme: ThemeData())));
 }
 

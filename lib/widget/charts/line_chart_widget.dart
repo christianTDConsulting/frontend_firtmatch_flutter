@@ -37,31 +37,37 @@ class _LineChartSample extends State<LineChartSample> {
 
   List<FlSpot> getSpotsFromRegistros(
       List<RegistroSet> registros, int registerTypeId) {
-    return registros.asMap().entries.map((entry) {
-      // int index = entry.key;
-      double value = 0.0; // Inicialización predeterminada
+    return registros
+        .asMap()
+        .entries
+        .map((entry) {
+          // int index = entry.key;
+          double value = 0.0; // Inicialización predeterminada
 
-      double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
+          double date = entry.value.timestamp.millisecondsSinceEpoch.toDouble();
 
-      switch (registerTypeId) {
-        case 4: // AMRAP: usar 'reps'
-          value = 1;
-          break;
-        case 5: // Tiempo
-          value = entry.value.time != null ? entry.value.time!.toDouble() : 0.0;
-          break;
-        case 6: // rango Tiempo
-          value = (entry.value.time?.toDouble() ?? 0.0) *
-              (entry.value.weight?.toDouble() ?? 0.0);
+          switch (registerTypeId) {
+            case 4: // AMRAP: usar 'reps'
+              value = 1;
+              break;
+            case 5: // Tiempo
+              value =
+                  entry.value.time != null ? entry.value.time!.toDouble() : 0.0;
+              break;
+            case 6: // rango Tiempo
+              value = (entry.value.time?.toDouble() ?? 0.0) *
+                  (entry.value.weight?.toDouble() ?? 0.0);
 
-          break;
-        default: // Otro tipo: usar 'weight' si eso tiene sentido
-          value = (entry.value.weight?.toDouble() ?? 0.0) *
-              (entry.value.reps?.toDouble() ?? 0.0);
-          break;
-      }
-      return FlSpot(date, value);
-    }).toList();
+              break;
+            default: // Otro tipo: usar 'weight' si eso tiene sentido
+              value = (entry.value.weight?.toDouble() ?? 0.0) *
+                  (entry.value.reps?.toDouble() ?? 0.0);
+              break;
+          }
+          return FlSpot(date, value);
+        })
+        .where((spot) => spot.y > 0)
+        .toList();
   }
 
   @override

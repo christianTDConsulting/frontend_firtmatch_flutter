@@ -35,12 +35,17 @@ class LineChartState extends State<LineChartMedidaSample> {
   late String system;
 
   List<FlSpot> getSpotsFromStatsMedida(List<StatMedida> medidas) {
-    return medidas.asMap().entries.map((entry) {
-      double value = entry.value.value;
-      double date = entry.value.date.millisecondsSinceEpoch.toDouble();
+    return medidas
+        .asMap()
+        .entries
+        .map((entry) {
+          double value = entry.value.value;
+          double date = entry.value.date.millisecondsSinceEpoch.toDouble();
 
-      return FlSpot(date, value);
-    }).toList();
+          return FlSpot(date, value);
+        })
+        .where((spot) => spot.y > 0)
+        .toList();
   }
 
   @override

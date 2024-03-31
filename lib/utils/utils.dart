@@ -3,6 +3,7 @@ import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
+import 'package:fit_match/screens/shared/notification_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/exercise_info.dart';
@@ -171,7 +172,7 @@ List<Widget> buildHomeScreenItems(User user) {
   return [
     HomeScreen(user: user),
     ViewTrainersScreen(user: user),
-    const Text('b'),
+    NotificationScreen(user: user),
     ViewTrainingScreen(user: user),
     ViewProfileScreen(user: user),
   ];
