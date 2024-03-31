@@ -55,6 +55,7 @@ class MedidaCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildInfoCard(),
+                    buildFotosProgresoSection(),
                   ],
                 ),
               ),
@@ -126,6 +127,42 @@ class MedidaCard extends StatelessWidget {
     );
   }
 
+  Widget buildFotosProgresoSection() {
+    // Verifica si hay fotos de progreso
+    if (medida.fotosProgreso == null || medida.fotosProgreso!.isEmpty) {
+      return Container(); // No mostrar sección si no hay fotos
+    }
+
+    // Muestra las fotos en un GridView o ListView
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            "Fotos de Progreso",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        GridView.builder(
+          shrinkWrap: true,
+          physics:
+              const NeverScrollableScrollPhysics(), // Para que el GridView no sea desplazable
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // Número de columnas
+            crossAxisSpacing: 4, // Espaciado horizontal
+            mainAxisSpacing: 4, // Espaciado vertical
+          ),
+          itemCount: medida.fotosProgreso!.length,
+          itemBuilder: (context, index) {
+            var foto = medida.fotosProgreso![index];
+            return Image.network(foto.imagen, fit: BoxFit.cover);
+          },
+        ),
+      ],
+    );
+  }
+
   Widget medidaSection(String title, String description) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -183,6 +220,7 @@ class MedidaCard extends StatelessWidget {
         MaterialPageRoute(
             builder: (context) => NuevaMedidaScreen(
                   user: user,
+                  medida: medida,
                 )));
   }
 

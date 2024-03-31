@@ -84,12 +84,12 @@ class _LineChartSample extends State<LineChartSample> {
   _initSpots() {
     List<FlSpot> spotsSinNormalizar =
         getSpotsFromRegistros(widget.registroSet, widget.registerTypeId);
-//deberían estar ordenados pero por si acaso
+    //deberían estar ordenados pero por si acaso
     spotsSinNormalizar.sort((a, b) => a.x.compareTo(b.x));
 
-// Un pequeño valor para incrementar los puntos con el mismo valor de x.
+    // Un pequeño valor para incrementar los puntos con el mismo valor de x.
     double increment = 0.001;
-//Para que no tengan los mismos valores de x
+    //Para que no tengan los mismos valores de x
     for (int i = 1; i < spotsSinNormalizar.length; i++) {
       if (spotsSinNormalizar[i].x == spotsSinNormalizar[i - 1].x) {
         // Encuentra el próximo valor único de x incrementando ligeramente.
@@ -103,7 +103,7 @@ class _LineChartSample extends State<LineChartSample> {
       }
     }
 
-// Ahora puedes proceder con la normalización y otros pasos como antes.
+    // Ahora puedes proceder con la normalización y otros pasos como antes.
 
     originalMinX = spotsSinNormalizar.isNotEmpty
         ? spotsSinNormalizar.map((spot) => spot.x).reduce(min)
@@ -118,6 +118,19 @@ class _LineChartSample extends State<LineChartSample> {
     originalMaxY = spotsSinNormalizar.isNotEmpty
         ? spotsSinNormalizar.map((spot) => spot.y).reduce(max)
         : 0.0;
+
+    // Incrementa ligeramente el rango de los valores min y max para el eje X
+    const double paddingX = 0.05; // 5% de padding
+    double rangeX = originalMaxX - originalMinX;
+    double paddingAmountX = rangeX * paddingX;
+    originalMinX -= paddingAmountX;
+    originalMaxX += paddingAmountX;
+
+    double rangeY = originalMaxY - originalMinY;
+    double paddingAmountY =
+        rangeY * paddingX; // Asumiendo el mismo porcentaje de padding
+    originalMinY -= paddingAmountY;
+    originalMaxY += paddingAmountY;
 
     spots = spotsSinNormalizar.map((spot) {
       double x = normalizeTimestamp(spot.x, originalMinX, originalMaxX, 0, 10);

@@ -3,8 +3,10 @@ import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/registro_service.dart';
+import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/charts/line_chart_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -108,7 +110,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
         }
       }
     }
-    int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
+    // int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
 
     return Scaffold(
       appBar: AppBar(
@@ -153,16 +155,19 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Center(child: buildGraphView(context)),
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : buildListView(context),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Center(child: buildGraphView(context)),
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : buildListView(context),
+          ],
+        ),
       ),
     );
   }
@@ -171,6 +176,7 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
     BuildContext context,
   ) {
     int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
+
     return LineChartSample(
       registroSet: registros,
       registerTypeId: registerTypeId,

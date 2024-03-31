@@ -13,10 +13,12 @@ import 'package:intl/intl.dart';
 
 class NuevaMedidaScreen extends StatefulWidget {
   final User user;
+  final Medidas? medida;
 
   const NuevaMedidaScreen({
     Key? key,
     required this.user,
+    this.medida,
   }) : super(key: key);
 
   @override
@@ -47,6 +49,31 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
 
   final _leftForearmController = TextEditingController();
   final _rightForearmController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.medida != null) {
+      // Inicializar los controladores con los valores de la medida para editar
+      _weightController.text = widget.medida!.weight?.toString() ?? '';
+      _waistController.text = widget.medida!.waist?.toString() ?? '';
+      _neckController.text = widget.medida!.neck?.toString() ?? '';
+      _chestController.text = widget.medida!.chest?.toString() ?? '';
+      _shoulderController.text = widget.medida!.shoulders?.toString() ?? '';
+      _leftLegController.text = widget.medida!.upperLeftLeg?.toString() ?? '';
+      _rightLegController.text = widget.medida!.upperRightLeg?.toString() ?? '';
+      _leftCalfController.text = widget.medida!.leftCalve?.toString() ?? '';
+      _rightCalfController.text = widget.medida!.rightCalve?.toString() ?? '';
+      _leftArmController.text = widget.medida!.leftArm?.toString() ?? '';
+      _rightArmController.text = widget.medida!.rightArm?.toString() ?? '';
+      _leftForearmController.text =
+          widget.medida!.leftForearm?.toString() ?? '';
+      _rightForearmController.text =
+          widget.medida!.rightForearm?.toString() ?? '';
+      // Considera también inicializar _images si guardas las URLs de las imágenes y puedes convertirlas a XFile o Uint8List
+    }
+    isLoading = false;
+  }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -156,8 +183,17 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
         imagesBytes.add(imgBytes);
       }
 
-      MedidasMethods().createMedidas(medidas: medidas, pictures: imagesBytes);
-      showToast(context, "Medidas añaddias!", exitoso: true);
+      if (widget.medida != null) {
+        // Pasar también el measurementId para la actualización
+        medidas.measurementId = widget.medida!.measurementId;
+        await MedidasMethods()
+            .updateMedidas(medidas: medidas, pictures: imagesBytes);
+        showToast(context, "Medidas actualizadas con éxito!", exitoso: true);
+      } else {
+        await MedidasMethods()
+            .createMedidas(medidas: medidas, pictures: imagesBytes);
+        showToast(context, "Medidas añadidas con éxito!", exitoso: true);
+      }
       Navigator.pop(context, true);
     }
   }
