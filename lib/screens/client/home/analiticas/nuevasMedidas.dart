@@ -26,7 +26,7 @@ class NuevaMedidaScreen extends StatefulWidget {
 }
 
 class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
-  bool isLoading = true;
+  bool isLoading = false;
   List<Medidas> medidas = [];
   final List<XFile> _images = [];
 
@@ -54,25 +54,40 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
   void initState() {
     super.initState();
     if (widget.medida != null) {
-      // Inicializar los controladores con los valores de la medida para editar
-      _weightController.text = widget.medida!.weight?.toString() ?? '';
-      _waistController.text = widget.medida!.waist?.toString() ?? '';
-      _neckController.text = widget.medida!.neck?.toString() ?? '';
-      _chestController.text = widget.medida!.chest?.toString() ?? '';
-      _shoulderController.text = widget.medida!.shoulders?.toString() ?? '';
-      _leftLegController.text = widget.medida!.upperLeftLeg?.toString() ?? '';
-      _rightLegController.text = widget.medida!.upperRightLeg?.toString() ?? '';
-      _leftCalfController.text = widget.medida!.leftCalve?.toString() ?? '';
-      _rightCalfController.text = widget.medida!.rightCalve?.toString() ?? '';
-      _leftArmController.text = widget.medida!.leftArm?.toString() ?? '';
-      _rightArmController.text = widget.medida!.rightArm?.toString() ?? '';
-      _leftForearmController.text =
-          widget.medida!.leftForearm?.toString() ?? '';
-      _rightForearmController.text =
-          widget.medida!.rightForearm?.toString() ?? '';
-      // Considera también inicializar _images si guardas las URLs de las imágenes y puedes convertirlas a XFile o Uint8List
+      _initializeControllers();
     }
-    isLoading = false;
+  }
+
+  void _initializeControllers() {
+    _initializeController(_weightController, widget.medida!.weight,
+        isWeight: true);
+    _initializeController(_waistController, widget.medida!.waist);
+    _initializeController(_neckController, widget.medida!.neck);
+    _initializeController(_chestController, widget.medida!.chest);
+    _initializeController(_shoulderController, widget.medida!.shoulders);
+    _initializeController(_leftLegController, widget.medida!.upperLeftLeg);
+    _initializeController(_rightLegController, widget.medida!.upperRightLeg);
+    _initializeController(_leftCalfController, widget.medida!.leftCalve);
+    _initializeController(_rightCalfController, widget.medida!.rightCalve);
+    _initializeController(_leftArmController, widget.medida!.leftArm);
+    _initializeController(_rightArmController, widget.medida!.rightArm);
+    _initializeController(_leftForearmController, widget.medida!.leftForearm);
+    _initializeController(_rightForearmController, widget.medida!.rightForearm);
+  }
+
+  void _initializeController(TextEditingController controller, double? value,
+      {bool isWeight = false}) {
+    String text = '';
+    if (value != null) {
+      if (widget.user.system == 'imperial') {
+        text = isWeight
+            ? fromKgToLbs(value).toStringAsFixed(2)
+            : fromCmToInches(value).toStringAsFixed(2);
+      } else {
+        text = value.toStringAsFixed(2);
+      }
+    }
+    controller.text = text;
   }
 
   Future<void> _pickImage() async {
@@ -172,6 +187,7 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
 
   _submitForm() async {
     //Si hay al menos un campo vacio toast de error si no se crea la medicion
+    setState(() => isLoading = true);
     if (_checkIfAllControllersAreEmpty()) {
       showToast(context, "Rellena al menos un campo", exitoso: false);
     } else {
@@ -194,6 +210,8 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
             .createMedidas(medidas: medidas, pictures: imagesBytes);
         showToast(context, "Medidas añadidas con éxito!", exitoso: true);
       }
+
+      setState(() => isLoading = false);
       Navigator.pop(context, true);
     }
   }
@@ -305,22 +323,24 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
           margin: const EdgeInsets.all(10),
           padding: const EdgeInsets.all(10),
           constraints: const BoxConstraints(maxWidth: 300),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_box_outlined,
-                size: 30,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              Text(
-                "Añadir nuevas medidas",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+          child: isLoading
+              ? const CircularProgressIndicator()
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_box_outlined,
+                      size: 30,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                    Text(
+                      "Guardar",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -508,25 +528,69 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
   }
 
   Widget buildPictures() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.primary),
-        borderRadius: BorderRadius.circular(10.0),
-        color: Theme.of(context).colorScheme.primaryContainer,
-      ),
-      constraints: const BoxConstraints(maxWidth: 600),
-      child: Column(children: [
-        const Text(
-          "Cambios visuales",
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+    if (widget.medida != null &&
+        widget.medida!.fotosProgreso != null &&
+        widget.medida!.fotosProgreso!.isNotEmpty &&
+        _images.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Theme.of(context).colorScheme.primaryContainer,
         ),
-        const SizedBox(height: 8.0),
-        const Text(
-            "Selecciona imagenes de tu físico para posterior comparación"),
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: buildMultiplePictureUrl(),
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.primary),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Theme.of(context).colorScheme.primaryContainer,
+        ),
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Column(children: [
+          const Text(
+            "Cambios visuales",
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8.0),
+          const Text(
+              "Selecciona imagenes de tu físico para posterior comparación"),
+          const SizedBox(height: 16.0),
+          buildMultiplePictureSelectores(),
+        ]),
+      );
+    }
+  }
+
+  Widget buildMultiplePictureUrl() {
+    double width = MediaQuery.of(context).size.width;
+    double imageSize = width < webScreenSize ? 100 : 150;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ElevatedButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.add_a_photo),
+          label: const Text("Seleccionar imágenes distintas"),
+        ),
         const SizedBox(height: 16.0),
-        buildMultiplePictureSelectores(),
-      ]),
+        Wrap(
+          spacing: 8.0, // Espacio horizontal entre las imágenes
+          runSpacing: 4.0, // Espacio vertical entre las imágenes
+          children: widget.medida!.fotosProgreso!.map((fotoProgreso) {
+            return Image.network(
+              fotoProgreso.imagen,
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.cover,
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 

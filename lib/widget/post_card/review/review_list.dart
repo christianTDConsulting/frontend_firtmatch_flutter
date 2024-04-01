@@ -1,4 +1,5 @@
 import 'package:fit_match/widget/expandable_text.dart';
+import 'package:fit_match/widget/imagen_detailed.dart';
 import 'package:fit_match/widget/post_card/star.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -376,9 +377,21 @@ class ReviewListWidgetState extends State<ReviewListWidget> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(
-          backgroundImage: NetworkImage(review.profilePicture),
-          radius: 20,
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ImageDetail(imageData: review.profilePicture),
+              ),
+            ),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(review.profilePicture),
+              radius: 20,
+            ),
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -496,9 +509,21 @@ class ReviewListWidgetState extends State<ReviewListWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(comentario.profilePicture),
-            radius: 20,
+          MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ImageDetail(imageData: comentario.profilePicture),
+                ),
+              ),
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(comentario.profilePicture),
+                radius: 20,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(
