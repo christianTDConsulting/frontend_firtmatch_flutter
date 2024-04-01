@@ -5,6 +5,7 @@ import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/edit_icon.dart';
+import 'package:fit_match/widget/imagen_detailed.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -628,7 +629,7 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => ImageDetailScreen(
+                                  builder: (_) => Unit8ImageDetail(
                                       imageData: snapshot.data!)));
                         },
                         child: Image.memory(
@@ -657,25 +658,6 @@ class _NuevaMedidaScreen extends State<NuevaMedidaScreen> {
           }).toList(),
         ),
       ],
-    );
-  }
-}
-
-class ImageDetailScreen extends StatelessWidget {
-  final Uint8List imageData;
-
-  const ImageDetailScreen({Key? key, required this.imageData})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Imagen en detalle"),
-      ),
-      body: Center(
-        child: Image.memory(imageData),
-      ),
     );
   }
 }

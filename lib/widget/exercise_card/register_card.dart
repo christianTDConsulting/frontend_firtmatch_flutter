@@ -4,8 +4,10 @@ import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/expandable_text.dart';
+import 'package:fit_match/widget/imagen_detailed.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterCard extends StatefulWidget {
   final EjerciciosDetalladosAgrupados ejercicioDetalladoAgrupado;
@@ -295,6 +297,7 @@ class SetRowState extends State<SetRow> {
   late TextEditingController weightController;
   Timer? _debounce;
   String weightUnit = '';
+  // XFile? videoFile; // Para almacenar el video seleccionado
 
   @override
   void initState() {
@@ -319,6 +322,29 @@ class SetRowState extends State<SetRow> {
         .length;
   }
 
+  // void _pickVideo() async {
+  //   final ImagePicker picker = ImagePicker();
+  //   final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+  //   if (video != null) {
+  //     setState(() {
+  //       videoFile = video;
+  //     });
+  //   }
+  // }
+
+  // void _viewVideo() {
+  //   Navigator.of(context).push(MaterialPageRoute(
+  //     builder: (context) => VideoDetailScreen(
+  //       videoPath: videoFile!.path,
+  //       onDeleteVideo: () {
+  //         setState(() {
+  //           videoFile = null;
+  //         });
+  //       },
+  //     ),
+  //   ));
+  // }
+
   RegistroSet get actualSet {
     return widget.set.registroSet!.elementAt(widget.registroIndex);
   }
@@ -337,27 +363,31 @@ class SetRowState extends State<SetRow> {
   }
 
   RegistroSet? get previousToLastSet {
-    // Verificar si la lista está vacía o si solo tiene un elemento
-    if (widget.set.registroSet!.isEmpty || widget.set.registroSet!.length < 2) {
-      return null;
-    } else {
-      // Filtrar los registros que no pertenecen a la sesión actual
-      var filteredSets = widget.set.registroSet!
-          .where((element) =>
-              element.registerSessionId != widget.registerSessionId)
-          .toList();
+    // Filtrar los registros que no pertenecen a la sesión actual
+    var filteredSets = widget.set.registroSet
+        ?.where(
+            (element) => element.registerSessionId != widget.registerSessionId)
+        .toList();
 
-      if (filteredSets.isEmpty || filteredSets.length < 2) {
-        return null;
-      } else {
-        RegistroSet previousToLast = filteredSets.reduce((curr, next) =>
-            curr.timestamp.isBefore(next.timestamp) ? curr : next);
-        widget.system == "metrico"
-            ? previousToLast.weight = previousToLast.weight!
-            : previousToLast.weight = fromKgToLbs(previousToLast.weight!);
-        return previousToLast;
-      }
+    // Verificar si después de filtrar, la lista tiene menos de 2 elementos
+    if (filteredSets == null || filteredSets.length < 2) {
+      return null;
     }
+
+    // Ordenar los registros por fecha en orden ascendente
+    filteredSets.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    // Obtener el penúltimo elemento
+    RegistroSet previousToLast = filteredSets[filteredSets.length - 2];
+
+    // Convertir el peso si es necesario
+    if (previousToLast.weight != null) {
+      previousToLast.weight = widget.system == "metrico"
+          ? previousToLast.weight
+          : fromKgToLbs(previousToLast.weight!);
+    }
+
+    return previousToLast;
   }
 
   Widget dash = const SizedBox(
@@ -669,11 +699,12 @@ class SetRowState extends State<SetRow> {
         Expanded(
           child: Wrap(
             children: [
-              IconButton(
-                onPressed: null,
-                icon:
-                    Icon(Icons.videocam, color: Theme.of(context).primaryColor),
-              ),
+              // IconButton(
+              //   onPressed: videoFile == null ? _pickVideo : _viewVideo,
+              //   icon: Icon(
+              //       videoFile == null ? Icons.videocam : Icons.play_circle_fill,
+              //       color: Theme.of(context).colorScheme.onPrimaryContainer),
+              // ),
               if (_lengthRegistroSession() > 1 && !isFirstRegisterInSet)
                 IconButton(
                   onPressed: () => widget.onDeleteSet(),

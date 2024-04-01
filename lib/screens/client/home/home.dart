@@ -148,11 +148,13 @@ class _HomeScreen extends State<HomeScreen> {
           top: (circleSize - imageSize) / 2,
           child: ClipOval(
             child: MouseRegion(
-              cursor: widget.user.profile_picture != null
+              cursor: widget.user.profile_picture != null &&
+                      widget.user.profile_picture!.isNotEmpty
                   ? SystemMouseCursors.click
                   : SystemMouseCursors.basic,
               child: GestureDetector(
-                onTap: () => widget.user.profile_picture != null
+                onTap: () => widget.user.profile_picture != null &&
+                        widget.user.profile_picture!.isNotEmpty
                     ? Navigator.push(
                         context,
                         MaterialPageRoute(
