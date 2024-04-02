@@ -26,7 +26,7 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
 
   List<Equipment> equipment = [];
   Equipment? selectedEquipment;
-
+  bool isLoading = false;
   String? _previewImageUrl;
   // YoutubePlayerController? _youtubePlayerController;
 
@@ -47,21 +47,6 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
     super.dispose();
   }
 
-  // void _updateYoutubePlayerController(String url) {
-  //   final videoId = YoutubePlayer.convertUrlToId(url);
-  //   if (videoId != null) {
-  //     _youtubePlayerController?.dispose();
-  //     _youtubePlayerController = YoutubePlayerController(
-  //       initialVideoId: videoId,
-  //       flags: const YoutubePlayerFlags(
-  //         autoPlay: false,
-  //         mute: false,
-  //       ),
-  //     );
-  //     setState(() {});
-  //   }
-  // }
-
   void _initMuscleGroups() async {
     List<GrupoMuscular> groups =
         await EjerciciosMethods().getGruposMusculares();
@@ -78,9 +63,28 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
   }
 
   Future<void> _createExercise() async {
-    if (_formKey.currentState!.validate()) {}
-
-    // Navigator.of(context).pop();
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        await EjerciciosMethods().createEjercicio(
+          widget.user.user_id as int,
+          _nameController.text,
+          _descriptionController.text,
+          selectedMuscleGroup!.muscleGroupId,
+          selectedEquipment!.materialId,
+          _urlController.text,
+        );
+      } catch (e) {
+        print(e);
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.pop(context);
+      }
+    }
   }
 
   @override
@@ -193,23 +197,11 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _createExercise();
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Guardado'),
-                        content:
-                            Text('Ejercicio ${_nameController.text} guardado.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
-                    );
                   }
                 },
-                child: const Center(child: Text('Guardar')),
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : const Center(child: Text('Guardar')),
               ),
             ],
           ),

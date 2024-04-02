@@ -7,8 +7,7 @@ import 'package:fit_match/screens/client/training/view_training_sessions/exercis
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/dialog.dart';
-import 'package:fit_match/widget/exercise_info.dart';
+
 import 'package:fit_match/widget/exercise_list_item_seletable.dart';
 import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/material.dart';
@@ -151,6 +150,19 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
     });
   }
 
+  _deleteExercise(Ejercicios exercise) async {
+    try {
+      bool deleted =
+          await EjerciciosMethods().deleteExercise(exercise.exerciseId);
+      if (deleted) {
+        showToast(context, 'El ejercicio ha sido eliminado', exitoso: true);
+      }
+      _resetAndLoadExercises();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void _prepareAndNavigateBack(bool modoSuperSet) {
     List<EjerciciosDetalladosAgrupados> exercisesGroups = [];
 
@@ -290,9 +302,11 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
                   final isSelected = selectedExercisesOrder
                       .containsKey(exercises[index].exerciseId);
                   return BuildExerciseItem(
+                    userId: widget.user.user_id,
                     ejercicio: exercises[index],
                     isSelected: isSelected,
                     order: selectedExercisesOrder[exercises[index].exerciseId],
+                    onDeletedExercise: () => _deleteExercise(exercises[index]),
                     onSelectedEjercicio: (exercise) =>
                         _selectExercise(exercise),
                     onPressedInfo: () async {

@@ -81,18 +81,44 @@ class SesionEntrenamientoMethods {
 }
 
 class EjerciciosMethods {
-  Future<void> createEjercicio(String name, String description) async {
+  Future<void> createEjercicio(int userId, String name, String? description,
+      int muscularGroupId, int materialId, String? video) async {
+    // Construir dinámicamente el cuerpo del JSON, excluyendo campos nulos
+    final Map<String, dynamic> requestBody = {
+      'user_id': userId,
+      'name': name,
+      'muscle_group_id': muscularGroupId,
+      'material_id': materialId,
+    };
+
+    // Añadir descripción y video solo si no son nulos
+    if (description != null) {
+      requestBody['description'] = description;
+    }
+    if (video != null) {
+      requestBody['video'] = video;
+    }
+
     final response = await http.post(
       Uri.parse(ejerciciosUrl),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': name,
-        'description': description,
-      }),
+      body: jsonEncode(requestBody),
     );
+
     if (response.statusCode != 201) {
       throw Exception(
           'Error al crear el ejercicio. Código de estado: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> deleteExercise(int ejercicioId) async {
+    var uri = Uri.parse('$ejerciciosUrl/$ejercicioId');
+    var response = await http.delete(uri);
+
+    if (response.statusCode != 200) {
+      throw Exception('Error al eliminar medidas: ${response.statusCode}');
+    } else {
+      return true;
     }
   }
 

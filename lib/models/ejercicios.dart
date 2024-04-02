@@ -86,6 +86,7 @@ class EjercicioDetallado {
 
 class Ejercicios {
   final int exerciseId;
+  final int? userId;
   String name;
   String? description;
   int muscleGroupId;
@@ -94,6 +95,7 @@ class Ejercicios {
 
   Ejercicios({
     required this.exerciseId,
+    this.userId,
     required this.name,
     this.description,
     required this.muscleGroupId,
@@ -104,6 +106,7 @@ class Ejercicios {
   factory Ejercicios.fromJson(Map<String, dynamic> json) {
     return Ejercicios(
       exerciseId: json['exercise_id'],
+      userId: json['user_id'],
       name: json['name'],
       description: json['description'],
       muscleGroupId: json['muscle_group_id'],
@@ -114,6 +117,7 @@ class Ejercicios {
 
   Map<String, dynamic> toJson() {
     return {
+      'user_id': userId,
       'exercise_id': exerciseId,
       'name': name,
       'description': description,

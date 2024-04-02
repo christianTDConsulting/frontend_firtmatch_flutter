@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/dialog.dart';
-import 'package:fit_match/widget/exercise_info.dart';
 import 'package:fit_match/widget/number_input_field.dart';
 
 // import 'package:fit_match/widget/exercise_card/sets_list.dart';
@@ -47,6 +45,17 @@ class ExerciseCardState extends State<ExerciseCard> {
   void initState() {
     super.initState();
     initControladores();
+  }
+
+  @override
+  void didUpdateWidget(covariant ExerciseCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Comprobar si los ejercicios detallados han cambiado.
+    if (oldWidget.ejercicioDetalladoAgrupado !=
+        widget.ejercicioDetalladoAgrupado) {
+      initControladores();
+    }
   }
 
   void initControladores() {

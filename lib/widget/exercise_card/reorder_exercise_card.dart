@@ -1,4 +1,3 @@
-import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/models/ejercicios.dart';
 
@@ -14,12 +13,21 @@ class ReorderExercises extends StatefulWidget {
 }
 
 class ReorderExercisesState extends State<ReorderExercises> {
+  void _navigateBack() {
+    Navigator.of(context).pop(widget.ejerciciosDetalladosAgrupados);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reordenar Grupos de Ejercicios'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _navigateBack,
+        ),
       ),
+
       // Usar ReorderableListView.builder para una gestión más eficiente de los items
       body: ReorderableListView.builder(
         itemCount: widget.ejerciciosDetalladosAgrupados.length,

@@ -34,7 +34,6 @@ class InfoSesionEntrenamientoState
     order: 0,
     sessionDate: DateTime.now(),
   );
-
   List<EjerciciosDetalladosAgrupados> _exercises = [];
   List<TipoDeRegistro> _registerTypes = [];
 
@@ -92,12 +91,11 @@ class InfoSesionEntrenamientoState
 
   Future<void> _showReordenar() async {
     final List<EjerciciosDetalladosAgrupados>? result =
-        await Navigator.of(context).push<List<EjerciciosDetalladosAgrupados>>(
-      MaterialPageRoute(
-        builder: (context) =>
-            ReorderExercises(ejerciciosDetalladosAgrupados: _exercises),
-      ),
-    );
+        await Navigator.of(context)
+            .push<List<EjerciciosDetalladosAgrupados>>(MaterialPageRoute(
+      builder: (context) =>
+          ReorderExercises(ejerciciosDetalladosAgrupados: _exercises),
+    ));
 
     if (result != null && result.isNotEmpty) {
       setState(() {
@@ -347,6 +345,7 @@ class InfoSesionEntrenamientoState
           itemCount: _exercises.length,
           itemBuilder: (context, index) {
             return ExerciseCard(
+              key: ValueKey(_exercises[index].groupedDetailedExercisedId),
               ejercicioDetalladoAgrupado: _exercises[index],
               registerTypes: _registerTypes,
               index: index,

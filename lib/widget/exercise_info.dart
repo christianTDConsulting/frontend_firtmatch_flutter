@@ -16,7 +16,7 @@ Widget buildInfoWidget(String name, String? description,
           child: Image.asset("assets/images/muscle_groups/$previewImageUrl.png",
               height: 100),
         ),
-      if (youtubeUrl != null)
+      if (youtubeUrl != null && youtubeUrl.isNotEmpty)
         Padding(
           padding: const EdgeInsets.only(top: 10.0),
           child: MyYoutubePlayer(uri: youtubeUrl),
