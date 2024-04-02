@@ -29,40 +29,32 @@ class PlantillaPostsMethods {
     List<String>? equipment,
     List<String>? duration,
   }) async {
-    // Construye la URL base con parámetros existentes
-    String url = "$plantillaPostsUrl?page=$page&pageSize=$pageSize";
-    if (userId != null) {
-      url += "&userId=$userId";
-    }
-    if (isPublic != null) {
-      url += "&isPublic=$isPublic";
-    }
-    if (isHidden != null) {
-      url += "&isHidden=$isHidden";
-    }
-    if (name != null) {
-      url += "&name=$name";
-    }
+    // Define la URL base.
+    final String url = "$plantillaPostsUrl";
 
-    // Añade filtros de etiquetas como parámetros de consulta
-    if (experiences != null && experiences.isNotEmpty) {
-      url += "&experience=${experiences.join(',')}";
-    }
-    if (objectives != null && objectives.isNotEmpty) {
-      url += "&objective=${objectives.join(',')}";
-    }
-    if (interests != null && interests.isNotEmpty) {
-      url += "&interests=${interests.join(',')}";
-    }
-    if (equipment != null && equipment.isNotEmpty) {
-      url += "&equipment=${equipment.join(',')}";
-    }
-    if (duration != null && duration.isNotEmpty) {
-      url += "&duration=${duration.join(',')}";
-    }
+    // Construye el cuerpo de la solicitud como un mapa, que luego se codificará en JSON.
+    final Map<String, dynamic> requestBody = {
+      "page": page,
+      "pageSize": pageSize,
+      if (userId != null) "userId": userId,
+      if (isPublic != null) "isPublic": isPublic,
+      if (isHidden != null) "isHidden": isHidden,
+      if (name != null) "name": name,
+      if (experiences != null) "experience": experiences.join(','),
+      if (objectives != null) "objective": objectives.join(','),
+      if (interests != null) "interests": interests.join(','),
+      if (equipment != null) "equipment": equipment.join(','),
+      if (duration != null) "duration": duration.join(','),
+    };
 
-    // Realiza la solicitud GET
-    final response = await http.get(Uri.parse(url));
+    // Realiza la solicitud POST con el cuerpo JSON.
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(requestBody),
+    );
+
+    // Maneja la respuesta.
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body) as List;
       return jsonData
