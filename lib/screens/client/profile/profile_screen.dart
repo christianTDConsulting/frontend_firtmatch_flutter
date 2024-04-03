@@ -663,39 +663,4 @@ class ViewProfileState extends State<ViewProfileScreen> {
       );
     }
   }
-
-  // Widget _buildOptionItem({
-  //   required IconData icon,
-  //   required String title,
-  //   VoidCallback? onTap,
-  //   Color? iconColor,
-  //   bool arrow = true,
-  //   bool isExpandable = false,
-  //   Widget? contentExpanded,
-  // }) {
-  //   if (isExpandable) {
-  //     return ExpansionTile(
-  //       leading: Icon(icon, color: iconColor),
-  //       title: Text(title),
-  //       children: contentExpanded != null ? [contentExpanded] : [],
-  //     );
-  //   } else {
-  //     return MouseRegion(
-  //       cursor: SystemMouseCursors.click,
-  //       child: GestureDetector(
-  //         onTap: onTap,
-  //         child: Row(
-  //           children: [
-  //             Icon(icon, color: iconColor),
-  //             const SizedBox(width: 8), // Espacio entre el ícono y el texto
-  //             Text(title),
-
-  //             const Spacer(), // Espacio para que la flecha se alinee a la derecha
-  //             if (arrow == true) const Icon(Icons.arrow_forward_ios), // Flecha
-  //           ],
-  //         ),
-  //       ),
-  //     );
-  //   }
-  // }
 }

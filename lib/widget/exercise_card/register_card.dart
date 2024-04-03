@@ -16,7 +16,7 @@ class RegisterCard extends StatefulWidget {
   final String system;
   final Function(SetsEjerciciosEntrada) onAddSet;
   final Function(SetsEjerciciosEntrada, RegistroSet) onDeleteSet;
-  final Function(SetsEjerciciosEntrada, int) onUpdateSet;
+  final Function(RegistroSet) onUpdateSet;
 
   const RegisterCard({
     Key? key,
@@ -58,7 +58,6 @@ class RegisterCardState extends State<RegisterCard> {
         .where(
             (element) => element.registerSessionId == widget.registerSessionId)
         .toList();
-
     return sets;
   }
 
@@ -163,7 +162,6 @@ class RegisterCardState extends State<RegisterCard> {
               ],
             ),
           ),
-          //se muestra el textArea si hay texto o si se le ha dado a "nota"
           ...[
             if (ejercicioDetallado.notes != null)
               Container(
@@ -182,7 +180,6 @@ class RegisterCardState extends State<RegisterCard> {
                 ),
               ),
           ],
-
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -240,6 +237,7 @@ class RegisterCardState extends State<RegisterCard> {
             return registrosPorSet.asMap().entries.map((entry) {
               int registroIndex = entry.key;
               RegistroSet registro = entry.value;
+              print(entry.value.registerSetId);
 
               return SetRow(
                 set: setEntrada,
@@ -247,14 +245,13 @@ class RegisterCardState extends State<RegisterCard> {
                 system: widget.system,
                 onDeleteSet: () => widget.onDeleteSet(setEntrada, registro),
                 selectedRegisterType: ejercicioDetallado.registerTypeId,
-                registroIndex: registroIndex,
-                onUpdateSet: (updatedSet) {
-                  widget.onUpdateSet(updatedSet, registroIndex);
+                actualRegistroSet: registro,
+                onUpdateSet: (registroSet) {
+                  widget.onUpdateSet(registroSet);
                 },
               );
             }).toList();
           }).toList(),
-
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () =>
@@ -271,10 +268,10 @@ class SetRow extends StatefulWidget {
   final SetsEjerciciosEntrada set;
   final int selectedRegisterType;
   final int registerSessionId;
-  final int registroIndex;
+  final RegistroSet actualRegistroSet;
   final String system;
 
-  final Function(SetsEjerciciosEntrada) onUpdateSet;
+  final Function(RegistroSet) onUpdateSet;
   final Function() onDeleteSet;
 
   const SetRow({
@@ -284,7 +281,7 @@ class SetRow extends StatefulWidget {
     required this.onUpdateSet,
     required this.onDeleteSet,
     required this.registerSessionId,
-    required this.registroIndex,
+    required this.actualRegistroSet,
     required this.system,
   }) : super(key: key);
 
@@ -305,7 +302,6 @@ class SetRowState extends State<SetRow> {
     weightController = TextEditingController();
 
     weightUnit = widget.system == "metrico" ? 'kg' : 'lbs';
-
     super.initState();
   }
 
@@ -315,6 +311,7 @@ class SetRowState extends State<SetRow> {
     super.dispose();
   }
 
+//Devuelve cuantos registro sets hay para un set de entrada
   _lengthRegistroSession() {
     return widget.set.registroSet!
         .where(
@@ -345,16 +342,13 @@ class SetRowState extends State<SetRow> {
   //   ));
   // }
 
-  RegistroSet get actualSet {
-    return widget.set.registroSet!.elementAt(widget.registroIndex);
-  }
-
+  //Devuelve true en caso de que exista un registro en el set en una sesión de registro anterior
   bool get isFirstRegisterInSet {
     if (_lengthRegistroSession() > 1) {
       var hasEarlierRegisters = widget.set.registroSet!.any((element) =>
           element.registerSessionId == widget.registerSessionId &&
-          element.registerSetId != actualSet.registerSetId &&
-          element.timestamp.isBefore(actualSet.timestamp));
+          element.registerSetId != widget.actualRegistroSet.registerSetId &&
+          element.timestamp.isBefore(widget.actualRegistroSet.timestamp));
 
       return !hasEarlierRegisters;
     } else {
@@ -362,23 +356,24 @@ class SetRowState extends State<SetRow> {
     }
   }
 
+//Obtener el anterior registro set del set de entrada
   RegistroSet? get previousToLastSet {
-    // Filtrar los registros que no pertenecen a la sesión actual
+    // Filtrar los registros que no pertenecen al registro de sesión actual
     var filteredSets = widget.set.registroSet
         ?.where(
             (element) => element.registerSessionId != widget.registerSessionId)
         .toList();
 
-    // Verificar si después de filtrar, la lista tiene menos de 2 elementos
-    if (filteredSets == null || filteredSets.length < 2) {
+    // Verificar si después de filtrar, la lista no está vacía
+    if (filteredSets == null || filteredSets.isEmpty) {
       return null;
     }
 
     // Ordenar los registros por fecha en orden ascendente
     filteredSets.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    // Obtener el penúltimo elemento
-    RegistroSet previousToLast = filteredSets[filteredSets.length - 2];
+    // Obtener el penúltimo elementom ( es decir, el primero de filteredSets )
+    RegistroSet previousToLast = filteredSets[0];
 
     // Convertir el peso si es necesario
     if (previousToLast.weight != null) {
@@ -416,40 +411,36 @@ class SetRowState extends State<SetRow> {
 
       switch (field) {
         case 'reps':
-          actualSet.reps = intValue;
+          widget.actualRegistroSet.reps = intValue;
           break;
         case 'weight':
-          actualSet.weight = doubleValue;
+          widget.actualRegistroSet.weight = doubleValue;
           break;
         case 'time':
-          actualSet.time = doubleValue;
+          widget.actualRegistroSet.time = doubleValue;
           break;
       }
 
       //Solo se actualiza si lo valores no son nulos
       switch (widget.selectedRegisterType) {
         case 2: // Rango de repeticiones
-          if (actualSet.reps != null) {
-            widget.onUpdateSet(widget.set);
-          }
+          widget.onUpdateSet(widget.actualRegistroSet);
+
           break;
         case 4: // AMRAP
           //no hay que actualizar nada
           break;
         case 5: // Tiempo
-          if (actualSet.time != null) {
-            widget.onUpdateSet(widget.set);
-          }
+          widget.onUpdateSet(widget.actualRegistroSet);
+
           break;
         case 6: //Rango de tiempo
-          if (actualSet.time != null && actualSet.weight != null) {
-            widget.onUpdateSet(widget.set);
-          }
+          widget.onUpdateSet(widget.actualRegistroSet);
+
           break;
         default:
-          if (actualSet.reps != null && actualSet.weight != null) {
-            widget.onUpdateSet(widget.set);
-          }
+          widget.onUpdateSet(widget.actualRegistroSet);
+
           break;
       }
     });
@@ -473,8 +464,9 @@ class SetRowState extends State<SetRow> {
     switch (widget.selectedRegisterType) {
       case 2: // Objetivo de repeticiones
 
-        repsController.text = actualSet.reps?.toString() ?? '';
-        weightController.text = transformWeightIntoLbs(actualSet.weight);
+        repsController.text = widget.actualRegistroSet.reps?.toString() ?? '';
+        weightController.text =
+            transformWeightIntoLbs(widget.actualRegistroSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
@@ -490,7 +482,7 @@ class SetRowState extends State<SetRow> {
           const Expanded(child: Text('AMRAP', style: TextStyle(fontSize: 16))),
         ];
       case 5: // Tiempo
-        weightController.text = actualSet.time?.toString() ?? '';
+        weightController.text = widget.actualRegistroSet.time?.toString() ?? '';
         return [
           Expanded(
             child: DoubleInputField(
@@ -503,8 +495,9 @@ class SetRowState extends State<SetRow> {
           minText,
         ];
       case 6: // Rango de tiempo
-        repsController.text = actualSet.time?.toString() ?? '';
-        weightController.text = transformWeightIntoLbs(actualSet.weight);
+        repsController.text = widget.actualRegistroSet.time?.toString() ?? '';
+        weightController.text =
+            transformWeightIntoLbs(widget.actualRegistroSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
@@ -526,8 +519,9 @@ class SetRowState extends State<SetRow> {
           ),
         ];
       default: // Por defecto, solo repeticiones y peso
-        repsController.text = actualSet.reps?.toString() ?? '';
-        weightController.text = transformWeightIntoLbs(actualSet.weight);
+        repsController.text = widget.actualRegistroSet.reps?.toString() ?? '';
+        weightController.text =
+            transformWeightIntoLbs(widget.actualRegistroSet.weight);
         return [
           Expanded(
             child: DoubleInputField(
