@@ -53,6 +53,8 @@ class AuthMethods {
             await preferences!
                 .setString('token', json.decode(response.body)['token']);
           }
+        } else if (response.statusCode == 403) {
+          res = " Por favor, inténtalo más tarde";
         } else {
           res = "Error, comprueba tus credenciales.";
         }

@@ -342,19 +342,19 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
 
         break;
       case 5: // Tiempo
-        if (registro.time == 0) {
+        if (registro.time == null || registro.time == 0) {
           rowContent = []; // Vacía la lista si tiempo es 0
         } else {
           rowContent.add(
             Expanded(
-              child: Text("${registro.time ?? 0} min",
+              child: Text("${registro.time} min",
                   style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           );
         }
         break;
       case 6: // Rango de tiempo
-        if (registro.time == 0 && (registro.weight ?? 0) == 0) {
+        if ((registro.time ?? 0) == 0 && (registro.weight ?? 0) == 0) {
           rowContent = []; // Vacía la lista si tiempo y peso son 0
         } else {
           rowContent.addAll([

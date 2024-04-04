@@ -6,6 +6,7 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
 
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -250,29 +251,20 @@ class ViewTrainingState extends State<ViewTrainingScreen>
         lista = arhivedTrainingTemplates;
         break;
     }
-
-    return LiquidPullToRefresh(
-      onRefresh: _loadTrainingTemplates,
-      color: Theme.of(context).colorScheme.primary,
-      child: ListView(
-        children: [
-          ...lista
-              .map((template) => _buildListItem(width, template, tipo))
-              .toList(),
-          // if (tipo == 'Creados')
-          //   Align(
-          //     alignment: Alignment.bottomRight,
-          //     child: Padding(
-          //       padding: const EdgeInsets.all(16.0),
-          //       child: FloatingActionButton(
-          //         onPressed: _createNewTemplate,
-          //         child: const Icon(Icons.add),
-          //       ),
-          //     ),
-          //   ),
-        ],
-      ),
+    Widget liswViewWithListItem = ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        ...lista
+            .map((template) => _buildListItem(width, template, tipo))
+            .toList(),
+      ],
     );
+    return kIsWeb
+        ? liswViewWithListItem
+        : LiquidPullToRefresh(
+            onRefresh: _loadTrainingTemplates,
+            color: Theme.of(context).colorScheme.primary,
+            child: liswViewWithListItem);
   }
 
   Widget _buildListItem(double width, PlantillaPost template, String tipo) {

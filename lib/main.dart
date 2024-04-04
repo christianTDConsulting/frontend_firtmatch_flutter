@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         password: '',
         profile_picture: '',
         birth: null,
+        banned: false,
         profile_id: 0,
         public: false);
 

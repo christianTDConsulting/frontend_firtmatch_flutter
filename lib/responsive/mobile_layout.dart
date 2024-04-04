@@ -87,40 +87,6 @@ class MobileLayoutState extends State<MobileLayout> {
     return BottomNavigationBarItem(icon: icon);
   }
 
-  // BottomNavigationBarItem buildTabBarItemNumber(
-  //     Widget icon, int pageNumber, int notifCount) {
-  //   return BottomNavigationBarItem(
-  //     icon: Stack(
-  //       children: <Widget>[
-  //         icon,
-  //         if (notifCount > 0)
-  //           Positioned(
-  //             right: 0,
-  //             child: Container(
-  //               padding: const EdgeInsets.all(1),
-  //               decoration: BoxDecoration(
-  //                 color: Colors.red,
-  //                 borderRadius: BorderRadius.circular(6),
-  //               ),
-  //               constraints: const BoxConstraints(
-  //                 minWidth: 12,
-  //                 minHeight: 12,
-  //               ),
-  //               child: Text(
-  //                 '$notifCount',
-  //                 style: const TextStyle(
-  //                   color: Colors.white,
-  //                   fontSize: 8,
-  //                 ),
-  //                 textAlign: TextAlign.center,
-  //               ),
-  //             ),
-  //           ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -132,29 +98,51 @@ class MobileLayoutState extends State<MobileLayout> {
         body: PageView(
           controller: pageController,
           onPageChanged: onPageChanged,
-          children: buildHomeScreenItems(widget.user),
+          children: widget.user.profile_id == 1
+              ? buildAdminScreenItems(widget.user)
+              : buildHomeScreenItems(widget.user),
         ),
         bottomNavigationBar: CupertinoTabBar(
           backgroundColor: primaryColor,
-          items: <BottomNavigationBarItem>[
-            buildTabBarItem(
-                Icon(Icons.home,
-                    color: page == 0 ? primaryContainer : secondaryColor),
-                0),
-            buildTabBarItem(
-                Icon(Icons.explore,
-                    color: page == 1 ? primaryContainer : secondaryColor),
-                1),
-            buildTabBarItem(
-                Icon(Icons.favorite,
-                    color: page == 2 ? primaryContainer : secondaryColor),
-                2),
-            buildTabBarItem(
-                Icon(Icons.fitness_center,
-                    color: page == 3 ? primaryContainer : secondaryColor),
-                3),
-            buildTabBarItem(getProfileIcon(4), 4),
-          ],
+          items: widget.user.profile_id == 1
+              ? <BottomNavigationBarItem>[
+                  buildTabBarItem(
+                      Icon(Icons.history,
+                          color: page == 0 ? primaryContainer : secondaryColor),
+                      0),
+                  buildTabBarItem(
+                      Icon(Icons.person,
+                          color: page == 1 ? primaryContainer : secondaryColor),
+                      1),
+                  buildTabBarItem(
+                      Icon(Icons.remove_red_eye,
+                          color: page == 2 ? primaryContainer : secondaryColor),
+                      2),
+                  buildTabBarItem(
+                      Icon(Icons.fitness_center,
+                          color: page == 3 ? primaryContainer : secondaryColor),
+                      3),
+                  buildTabBarItem(getProfileIcon(4), 4),
+                ]
+              : <BottomNavigationBarItem>[
+                  buildTabBarItem(
+                      Icon(Icons.home,
+                          color: page == 0 ? primaryContainer : secondaryColor),
+                      0),
+                  buildTabBarItem(
+                      Icon(Icons.explore,
+                          color: page == 1 ? primaryContainer : secondaryColor),
+                      1),
+                  buildTabBarItem(
+                      Icon(Icons.favorite,
+                          color: page == 2 ? primaryContainer : secondaryColor),
+                      2),
+                  buildTabBarItem(
+                      Icon(Icons.fitness_center,
+                          color: page == 3 ? primaryContainer : secondaryColor),
+                      3),
+                  buildTabBarItem(getProfileIcon(4), 4),
+                ],
           onTap: navigationTapped,
           currentIndex: page,
         ));

@@ -83,3 +83,9 @@ const medidasUrl = '${url}medidas';
 
 //notificaciones
 const notificacionUrl = '${url}notificacion';
+
+//logs
+const logsUrl = '${url}logs';
+
+//bloqueos
+const bloqueosUrl = '${url}bloqueos';

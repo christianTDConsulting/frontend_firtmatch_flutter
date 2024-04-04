@@ -1,9 +1,10 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/screens/admin/logs/logs_screen.dart';
 import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
-import 'package:fit_match/screens/shared/notification_screen.dart';
+import 'package:fit_match/screens/client/notification/notification_screen.dart';
 import 'package:fit_match/services/sesion_entrenamientos_service.dart';
 import 'package:fit_match/widget/dialog.dart';
 import 'package:fit_match/widget/exercise_info.dart';
@@ -167,7 +168,7 @@ List<RadioPreference<String>> durationOptions = [
   RadioPreference(title: 'Mas de 2 horas', value: 'Mas de 2 horas'),
 ];
 
-// for displaying screens
+// for displaying screens for client
 List<Widget> buildHomeScreenItems(User user) {
   return [
     HomeScreen(user: user),
@@ -175,6 +176,17 @@ List<Widget> buildHomeScreenItems(User user) {
     NotificationScreen(user: user),
     ViewTrainingScreen(user: user),
     ViewProfileScreen(user: user),
+  ];
+}
+
+// for displaying screens for trainer
+List<Widget> buildAdminScreenItems(User user) {
+  return [
+    LogsScreen(user: user),
+    const Text("Users "),
+    const Text("View all "),
+    const Text("Exercises"),
+    const Text("Profile"),
   ];
 }
 

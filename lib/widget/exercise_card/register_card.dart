@@ -65,34 +65,38 @@ class RegisterCardState extends State<RegisterCard> {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Column(
-        children: [
-          ...List.generate(
-              widget.ejercicioDetalladoAgrupado.ejerciciosDetallados.length,
-              (i) {
-            String? ordenDentroDeSet;
-            if (widget.ejercicioDetalladoAgrupado.ejerciciosDetallados.length >
-                1) {
-              ordenDentroDeSet = getExerciseLetter(i);
-            }
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Column(
+          children: [
+            ...List.generate(
+                widget.ejercicioDetalladoAgrupado.ejerciciosDetallados.length,
+                (i) {
+              String? ordenDentroDeSet;
+              if (widget
+                      .ejercicioDetalladoAgrupado.ejerciciosDetallados.length >
+                  1) {
+                ordenDentroDeSet = getExerciseLetter(i);
+              }
 
-            return Column(
-              children: [
-                _buildListItem(
-                    context,
-                    widget.index,
-                    widget.ejercicioDetalladoAgrupado.ejerciciosDetallados[i],
-                    i,
-                    ordenDentroDeSet),
-                if (i <
-                    widget.ejercicioDetalladoAgrupado.ejerciciosDetallados
-                            .length -
-                        1)
-                  const Divider(),
-              ],
-            );
-          }),
-        ],
+              return Column(
+                children: [
+                  _buildListItem(
+                      context,
+                      widget.index,
+                      widget.ejercicioDetalladoAgrupado.ejerciciosDetallados[i],
+                      i,
+                      ordenDentroDeSet),
+                  if (i <
+                      widget.ejercicioDetalladoAgrupado.ejerciciosDetallados
+                              .length -
+                          1)
+                    const Divider(),
+                ],
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -105,161 +109,157 @@ class RegisterCardState extends State<RegisterCard> {
       String? ordenDentroDeSet) {
     double width = MediaQuery.of(context).size.width;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Column(
-        children: [
-          ListTile(
-            leading: RichText(
-              text: TextSpan(
-                children: [
+    return Column(
+      children: [
+        ListTile(
+          leading: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '${groupIndex + 1} ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                if (ordenDentroDeSet != null)
                   TextSpan(
-                    text: '${groupIndex + 1} ',
+                    text: '$ordenDentroDeSet ',
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
+                  )
+              ],
+            ),
+          ),
+          title: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  ejercicioDetallado.ejercicio?.name ??
+                      'Ejercicio no especificado',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.info_outline),
+                onPressed: () async {
+                  String? iconName =
+                      ejercicioDetallado.ejercicio?.muscleGroupId != null
+                          ? await getIconNameByMuscleGroupId(
+                              ejercicioDetallado.ejercicio!.muscleGroupId, [])
+                          : null;
+
+                  showDialogExerciseInfo(
+                      context,
+                      ejercicioDetallado.ejercicio!.name,
+                      ejercicioDetallado.ejercicio!.description,
+                      iconName,
+                      ejercicioDetallado.ejercicio!.video);
+                },
+                constraints: const BoxConstraints(),
+                alignment: Alignment.centerRight,
+              ),
+            ],
+          ),
+        ),
+        ...[
+          if (ejercicioDetallado.notes != null)
+            Container(
+              width: double.maxFinite,
+              padding: const EdgeInsets.all(10.0),
+              color: Theme.of(context).colorScheme.background,
+              child: Wrap(
+                children: [
+                  const Text("notas: "),
+                  ExpandableText(
+                    text: ejercicioDetallado.notes!,
+                    maxLines: 2,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  if (ordenDentroDeSet != null)
-                    TextSpan(
-                      text: '$ordenDentroDeSet ',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    )
                 ],
               ),
             ),
-            title: Row(
-              children: [
-                Flexible(
-                  child: Text(
-                    ejercicioDetallado.ejercicio?.name ??
-                        'Ejercicio no especificado',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.info_outline),
-                  onPressed: () async {
-                    String? iconName =
-                        ejercicioDetallado.ejercicio?.muscleGroupId != null
-                            ? await getIconNameByMuscleGroupId(
-                                ejercicioDetallado.ejercicio!.muscleGroupId, [])
-                            : null;
-
-                    showDialogExerciseInfo(
-                        context,
-                        ejercicioDetallado.ejercicio!.name,
-                        ejercicioDetallado.ejercicio!.description,
-                        iconName,
-                        ejercicioDetallado.ejercicio!.video);
-                  },
-                  constraints: const BoxConstraints(),
-                  alignment: Alignment.centerRight,
-                ),
-              ],
-            ),
-          ),
-          ...[
-            if (ejercicioDetallado.notes != null)
-              Container(
-                width: double.maxFinite,
-                padding: const EdgeInsets.all(10.0),
-                color: Theme.of(context).colorScheme.background,
-                child: Wrap(
-                  children: [
-                    const Text("notas: "),
-                    ExpandableText(
-                      text: ejercicioDetallado.notes!,
-                      maxLines: 2,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+        ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                flex: 1,
+                child: Text(
+                  'Set',
+                  style: width < webScreenSize
+                      ? Theme.of(context).textTheme.titleSmall
+                      : Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-          ],
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
+              Expanded(
+                flex: 2,
+                child: Text(
+                  'Objetivo',
+                  style: width < webScreenSize
+                      ? Theme.of(context).textTheme.titleSmall
+                      : Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  'Anterior',
+                  style: width < webScreenSize
+                      ? Theme.of(context).textTheme.titleSmall
+                      : Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: Center(
                   child: Text(
-                    'Set',
+                    'Entrada',
                     style: width < webScreenSize
                         ? Theme.of(context).textTheme.titleSmall
                         : Theme.of(context).textTheme.titleMedium,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'Objetivo',
-                    style: width < webScreenSize
-                        ? Theme.of(context).textTheme.titleSmall
-                        : Theme.of(context).textTheme.titleMedium,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    'Anterior',
-                    style: width < webScreenSize
-                        ? Theme.of(context).textTheme.titleSmall
-                        : Theme.of(context).textTheme.titleMedium,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-                Expanded(
-                  flex: width < webScreenSize ? 5 : 3,
-                  child: Center(
-                    child: Text(
-                      'Entrada',
-                      style: width < webScreenSize
-                          ? Theme.of(context).textTheme.titleSmall
-                          : Theme.of(context).textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-              ],
-            ),
+              )
+            ],
           ),
-          ...ejercicioDetallado.setsEntrada!.expand((setEntrada) {
-            List<RegistroSet> registrosPorSet =
-                _getThisRegisterSessionSets(setEntrada);
-            int setIndex = ejercicioDetallado.setsEntrada!.indexOf(setEntrada);
-            return registrosPorSet.asMap().entries.map((entry) {
-              int registroIndex = entry.key;
-              RegistroSet registro = entry.value;
-              print(entry.value.registerSetId);
+        ),
+        ...ejercicioDetallado.setsEntrada!.expand((setEntrada) {
+          List<RegistroSet> registrosPorSet =
+              _getThisRegisterSessionSets(setEntrada);
+          int setIndex = ejercicioDetallado.setsEntrada!.indexOf(setEntrada);
+          return registrosPorSet.asMap().entries.map((entry) {
+            int registroIndex = entry.key;
+            RegistroSet registro = entry.value;
 
-              return SetRow(
-                set: setEntrada,
-                registerSessionId: widget.registerSessionId,
-                system: widget.system,
-                onDeleteSet: () => widget.onDeleteSet(setEntrada, registro),
-                selectedRegisterType: ejercicioDetallado.registerTypeId,
-                actualRegistroSet: registro,
-                onUpdateSet: (registroSet) {
-                  widget.onUpdateSet(registroSet);
-                },
-              );
-            }).toList();
-          }).toList(),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () =>
-                {widget.onAddSet(ejercicioDetallado.setsEntrada!.last)},
-            child: const Text("+ añadir set"),
-          ),
-        ],
-      ),
+            return SetRow(
+              set: setEntrada,
+              registerSessionId: widget.registerSessionId,
+              system: widget.system,
+              onDeleteSet: () => widget.onDeleteSet(setEntrada, registro),
+              selectedRegisterType: ejercicioDetallado.registerTypeId,
+              actualRegistroSet: registro,
+              onUpdateSet: (registroSet) {
+                widget.onUpdateSet(registroSet);
+              },
+            );
+          }).toList();
+        }).toList(),
+        const SizedBox(height: 8),
+        OutlinedButton(
+          onPressed: () =>
+              {widget.onAddSet(ejercicioDetallado.setsEntrada!.last)},
+          child: const Text("+ añadir set"),
+        ),
+      ],
     );
   }
 }
@@ -308,6 +308,8 @@ class SetRowState extends State<SetRow> {
   @override
   void dispose() {
     _debounce?.cancel();
+    repsController.dispose();
+    weightController.dispose();
     super.dispose();
   }
 
@@ -549,7 +551,7 @@ class SetRowState extends State<SetRow> {
 
         return [
           Text(
-            "${widget.set.minReps?.toString() ?? '_'} - ${widget.set.maxReps?.toString() ?? '_'} reps",
+            "${widget.set.minReps?.toString() ?? ''} - ${widget.set.maxReps?.toString() ?? ''} ${(widget.set.minReps == null && widget.set.maxReps == null) ? '' : 'reps'}",
             style: TextStyle(
               fontSize: width > webScreenSize ? 16 : 12,
             ),
@@ -568,7 +570,7 @@ class SetRowState extends State<SetRow> {
 
         return [
           Text(
-            "${widget.set.time?.toString() ?? '_'} min",
+            "${widget.set.time?.toString() ?? ''} min",
             style: TextStyle(
               fontSize: width > webScreenSize ? 16 : 12,
             ),
@@ -578,7 +580,7 @@ class SetRowState extends State<SetRow> {
 
         return [
           Text(
-            "${widget.set.maxTime?.toString() ?? '_'} - ${widget.set.maxTime?.toString() ?? '_'} min",
+            "${widget.set.maxTime?.toString() ?? ''} - ${widget.set.maxTime?.toString() ?? '_'} min",
             style: TextStyle(
               fontSize: width > webScreenSize ? 16 : 12,
             ),
@@ -588,7 +590,7 @@ class SetRowState extends State<SetRow> {
 
         return [
           Text(
-            "${widget.set.reps?.toString() ?? '_'} reps",
+            "${widget.set.reps?.toString() ?? ''} reps",
             style: TextStyle(
               fontSize: width > webScreenSize ? 16 : 12,
             ),
@@ -598,10 +600,7 @@ class SetRowState extends State<SetRow> {
   }
 
   List<Widget> _buildLastSessionInputFields(double width) {
-    if (previousToLastSet == null ||
-        previousToLastSet!.reps == null ||
-        previousToLastSet!.time == null ||
-        previousToLastSet!.weight == null) {
+    if (previousToLastSet == null) {
       return [
         Text('N/A',
             overflow: TextOverflow.ellipsis,
@@ -671,43 +670,46 @@ class SetRowState extends State<SetRow> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
+            flex: 1,
             child: Text('${widget.set.setOrder}',
                 style: const TextStyle(fontSize: 16))),
         Flexible(
+          flex: 2,
           child: Wrap(
             alignment: WrapAlignment.spaceBetween,
             children: expectedInputFields,
           ),
         ),
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Center(
               child: Wrap(
                   alignment: WrapAlignment.spaceBetween,
                   children: lastSessionInputFields)),
         ),
         Expanded(
-          flex: width < webScreenSize ? 4 : 2,
-          child: Row(children: inputFields),
+          flex: 4,
+          child: Center(child: Row(children: inputFields)),
         ),
-        Expanded(
-          child: Wrap(
-            children: [
-              // IconButton(
-              //   onPressed: videoFile == null ? _pickVideo : _viewVideo,
-              //   icon: Icon(
-              //       videoFile == null ? Icons.videocam : Icons.play_circle_fill,
-              //       color: Theme.of(context).colorScheme.onPrimaryContainer),
-              // ),
-              if (_lengthRegistroSession() > 1 && !isFirstRegisterInSet)
+        if (_lengthRegistroSession() > 1 && !isFirstRegisterInSet)
+          Expanded(
+            child: Wrap(
+              children: [
+                // IconButton(
+                //   onPressed: videoFile == null ? _pickVideo : _viewVideo,
+                //   icon: Icon(
+                //       videoFile == null ? Icons.videocam : Icons.play_circle_fill,
+                //       color: Theme.of(context).colorScheme.onPrimaryContainer),
+                // ),
+
                 IconButton(
                   onPressed: () => widget.onDeleteSet(),
                   icon: const Icon(Icons.delete),
                   color: Colors.red,
                 ),
-            ],
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
@@ -716,12 +718,12 @@ class SetRowState extends State<SetRow> {
   Widget build(BuildContext context) {
     if (!(_lengthRegistroSession() > 1 && !isFirstRegisterInSet)) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
         child: _buildSetRowItem(),
       );
     } else {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
         child: Dismissible(
           key: ValueKey('set_$widget.set.setId}_${DateTime.now()}'),
           onDismissed: (_) => widget.onDeleteSet(),

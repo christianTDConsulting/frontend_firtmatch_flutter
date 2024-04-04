@@ -257,7 +257,6 @@ class RegisterTrainingState extends State<RegisterTrainingScreen> {
         style: TextStyle(fontSize: 18),
       );
     } else {
-      print(_getActiveSession().registerSessionId);
       return ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

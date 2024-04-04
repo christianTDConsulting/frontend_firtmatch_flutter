@@ -219,6 +219,7 @@ class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
                     : Theme.of(context).colorScheme.background,
                 onChanged: (String? newValue) {
                   newValue != null ? onAtributoChanged(newValue) : null;
+                  loadStatMedidas();
                 },
                 items: dropdownItems,
               ),
@@ -288,7 +289,9 @@ class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
 
                 // Determina los widgets a incluir basado en el tipo de registro
                 List<Widget> rowContent = buildListViewRowContent(medida);
-
+                if (rowContent.isEmpty) {
+                  return Container();
+                }
                 return ListTile(
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -307,7 +310,7 @@ class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
   List<Widget> buildListViewRowContent(Medidas medida) {
     // Lista inicial con el widget de fecha, presente en todos los registros
     double? valorMedidaAtributo = getAttributeValue(medida);
-    if (valorMedidaAtributo == null) return [];
+    if (valorMedidaAtributo == null || valorMedidaAtributo == 0) return [];
     return [
       Expanded(
         flex: 2,

@@ -6,6 +6,7 @@ import 'package:fit_match/screens/client/discover/filtro_screen.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
 import 'package:fit_match/widget/search_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fit_match/services/plantilla_posts_service.dart';
 import 'package:fit_match/widget/post_card/post_card.dart';
@@ -200,6 +201,26 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     final width = MediaQuery.of(context).size.width;
+
+    Widget postList = ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: posts.length + (hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == posts.length) {
+          return hasMore
+              ? const Center(child: CircularProgressIndicator())
+              : const Text("Estás al día");
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
+          child: PreviewPostItem(
+            post: posts[index],
+            showPost: () => _showPost(posts[index]),
+          ),
+        );
+      },
+      controller: _scrollController,
+    );
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -242,29 +263,10 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
           ),
         ),
       ),
-      body: LiquidPullToRefresh(
-        onRefresh: _handleRefresh,
-        color: primary,
-        child: ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: posts.length + (hasMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == posts.length) {
-              return hasMore
-                  ? const Center(child: CircularProgressIndicator())
-                  : const Text("Estás al día");
-            }
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15.0),
-              child: PreviewPostItem(
-                post: posts[index],
-                showPost: () => _showPost(posts[index]),
-              ),
-            );
-          },
-          controller: _scrollController,
-        ),
-      ),
+      body: kIsWeb
+          ? postList
+          : LiquidPullToRefresh(
+              onRefresh: _handleRefresh, color: primary, child: postList),
     );
   }
 }
