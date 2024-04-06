@@ -1,4 +1,6 @@
 import 'package:fit_match/models/user.dart';
+import 'package:fit_match/services/auth_service.dart';
+import 'package:fit_match/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -47,14 +49,11 @@ class ManageUserScreenState extends State<ManageUserScreen> {
                 color: usuario.banned ? Colors.green : Colors.red,
               ),
               onPressed: () {
-                // Aquí, implementa la lógica para banear/desbanear el usuario
-                // Por ejemplo, podrías llamar a una función de tu backend
-                // Esta es solo una representación visual
                 setState(() {
                   usuario.banned = !usuario.banned;
                 });
-                // Aquí llamarías a tu función para actualizar el estado del usuario
-                // Por ejemplo: await banUnbanUser(usuario.user_id, usuario.banned);
+                banUnbanUser(
+                    widget.user.user_id as int, usuario.user_id as int);
               },
             ),
           );
@@ -78,7 +77,7 @@ class ManageUserScreenState extends State<ManageUserScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Notificaciones"),
+          title: const Text("Gestionar usuarios"),
         ),
         body: usuarios.isEmpty
             ? const Center(
@@ -103,7 +102,19 @@ class ManageUserScreenState extends State<ManageUserScreen> {
   }
 
   Future<void> initUsers() async {
-    try {} catch (e) {
+    try {
+      UserMethods()
+          .getAllUsers(widget.user.user_id as int)
+          .then((value) => setState(() => usuarios = value));
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> banUnbanUser(int userId, int banUserId) async {
+    try {
+      UserMethods().banUser(userId, banUserId);
+    } catch (e) {
       print(e);
     }
   }

@@ -11,6 +11,7 @@ const sendOtpUrl = '${url}otp/send';
 // User Management
 const usuariosUrl = '${url}usuarios';
 const usuarioTokenUrl = '${url}usuarioToken';
+const banUserUrl = '${url}usuarios/ban';
 
 // Plantilla (Template) Management
 const plantillaPostsUrl = '${url}plantillaPosts';

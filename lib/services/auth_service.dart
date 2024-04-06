@@ -56,7 +56,7 @@ class AuthMethods {
         } else if (response.statusCode == 403) {
           res = " Por favor, inténtalo más tarde";
         } else {
-          res = "Error, comprueba tus credenciales.";
+          res = json.decode(response.body)['message'];
         }
       } else {
         res = "Por favor escribe tu correo y contraseña.";
@@ -210,6 +210,37 @@ class UserMethods {
         return true;
       } else {
         //usuario encontrado
+        return false;
+      }
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> getAllUsers(int userId) async {
+    try {
+      final response = await http.get(Uri.parse('$usuariosUrl/$userId'));
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body) as List;
+        return jsonData.map((jsonItem) => User.fromJson(jsonItem)).toList();
+      } else {
+        throw Exception(
+            'Error al obtener los usuarios. Código de estado: ${response.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<bool> banUser(int userId, int banUserId) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$banUserUrl/$userId/$banUserId'),
+      );
+      if (response.statusCode == 200) {
+        return true;
+      } else {
         return false;
       }
     } catch (err) {

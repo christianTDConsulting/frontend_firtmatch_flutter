@@ -1,6 +1,7 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/admin/logs/logs_screen.dart';
+import 'package:fit_match/screens/admin/viewBanUsers/manage_user_screen.dart';
 import 'package:fit_match/screens/client/home/home.dart';
 import 'package:fit_match/screens/client/profile/profile_screen.dart';
 import 'package:fit_match/screens/client/training/view_training_templates/view_training_screen.dart';
@@ -183,7 +184,7 @@ List<Widget> buildHomeScreenItems(User user) {
 List<Widget> buildAdminScreenItems(User user) {
   return [
     LogsScreen(user: user),
-    const Text("Users "),
+    ManageUserScreen(user: user),
     const Text("View all "),
     const Text("Exercises"),
     const Text("Profile"),
