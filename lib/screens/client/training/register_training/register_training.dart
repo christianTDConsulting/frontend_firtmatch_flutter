@@ -1,3 +1,4 @@
+import 'package:expandable_text/expandable_text.dart';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
@@ -66,7 +67,12 @@ class RegisterTrainingState extends State<RegisterTrainingScreen> {
   Widget _buildSectionContent(String content) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
-      child: ExpandableText(text: content),
+      child: ExpandableText(
+        content,
+        maxLines: 2,
+        expandText: 'mostrar más',
+        collapseText: 'mostrar menos',
+      ),
     );
   }
 

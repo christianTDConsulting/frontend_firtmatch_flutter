@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:expandable_text/expandable_text.dart';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/utils/dimensions.dart';
@@ -174,9 +175,11 @@ class RegisterCardState extends State<RegisterCard> {
                 children: [
                   const Text("notas: "),
                   ExpandableText(
-                    text: ejercicioDetallado.notes!,
+                    ejercicioDetallado.notes!,
                     maxLines: 2,
                     style: Theme.of(context).textTheme.bodySmall,
+                    expandText: 'mostrar más',
+                    collapseText: 'mostrar menos',
                   ),
                 ],
               ),

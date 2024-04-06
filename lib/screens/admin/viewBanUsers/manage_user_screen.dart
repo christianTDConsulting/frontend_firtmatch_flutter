@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/auth_service.dart';
 import 'package:fit_match/utils/utils.dart';
+import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -14,8 +17,14 @@ class ManageUserScreen extends StatefulWidget {
   }
 }
 
-class ManageUserScreenState extends State<ManageUserScreen> {
+class ManageUserScreenState extends State<ManageUserScreen>
+    with SingleTickerProviderStateMixin {
   List<User> usuarios = [];
+  Timer? _debounce;
+
+  String selectedFilterType = 'Nombre de usuario'; // O 'Correo electrónico'
+  String filterValue = '';
+  String selectedRole = 'Todos'; // O 'Usuario', 'Administrador'
 
   @override
   void initState() {
@@ -38,24 +47,60 @@ class ManageUserScreenState extends State<ManageUserScreen> {
                   ? NetworkImage(usuario.profile_picture!)
                   : null,
               child: usuario.profile_picture == null
-                  ? Icon(Icons.account_circle, size: 40)
+                  ? const Icon(Icons.account_circle, size: 40)
                   : null,
             ),
-            title: Text(usuario.username),
-            subtitle: Text(usuario.email),
-            trailing: IconButton(
-              icon: Icon(
-                usuario.banned ? Icons.remove_circle : Icons.block,
-                color: usuario.banned ? Colors.green : Colors.red,
+            title: Text(
+              usuario.username,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
               ),
-              onPressed: () {
-                setState(() {
-                  usuario.banned = !usuario.banned;
-                });
-                banUnbanUser(
-                    widget.user.user_id as int, usuario.user_id as int);
-              },
             ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  usuario.email,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Rol: ${usuario.profile_id == adminId ? 'Administrador' : 'Cliente'}",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  'Baneado: ${usuario.banned ? 'Si' : 'No'}',
+                  style: TextStyle(
+                      color: usuario.banned ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold),
+                ),
+                // const Text("Biografía: ",
+                //     style:
+                //         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                // ExpandableText(text: usuario.bio ?? ""),
+              ],
+            ),
+            trailing: usuario.profile_id != adminId
+                ? IconButton(
+                    icon: Icon(
+                      usuario.banned ? Icons.remove_circle : Icons.block,
+                      color: usuario.banned ? Colors.green : Colors.red,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        usuario.banned = !usuario.banned;
+                      });
+                      banUnbanUser(
+                          widget.user.user_id as int, usuario.user_id as int);
+                    },
+                  )
+                : null,
           );
         });
 
@@ -78,6 +123,10 @@ class ManageUserScreenState extends State<ManageUserScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Gestionar usuarios"),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight + 50),
+            child: buildFilters(),
+          ),
         ),
         body: usuarios.isEmpty
             ? const Center(
@@ -85,7 +134,7 @@ class ManageUserScreenState extends State<ManageUserScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.notifications_off,
+                      Icons.person_off,
                       size: 60,
                       color: Colors.grey,
                     ),
@@ -101,11 +150,84 @@ class ManageUserScreenState extends State<ManageUserScreen> {
             : usersBody());
   }
 
+  Widget buildFilters() {
+    return Column(children: [
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 16.0,
+        children: [
+          DropdownButton<String>(
+            value: selectedRole,
+            onChanged: (value) {
+              setState(() {
+                selectedRole = value!;
+              });
+              initUsers();
+            },
+            items: ['Todos', 'Cliente', 'Administrador']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          DropdownButton<String>(
+            value: selectedFilterType,
+            onChanged: (value) {
+              setState(() {
+                selectedFilterType = value!;
+                filterValue = ''; // Limpiar el valor del filtro anterior
+              });
+            },
+            items: ['Nombre de usuario', 'Correo electrónico']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+      SearchWidget(
+        text: filterValue,
+        hintText: 'Filtrar por $selectedFilterType',
+        onChanged: (value) {
+          setState(() {
+            filterValue = value;
+          });
+          initUsers(); // Actualizar lista con el nuevo valor del filtro
+        },
+      ),
+    ]);
+  }
+
   Future<void> initUsers() async {
     try {
-      UserMethods()
-          .getAllUsers(widget.user.user_id as int)
-          .then((value) => setState(() => usuarios = value));
+      List<User> fetchedUsers =
+          await UserMethods().getAllUsers(widget.user.user_id as int);
+      // Filtrar por nombre de usuario o correo electrónico
+      if (filterValue.isNotEmpty) {
+        fetchedUsers = fetchedUsers.where((user) {
+          if (selectedFilterType == 'Nombre de usuario') {
+            return user.username
+                .toLowerCase()
+                .contains(filterValue.toLowerCase());
+          } else {
+            return user.email.toLowerCase().contains(filterValue.toLowerCase());
+          }
+        }).toList();
+      }
+      // Filtrar por rol
+      if (selectedRole != 'Todos') {
+        fetchedUsers = fetchedUsers.where((user) {
+          return (selectedRole == 'Administrador' &&
+                  user.profile_id == adminId) ||
+              (selectedRole == 'Cliente' && user.profile_id == clientId);
+        }).toList();
+      }
+      setState(() => usuarios = fetchedUsers);
     } catch (e) {
       print(e);
     }

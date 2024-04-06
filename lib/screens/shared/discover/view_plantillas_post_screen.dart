@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:fit_match/models/post.dart';
 import 'package:fit_match/models/user.dart';
-import 'package:fit_match/screens/client/discover/filtro_screen.dart';
+import 'package:fit_match/screens/shared/discover/filtro_screen.dart';
 import 'package:fit_match/utils/utils.dart';
 import 'package:fit_match/widget/post_card/preview_post_card.dart';
 import 'package:fit_match/widget/search_widget.dart';
@@ -200,7 +200,6 @@ class _ViewTrainersScreenState extends State<ViewTrainersScreen> {
   @override
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
-    final width = MediaQuery.of(context).size.width;
 
     Widget postList = ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),

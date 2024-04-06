@@ -117,19 +117,32 @@ class LogsScreenState extends State<LogsScreen>
               color: log.exito == true ? Colors.green : Colors.red),
           title: Text(
             "IP: ${log.ipAddress}",
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                  "Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(log.fecha)}"),
+                "Fecha: ${DateFormat('dd/MM/yyyy HH:mm').format(log.fecha)}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
               Text(
                 "Email: ${log.email}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
               ),
-              Text("Resultado: ${log.exito ? 'Exitoso' : 'Fallido'}"),
+              Text(
+                "Resultado: ${log.exito ? 'Exitoso' : 'Fallido'}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
             ],
           ),
         ),
@@ -142,16 +155,26 @@ class LogsScreenState extends State<LogsScreen>
           leading: const Icon(Icons.block, color: Colors.red),
           title: Text(
             "IP Bloqueada: ${bloqueo.ipAddress}",
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
           ),
           subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                  "Bloqueo desde: ${DateFormat('dd/MM/yyyy HH:mm').format(bloqueo.timestamp)}"),
+                "Bloqueo desde: ${DateFormat('dd/MM/yyyy HH:mm').format(bloqueo.timestamp)}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
               Text(
-                  "Bloqueo hasta: ${DateFormat('dd/MM/yyyy HH:mm').format(bloqueo.fechaHasta)}"),
+                "Bloqueo hasta: ${DateFormat('dd/MM/yyyy HH:mm').format(bloqueo.fechaHasta)}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
             ],
           ),
         ),

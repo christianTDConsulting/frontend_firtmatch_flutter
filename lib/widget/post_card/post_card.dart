@@ -12,7 +12,7 @@ import 'package:fit_match/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/models/post.dart';
-import 'package:fit_match/widget/expandable_text.dart';
+import 'package:expandable_text/expandable_text.dart';
 import '../../models/review.dart';
 import 'review/review_list.dart';
 import 'review/review_summary.dart';
@@ -118,7 +118,7 @@ class PostCardState extends State<PostCard> {
       MaterialPageRoute(
         builder: (context) => ReviewListWidget(
             reviews: reviews,
-            userId: widget.user.user_id,
+            user: widget.user,
             fullScreen: true,
             onReviewDeleted: (int reviewId) {
               setState(() {
@@ -245,7 +245,8 @@ class PostCardState extends State<PostCard> {
               ),
             ),
           ),
-          if (_lastSessionRegistrada != null)
+          if (_lastSessionRegistrada != null &&
+              widget.user.profile_id != adminId)
             Positioned(
               bottom: 10, // Ajusta la distancia desde el fondo de la pantalla
               left: 0,
@@ -321,7 +322,7 @@ class PostCardState extends State<PostCard> {
           ),
         );
       }).toList(),
-      if (!_isLoadingActivePost)
+      if (!_isLoadingActivePost && widget.user.profile_id != adminId)
         IconButton(
             onPressed: () => _activarPlantilla(),
             icon: _isActive()
@@ -364,6 +365,7 @@ class PostCardState extends State<PostCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         buildSectionTitle('Creado por ${widget.post.username}'),
+        _buildSectionContent(widget.post.bioUser ?? ''),
         if (sectionsMap['Experiencia']!.isNotEmpty)
           buildChipsSection(
               'Experiencia Recomendada', sectionsMap['Experiencia']!),
@@ -385,7 +387,12 @@ class PostCardState extends State<PostCard> {
   Widget _buildSectionContent(String content) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-      child: ExpandableText(text: content),
+      child: ExpandableText(
+        content,
+        maxLines: 5,
+        expandText: 'mostrar más',
+        collapseText: 'mostrar menos',
+      ),
     );
   }
 
@@ -421,7 +428,7 @@ class PostCardState extends State<PostCard> {
           margin: const EdgeInsets.symmetric(horizontal: 30.0),
           child: ReviewSummaryWidget(
               reviews: reviews,
-              userId: widget.user.user_id,
+              user: widget.user,
               templateId: widget.post.templateId,
               onReviewAdded: (Review review) {
                 //se añade en local en vez de obtener todas de nuevo

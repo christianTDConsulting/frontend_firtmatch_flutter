@@ -91,7 +91,7 @@ class RegisterScreenState extends State<RegisterScreen> {
           username: _usernameController.text,
           email: _emailController.text,
           password: _pswController.text,
-          profileId: 2, //2 es el profile del cliente
+          profileId: clientId, //2 es el profile del cliente
           birth: _dobController.text,
           profilePicture: _image,
         );
