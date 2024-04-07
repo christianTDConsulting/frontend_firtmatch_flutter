@@ -111,6 +111,20 @@ class EjerciciosMethods {
     }
   }
 
+  Future<bool> updateEjercicio(Ejercicios ejercicio) async {
+    final response = await http.put(
+      Uri.parse('$ejerciciosUrl/${ejercicio.exerciseId}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(ejercicio.toJson()),
+    );
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Error al editar el ejercicio. Código de estado: ${response.statusCode}');
+    } else {
+      return true;
+    }
+  }
+
   Future<bool> deleteExercise(int ejercicioId) async {
     var uri = Uri.parse('$ejerciciosUrl/$ejercicioId');
     var response = await http.delete(uri);

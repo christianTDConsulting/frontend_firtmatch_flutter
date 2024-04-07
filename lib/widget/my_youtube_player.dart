@@ -40,7 +40,7 @@ class MyYoutubePlayerState extends State<MyYoutubePlayer> {
     }
     _controller = YoutubePlayerController(
       params: const YoutubePlayerParams(
-        showControls: false,
+        showControls: true,
         showFullscreenButton: false,
         loop: true,
       ),

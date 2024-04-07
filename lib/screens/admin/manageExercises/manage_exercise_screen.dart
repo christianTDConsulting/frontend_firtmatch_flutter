@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:collection/collection.dart';
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/screens/client/training/view_training_sessions/exercise/create_exercise_screen.dart';
@@ -12,20 +10,17 @@ import 'package:fit_match/widget/exercise_list_item_seletable.dart';
 import 'package:fit_match/widget/search_widget.dart';
 import 'package:flutter/material.dart';
 
-class ExecriseSelectionScreen extends StatefulWidget {
+class ManageExerciseScreen extends StatefulWidget {
   final User user;
-  final int sessionId;
-  final int groupedDetailedExerciseOrder;
-  const ExecriseSelectionScreen(
-      {super.key,
-      required this.user,
-      required this.sessionId,
-      required this.groupedDetailedExerciseOrder});
+  const ManageExerciseScreen({
+    super.key,
+    required this.user,
+  });
   @override
-  ExecriseSelectionState createState() => ExecriseSelectionState();
+  ManageExerciseScreenState createState() => ManageExerciseScreenState();
 }
 
-class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
+class ManageExerciseScreenState extends State<ManageExerciseScreen> {
   bool _isLoading = false;
   int _currentPage = 1;
   bool _hasMore = true;
@@ -150,69 +145,28 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
     });
   }
 
-  _deleteExercise(Ejercicios exercise) async {
+  _deleteExercise(int exerciseId, {multiple = false}) async {
     try {
-      bool deleted =
-          await EjerciciosMethods().deleteExercise(exercise.exerciseId);
-      if (deleted) {
+      bool deleted = await EjerciciosMethods().deleteExercise(exerciseId);
+      if (deleted && !multiple) {
         showToast(context, 'El ejercicio ha sido eliminado', exitoso: true);
       }
-      _resetAndLoadExercises();
+      if (!multiple) {
+        _resetAndLoadExercises();
+      }
     } catch (e) {
       print(e);
     }
   }
 
-  void _prepareAndNavigateBack(bool modoSuperSet) {
-    List<EjerciciosDetalladosAgrupados> exercisesGroups = [];
-
-    if (modoSuperSet) {
-      // Añadir como super set
-      List<EjercicioDetallado> ejerciciosDetallados =
-          selectedExercisesOrder.entries.map((entry) {
-        Ejercicios? ejercicios =
-            exercises.firstWhereOrNull((e) => e.exerciseId == entry.key);
-        return EjercicioDetallado(
-            exerciseId: entry.key,
-            order: entry.value,
-            registerTypeId: 1,
-            notes: '',
-            setsEntrada: [SetsEjerciciosEntrada(setOrder: 1)],
-            ejercicio: ejercicios);
-      }).toList();
-
-      exercisesGroups.add(EjerciciosDetalladosAgrupados(
-        sessionId: widget.sessionId,
-        order: widget.groupedDetailedExerciseOrder,
-        ejerciciosDetallados: ejerciciosDetallados,
-      ));
-    } else {
-      // Añadir individualmente
-      int currentOrder = widget.groupedDetailedExerciseOrder;
-      for (var entry in selectedExercisesOrder.entries) {
-        Ejercicios? ejercicios =
-            exercises.firstWhereOrNull((e) => e.exerciseId == entry.key);
-        exercisesGroups.add(EjerciciosDetalladosAgrupados(
-          sessionId: widget.sessionId,
-          order: currentOrder++,
-          ejerciciosDetallados: [
-            EjercicioDetallado(
-              exerciseId: entry.key,
-              order: entry.value,
-              registerTypeId: 1,
-              notes: '', // Notas por defecto
-              setsEntrada: [SetsEjerciciosEntrada(setOrder: 1)],
-              ejercicio: ejercicios,
-            ),
-          ],
-        ));
-      }
-    }
-    _navigateBack(exercisesGroups);
-  }
-
-  void _navigateBack(List<EjerciciosDetalladosAgrupados>? exercises) {
-    Navigator.pop(context, exercises);
+  _editExercise(Ejercicios exercise) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CreateExerciseScreen(user: widget.user, exercise: exercise),
+      ),
+    ).then((value) => _resetAndLoadExercises());
   }
 
   void _setLoadingState(bool loading) {
@@ -248,6 +202,52 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
               onChanged: (text) => _onSearchChanged(text),
             )),
         actions: [
+          MouseRegion(
+            cursor: selectedExercisesOrder.isNotEmpty
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.forbidden,
+            child: GestureDetector(
+              onTap: selectedExercisesOrder.isNotEmpty
+                  ? () async {
+                      // Ejecuta la eliminación de ejercicios seleccionados aquí
+                      for (var entry in selectedExercisesOrder.entries) {
+                        await _deleteExercise(entry.key, multiple: true);
+                      }
+                      //En caso de eliminar varios, haremos el reset al final y mostraremos el toast al final
+                      showToast(context, 'Se han eliminado los ejercicios');
+                      _resetAndLoadExercises();
+
+                      setState(() {
+                        selectedExercisesOrder.clear();
+                      });
+                    }
+                  : null,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                      color: selectedExercisesOrder.isNotEmpty
+                          ? Colors.red
+                          : Colors.grey),
+                  color: selectedExercisesOrder.isNotEmpty
+                      ? Colors.white
+                      : Colors.grey[300],
+                ),
+                child: Text(
+                  'Borrar ejercicios${selectedExercisesOrder.isNotEmpty ? ' (${selectedExercisesOrder.length})' : ''}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: selectedExercisesOrder.isNotEmpty
+                        ? Colors.red
+                        : Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+          ),
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -307,7 +307,9 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
                     ejercicio: exercises[index],
                     isSelected: isSelected,
                     order: selectedExercisesOrder[exercises[index].exerciseId],
-                    onDeletedExercise: () => _deleteExercise(exercises[index]),
+                    onDeletedExercise: () =>
+                        _deleteExercise(exercises[index].exerciseId),
+                    onEditExercise: () => _editExercise(exercises[index]),
                     onSelectedEjercicio: (exercise) =>
                         _selectExercise(exercise),
                     onPressedInfo: () async {
@@ -330,52 +332,6 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
               },
             ),
           ),
-          selectedExercisesOrder.isNotEmpty
-              ? _buildPersistentFooterButtons(MediaQuery.of(context).size.width)
-              : Container(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPersistentFooterButtons(num width) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                _prepareAndNavigateBack(false);
-              },
-              child: Text(
-                'Añadir individualmente',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
-                textScaler: width < webScreenSize
-                    ? const TextScaler.linear(1)
-                    : const TextScaler.linear(1.2),
-              ),
-            ),
-          ),
-          selectedExercisesOrder.length > 1
-              ? Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _prepareAndNavigateBack(true);
-                    },
-                    child: Text(
-                      'Añadir como super set',
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                      textScaler: width < webScreenSize
-                          ? const TextScaler.linear(1)
-                          : const TextScaler.linear(1.2),
-                    ),
-                  ),
-                )
-              : Container(),
         ],
       ),
     );
@@ -460,7 +416,6 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<int?>(
-          //dropdownColor: Theme.of(context).colorScheme.primaryContainer,
           menuMaxHeight: 300,
           value: selectedEquipmentId,
           icon: const Icon(Icons.arrow_drop_down),
@@ -468,8 +423,7 @@ class ExecriseSelectionState extends State<ExecriseSelectionScreen> {
             setState(() {
               selectedEquipmentId = newValue;
             });
-            exercises
-                .clear(); // Limpia los ejercicios actuales para cargar los nuevos filtrados
+            exercises.clear();
             _currentPage = 1; // Restablece la paginación
             _resetAndLoadExercises();
           },

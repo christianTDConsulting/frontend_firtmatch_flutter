@@ -7,9 +7,11 @@ import 'package:flutter/material.dart';
 
 class CreateExerciseScreen extends StatefulWidget {
   final User user;
+  final Ejercicios? exercise;
   const CreateExerciseScreen({
     super.key,
     required this.user,
+    this.exercise,
   });
   @override
   CreateExerciseState createState() => CreateExerciseState();
@@ -26,15 +28,24 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
 
   List<Equipment> equipment = [];
   Equipment? selectedEquipment;
+
   bool isLoading = false;
   String? _previewImageUrl;
-  // YoutubePlayerController? _youtubePlayerController;
 
   @override
   void initState() {
     super.initState();
+    _initScreen();
     _initMuscleGroups();
     _initEquipment();
+  }
+
+  Future<void> _initScreen() async {
+    await _initMuscleGroups();
+    await _initEquipment();
+    if (widget.exercise != null) {
+      _loadExerciseData(widget.exercise!);
+    }
   }
 
   @override
@@ -42,12 +53,30 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
     _nameController.dispose();
     _descriptionController.dispose();
     _urlController.dispose();
-    // _youtubePlayerController?.dispose();
 
     super.dispose();
   }
 
-  void _initMuscleGroups() async {
+  void _loadExerciseData(Ejercicios exercise) {
+    _nameController.text = exercise.name;
+    _descriptionController.text = exercise.description ?? '';
+    _urlController.text = exercise.video ?? '';
+
+    final grupoMuscular = muscleGroups.firstWhere(
+      (group) => group.muscleGroupId == exercise.muscleGroupId,
+    );
+
+    final equipo = equipment.firstWhere(
+      (eq) => eq.materialId == exercise.materialId,
+    );
+
+    setState(() {
+      selectedMuscleGroup = grupoMuscular;
+      selectedEquipment = equipo;
+    });
+  }
+
+  Future<void> _initMuscleGroups() async {
     List<GrupoMuscular> groups =
         await EjerciciosMethods().getGruposMusculares();
     setState(() {
@@ -55,27 +84,41 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
     });
   }
 
-  void _initEquipment() async {
+  Future<void> _initEquipment() async {
     List<Equipment> mats = await EjerciciosMethods().getMaterial();
     setState(() {
       equipment = mats;
     });
   }
 
-  Future<void> _createExercise() async {
+  Future<void> _createOrUpdateExercise() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         isLoading = true;
       });
       try {
-        await EjerciciosMethods().createEjercicio(
-          widget.user.user_id as int,
-          _nameController.text,
-          _descriptionController.text,
-          selectedMuscleGroup!.muscleGroupId,
-          selectedEquipment!.materialId,
-          _urlController.text,
-        );
+        if (widget.exercise == null) {
+          // Crear ejercicio
+          await EjerciciosMethods().createEjercicio(
+            widget.user.user_id as int,
+            _nameController.text,
+            _descriptionController.text,
+            selectedMuscleGroup!.muscleGroupId,
+            selectedEquipment!.materialId,
+            _urlController.text,
+          );
+        } else {
+          //Actualizar ejercicio
+          Ejercicios ejercicio = Ejercicios(
+            exerciseId: widget.exercise!.exerciseId,
+            name: _nameController.text,
+            description: _descriptionController.text,
+            muscleGroupId: selectedMuscleGroup!.muscleGroupId,
+            materialId: selectedEquipment!.materialId,
+            video: _urlController.text,
+          );
+          await EjerciciosMethods().updateEjercicio(ejercicio);
+        }
       } catch (e) {
         print(e);
       } finally {
@@ -91,7 +134,9 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crear ejercicio'),
+        title: widget.exercise == null
+            ? const Text('Crear ejercicio')
+            : const Text('Editar ejercicio'),
       ),
       body: Form(
         key: _formKey,
@@ -117,6 +162,7 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
                 maxLines: 3,
               ),
               DropdownButtonFormField<GrupoMuscular>(
+                value: selectedMuscleGroup,
                 decoration: const InputDecoration(labelText: 'Grupo Muscular'),
                 items: muscleGroups
                     .map((group) => DropdownMenuItem(
@@ -150,6 +196,7 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
                 ),
               ],
               DropdownButtonFormField<Equipment>(
+                value: selectedEquipment,
                 decoration: const InputDecoration(labelText: 'Material'),
                 items: equipment
                     .map((mat) => DropdownMenuItem(
@@ -196,7 +243,7 @@ class CreateExerciseState extends State<CreateExerciseScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _createExercise();
+                    _createOrUpdateExercise();
                   }
                 },
                 child: isLoading
