@@ -73,6 +73,7 @@ class LoginScreenState extends State<LoginScreen> {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
             builder: (context) => ResponsiveLayout(
               user: user,
+              initialPage: 0,
             ),
           ));
         }

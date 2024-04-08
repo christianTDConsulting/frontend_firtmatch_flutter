@@ -143,6 +143,7 @@ class RegisterScreenState extends State<RegisterScreen> {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => ResponsiveLayout(
             user: user,
+            initialPage: 0,
           ),
         ));
       }
