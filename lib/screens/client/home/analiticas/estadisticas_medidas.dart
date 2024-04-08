@@ -1,10 +1,9 @@
 import 'package:fit_match/models/ejercicios.dart';
 import 'package:fit_match/models/medidas.dart';
-import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/user.dart';
 
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/charts/chart_medida_widget.dart';
+import 'package:fit_match/widget/charts/chart_medida_widget_zoom.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -25,9 +24,10 @@ class EstadisticasMedidasScreen extends StatefulWidget {
 class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  List<RegistroSet> registros = [];
   String selectedAtributoMedida = "weight";
   bool isLoading = false;
+  bool showListTab = true;
+
   List<StatMedida> statMedidas = [];
 
   double convertUnits(String system, double value, String attribute) {
@@ -239,15 +239,31 @@ class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Center(child: buildGraphView(context)),
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : buildListView(context),
-        ],
+        children: (statMedidas.length > 1)
+            ? [
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : Center(child: buildGraphView(context)),
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : buildListView(context),
+              ]
+            : [
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : buildNotEnoughData(context),
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : buildListView(context),
+              ],
       ),
+    );
+  }
+
+  Widget buildNotEnoughData(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      child: const Text("No hay datos suficientes para realizar una gráfica"),
     );
   }
 
@@ -256,11 +272,16 @@ class EstadisticasMedidasScreenState extends State<EstadisticasMedidasScreen>
   ) {
     return Container(
       margin: const EdgeInsets.all(8.0),
-      child: LineChartMedidaSample(
+      child: ChartMedidaZoom(
         statMedidas: statMedidas,
         unit: getAttributeUnit(widget.user.system, selectedAtributoMedida),
-        // title: getLabelByAttribute(selectedAtributoMedida),
+        title: getLabelByAttribute(selectedAtributoMedida),
       ),
+      //  LineChartMedidaSample(
+      //   statMedidas: statMedidas,
+      //   unit: getAttributeUnit(widget.user.system, selectedAtributoMedida),
+      //   // title: getLabelByAttribute(selectedAtributoMedida),
+      // ),
     );
   }
 

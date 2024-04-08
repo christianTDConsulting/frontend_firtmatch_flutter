@@ -233,5 +233,13 @@ void showDialogExerciseInfo(BuildContext context, String name,
   );
 }
 
+// PROFILE ID
 int adminId = 1;
 int clientId = 2;
+//REGISTER TYPE ID
+int rangoRepsId = 1;
+int objRepsId = 2;
+int repsMaxId = 3;
+int armrapId = 4;
+int tiempoId = 5;
+int rangoTiempoId = 6;

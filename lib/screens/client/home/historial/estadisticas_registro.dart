@@ -3,10 +3,8 @@ import 'package:fit_match/models/registros.dart';
 import 'package:fit_match/models/sesion_entrenamiento.dart';
 import 'package:fit_match/models/user.dart';
 import 'package:fit_match/services/registro_service.dart';
-import 'package:fit_match/utils/dimensions.dart';
 import 'package:fit_match/utils/utils.dart';
-import 'package:fit_match/widget/charts/line_chart_widget.dart';
-import 'package:flutter/foundation.dart';
+import 'package:fit_match/widget/charts/line_chart_widget_zoom.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -89,6 +87,10 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
 
   @override
   Widget build(BuildContext context) {
+    bool showGraphView = widget.session.ejerciciosDetalladosAgrupados != null &&
+        widget.session.ejerciciosDetalladosAgrupados!.length > 1 &&
+        _getRegisterTypeOfActiveDetailedExercise() != armrapId;
+
     List<DropdownMenuItem<int>> dropdownItems = [];
     if (widget.session.ejerciciosDetalladosAgrupados != null) {
       for (var group in widget.session.ejerciciosDetalladosAgrupados!) {
@@ -159,16 +161,32 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
         padding: const EdgeInsets.only(top: 8.0),
         child: TabBarView(
           controller: _tabController,
-          children: [
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Center(child: buildGraphView(context)),
-            isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : buildListView(context),
-          ],
+          children: showGraphView
+              ? [
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Center(child: buildGraphView(context)),
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : buildListView(context),
+                ]
+              : [
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : buildNotEnoughData(context),
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : buildListView(context),
+                ],
         ),
       ),
+    );
+  }
+
+  Widget buildNotEnoughData(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      child: const Text("No hay datos suficientes para realizar una gráfica"),
     );
   }
 
@@ -177,11 +195,16 @@ class _EstadisticasRegistroScreen extends State<EstadisticasRegistroScreen>
   ) {
     int registerTypeId = _getRegisterTypeOfActiveDetailedExercise();
 
-    return LineChartSample(
+    return LineChartZoom(
       registroSet: registros,
       registerTypeId: registerTypeId,
       system: widget.user.system,
     );
+    // return LineChartSample(
+    //   registroSet: registros,
+    //   registerTypeId: registerTypeId,
+    //   system: widget.user.system,
+    // );
   }
 
   Widget buildListView(BuildContext context) {

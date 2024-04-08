@@ -241,13 +241,13 @@ class _LineChartSample extends State<LineChartSample> {
     var date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
     var formattedDate = DateFormat("MMM d").format(date);
 
-    // Evita mostrar la etiqueta si el valor es muy cercano a los extremos desnormalizados
-    if (value <=
-            minXDesnormalized + marginFactor * (originalMaxX - originalMinX) ||
-        value >=
-            maxXDesnormalized - marginFactor * (originalMaxX - originalMinX)) {
-      return const SizedBox.shrink();
-    }
+    // // Evita mostrar la etiqueta si el valor es muy cercano a los extremos desnormalizados
+    // if (value <=
+    //         minXDesnormalized + marginFactor * (originalMaxX - originalMinX) ||
+    //     value >=
+    //         maxXDesnormalized - marginFactor * (originalMaxX - originalMinX)) {
+    //   return const SizedBox.shrink();
+    // }
 
     return SideTitleWidget(
       axisSide: meta.axisSide,
@@ -255,89 +255,11 @@ class _LineChartSample extends State<LineChartSample> {
     );
   }
 
-  // double calculateBottomInterval() {
-  //   final double totalRange = originalMaxX - originalMinX;
-
-  //   const double minVisibleInterval = 86400000; // 1 día en milisegundos.
-
-  //   // Calcula el número de intervalos visibles basado en el ancho del gráfico y un ancho estimado por etiqueta.
-  //   // Ajusta el 'labelWidth' según el tamaño medio de tus etiquetas para evitar el solapamiento.
-  //   double width = MediaQuery.of(context).size.width -
-  //       40; // Ajusta según el padding/margen de tu gráfico.
-  //   const double labelWidth = 60; // Estimación del ancho por etiqueta.
-  //   int numLabels = (width / labelWidth).floor();
-
-  //   // Asegúrate de no dividir por cero.
-  //   if (numLabels == 0) {
-  //     return totalRange; // Solo muestra una etiqueta si no hay suficiente espacio.
-  //   }
-
-  //   // Calcula el intervalo de tiempo (en milisegundos) entre etiquetas para evitar el solapamiento.
-  //   double interval = totalRange / numLabels;
-
-  //   // Asegura que el intervalo no sea menor que el mínimo establecido.
-  //   interval = max(interval, minVisibleInterval);
-
-  //   // Convierte el intervalo de milisegundos a la unidad que estés usando en el eje X.
-  //   // Si estás normalizando las fechas a otro rango (por ejemplo, 0 a 10), necesitarás convertir este intervalo.
-  //   // De lo contrario, si estás usando milisegundos directamente, puedes devolver este valor.
-  //   return normalizeTimestamp(interval, originalMinX, originalMaxX, 0, 10) -
-  //       normalizeTimestamp(0, originalMinX, originalMaxX, 0, 10);
-  // }
-
-  double calculateLabelInterval({
-    required double chartWidth,
-    required int totalLabels,
-    required double minX,
-    required double maxX,
-  }) {
-    // Estimar el espacio mínimo en píxeles que debería haber entre etiquetas para evitar el choque
-    const double minSpacePerLabel = 30.0;
-    // Calcular el número total de intervalos (espacios entre etiquetas) que caben en el ancho del gráfico
-    double maxLabelsAllowed = chartWidth / minSpacePerLabel;
-
-    // Calcular el rango total de valores en el eje X después de la normalización
-    double normalizedRange = maxX - minX;
-
-    // Calcular el intervalo necesario para ajustarse al número máximo de etiquetas permitidas
-    // Dividiendo el rango normalizado entre el número de intervalos (maxLabelsAllowed)
-    // Esta parte calcula cuánto "espacio" en términos de valor normalizado debe haber entre cada etiqueta
-    double normalizedInterval = normalizedRange / maxLabelsAllowed;
-
-    // Calcular cuántos intervalos de datos cabrían entre etiquetas basado en el intervalo normalizado calculado
-    // Redondear hacia arriba para asegurar que no se sobrepongan las etiquetas
-    double dataInterval = (totalLabels / normalizedInterval).ceil().toDouble();
-
-    // Asegurarse de que el intervalo es al menos 1 para evitar la división por cero o intervalos negativos
-    return max(1, dataInterval);
-  }
-
   Widget leftTitleWidgets(
     double value,
     TitleMeta meta,
   ) {
     return const SizedBox.shrink();
-    // const style = TextStyle(
-    //   color: Color(0xff67727d),
-    //   fontWeight: FontWeight.bold,
-    //   fontSize: 15,
-    // );
-
-    // double interval;
-    // if (originalMaxY != originalMinY) {
-    //   interval = (originalMaxY - originalMinY) / 5;
-    // } else {
-    //   interval = 1;
-    // }
-    // double roundedValue = (value / interval).round() * interval;
-    // if (value % interval == 0 ||
-    //     value == originalMinY ||
-    //     value == originalMaxY) {
-    //   return Text(roundedValue.toInt().toString(), style: style);
-    // } else {
-    //   // Retorna un widget vacío para los valores que no coincidan
-    //   return const SizedBox.shrink();
-    // }
   }
 
   LineChartData mainData(double aspectRatio, int totalLabels) {
@@ -438,12 +360,7 @@ class _LineChartSample extends State<LineChartSample> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: calculateLabelInterval(
-              chartWidth: MediaQuery.of(context).size.width,
-              totalLabels: spots.length,
-              minX: minX,
-              maxX: maxX,
-            ),
+            interval: 1,
             getTitlesWidget: leftTitleWidgets,
             reservedSize: 42,
           ),

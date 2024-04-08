@@ -384,17 +384,23 @@ class ReviewListWidgetState extends State<ReviewListWidget> {
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    ImageDetail(imageData: review.profilePicture),
-              ),
-            ),
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(review.profilePicture),
-              radius: 20,
-            ),
+            onTap: () => (review.profilePicture != null &&
+                    review.profilePicture!.isNotEmpty)
+                ? Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ImageDetail(imageData: review.profilePicture!),
+                    ),
+                  )
+                : null,
+            child: (review.profilePicture != null &&
+                    review.profilePicture!.isNotEmpty)
+                ? CircleAvatar(
+                    backgroundImage: NetworkImage(review.profilePicture!),
+                    radius: 20,
+                  )
+                : const Icon(Icons.account_circle, size: 40),
           ),
         ),
         const SizedBox(width: 8),
@@ -519,17 +525,23 @@ class ReviewListWidgetState extends State<ReviewListWidget> {
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ImageDetail(imageData: comentario.profilePicture),
-                ),
-              ),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(comentario.profilePicture),
-                radius: 20,
-              ),
+              onTap: () => (comentario.profilePicture != null &&
+                      comentario.profilePicture!.isNotEmpty)
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ImageDetail(imageData: comentario.profilePicture!),
+                      ),
+                    )
+                  : null,
+              child: (comentario.profilePicture != null &&
+                      comentario.profilePicture!.isNotEmpty)
+                  ? CircleAvatar(
+                      backgroundImage: NetworkImage(comentario.profilePicture!),
+                      radius: 20,
+                    )
+                  : const Icon(Icons.account_circle, size: 40),
             ),
           ),
           const SizedBox(width: 8),
